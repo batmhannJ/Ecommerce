@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://ip-tienda-han-backend.onrender.com/api/seller';
+const API_URL = 'http://localhost:4000/api/seller';
 
 export const sellerSignup = async (data) => {
   const response = await axios.post(`${API_URL}/signup`, data);
@@ -9,7 +9,7 @@ export const sellerSignup = async (data) => {
 
 export const sellerLogin = async (loginData) => {
   try {
-    const response = await axios.post('https://ip-tienda-han-backend.onrender.com/api/seller/login', loginData, {
+    const response = await axios.post('http://localhost:4000/api/seller/login', loginData, {
       headers: {
         'Content-Type': 'application/json', // Ensure data is sent as JSON
       },

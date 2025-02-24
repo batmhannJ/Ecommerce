@@ -17,19 +17,25 @@ const Footer = () => {
     <div className="footer">
       <div className="footer-sections">
         <div className="footer-column">
-          <h3>TIENDA</h3>
+          <h3>BizGo</h3>
           <ul>
             <li>
-              Bridging tradition and
+            A fast and easy
             </li>
             <li>
-              innovation, empowering
+            way for small
             </li>
             <li>
-              indigenous artisans with
+            businesses to sell 
             </li>
             <li>
-              integrity and community.
+            and deliver products
+            </li>
+            <li>
+            anytime, anywhere.
+            </li>
+            <li>
+            and deliver products
             </li>
           </ul>
           </div>
@@ -92,7 +98,7 @@ const Footer = () => {
       </div>
       <div className="footer-copyright">
         <hr />
-        <p>Copyright @ 2024 - All Rights Reserved</p>
+        <p>Copyright @ 2025 - All Rights Reserved</p>
       </div>
     </div>
   );

@@ -56,7 +56,7 @@ const Navbar = () => {
             <img src={navbar_icon} alt="" />
           </Link>
           <Link to="/" style={{ textDecoration: "none" }}>
-            <p>TIENDA</p>
+            <p>BizGo</p>
           </Link>
         </div>
         <SearchBar />

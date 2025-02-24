@@ -59,7 +59,7 @@ export const PlaceOrder = () => {
     const fetchUserData = async () => {
       try {
         const response = await axios.get(
-          "https://ip-tienda-han-backend.onrender.com/api/users",
+          "http://localhost:4000/api/users",
           {
             headers: {
               Authorization: `Bearer ${token}`,

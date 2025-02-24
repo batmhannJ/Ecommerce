@@ -95,7 +95,7 @@ useEffect(() => {
 
     try {
       // Save transaction details to the backend
-      await axios.post("https://ip-tienda-han-backend.onrender.com/api/transactions", {
+      await axios.post("http://localhost:4000/api/transactions", {
         transactionId: referenceNumber,
         date: new Date(),
         name: `${userData.firstName} ${userData.lastName}`,
@@ -110,7 +110,7 @@ useEffect(() => {
       });
 
       // Update stock information
-      await axios.post("https://ip-tienda-han-backend.onrender.com/api/updateStock", {
+      await axios.post("http://localhost:4000/api/updateStock", {
         updates: cartDetails.map((item) => ({
           id: item.id.toString(),
           size: item.size,
@@ -136,7 +136,7 @@ useEffect(() => {
   const fetchOrders = async () => {
     try {
       const response = await axios.get(
-        `https://ip-tienda-han-backend.onrender.com/api/transactions/userTransactions/${userId}`
+        `http://localhost:4000/api/transactions/userTransactions/${userId}`
       );
       const fetchedOrders = Array.isArray(response.data) ? response.data : [];
   
@@ -160,7 +160,7 @@ useEffect(() => {
     fetchOrders();
 
     // Initialize Socket.IO
-    const socket = io("https://ip-tienda-han-backend.onrender.com/myorders");
+    const socket = io("http://localhost:4000/myorders");
 
     // Listen for real-time updates on order status
     socket.on("orderUpdated", (updatedOrder) => {

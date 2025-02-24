@@ -15,7 +15,7 @@ const TransactionManagement = () => {
   const fetchTransactions = async () => {
     try {
       const response = await axios.get(
-        "https://ip-tienda-han-backend.onrender.com/api/transactions"
+        "http://localhost:4000/api/transactions"
       );
       console.log(response.data);
   
@@ -35,7 +35,7 @@ const TransactionManagement = () => {
   const handleDeleteTransaction = async (id, index) => {
     if (window.confirm("Are you sure you want to delete this transaction?")) {
       try {
-        await axios.delete(`https://ip-tienda-han-backend.onrender.com/api/transactions/${id}`); // Adjusted endpoint
+        await axios.delete(`http://localhost:4000/api/transactions/${id}`); // Adjusted endpoint
         // Remove transaction from state after successful delete
         setTransactions(transactions.filter((_, idx) => idx !== index));
         toast.success("Transaction deleted successfully.");

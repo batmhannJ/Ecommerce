@@ -11,14 +11,14 @@ export const ListProduct = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility state
 
   const fetchInfo = async () => {
-    const res = await fetch('https://ip-tienda-han-backend.onrender.com/allproducts');
+    const res = await fetch('http://localhost:4000/allproducts');
     const data = await res.json();
     console.log('Fetched data:', data); // Check what is returned
 
     // Append a timestamp query to force image refresh
   const updatedProducts = data.map(product => ({
     ...product,
-    image: product.image ? `https://ip-tienda-han-backend.onrender.com/images/${product.image}?t=${new Date().getTime()}` : null
+    image: product.image ? `http://localhost:4000/images/${product.image}?t=${new Date().getTime()}` : null
   }));
   console.log('Fetched products with updated images:', updatedProducts); // Log the updated products
 
@@ -27,7 +27,7 @@ export const ListProduct = () => {
   
   const fetchAllProducts = async () => {
     try {
-      const response = await fetch("https://ip-tienda-han-backend.onrender.com/allproducts");
+      const response = await fetch("http://localhost:4000/allproducts");
       if (!response.ok) {
         throw new Error("Failed to fetch products");
       }
@@ -36,7 +36,7 @@ export const ListProduct = () => {
       // Construct the full image URL for each product
       const updatedProducts = allProducts.map(product => ({
         ...product,
-        image: product.image ? `https://ip-tienda-han-backend.onrender.com/images/${product.image}?t=${new Date().getTime()}` : null
+        image: product.image ? `http://localhost:4000/images/${product.image}?t=${new Date().getTime()}` : null
       }));
 
       return updatedProducts;
@@ -52,7 +52,7 @@ export const ListProduct = () => {
 
   const remove_product = async (id) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
-      await fetch('https://ip-tienda-han-backend.onrender.com/removeproduct', {
+      await fetch('http://localhost:4000/removeproduct', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -111,7 +111,7 @@ export const ListProduct = () => {
       formDataToSend.append('image', formData.image);
     }
   
-    const response = await fetch('https://ip-tienda-han-backend.onrender.com/editproduct', {
+    const response = await fetch('http://localhost:4000/editproduct', {
       method: 'POST',
       body: formDataToSend, // No need for 'Content-Type', fetch will handle it automatically
     });

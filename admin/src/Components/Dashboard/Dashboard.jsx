@@ -22,7 +22,7 @@ export const Dashboard = () => {
     const fetchTotalRevenue = async () => {
       try {
         // Fetch from the cleaned-up backend route
-        const response = await fetch('https://ip-tienda-han-backend.onrender.com/api/transactions/totalAmount');
+        const response = await fetch('http://localhost:4000/api/transactions/totalAmount');
 
         console.log('Response status:', response.status);
 
@@ -45,7 +45,7 @@ export const Dashboard = () => {
   useEffect(() => {
     const fetchAverageOrderValue = async () => {
       try {
-        const response = await fetch('https://ip-tienda-han-backend.onrender.com/api/transactions/averageOrderValue');
+        const response = await fetch('http://localhost:4000/api/transactions/averageOrderValue');
         console.log('AOV Response status:', response.status);
   
         if (!response.ok) {
@@ -69,7 +69,7 @@ export const Dashboard = () => {
   useEffect(() => {
     const fetchMostProducedProduct = async () => {
       try {
-        const response = await fetch('https://ip-tienda-han-backend.onrender.com/api/transactions/mostProducedProduct');
+        const response = await fetch('http://localhost:4000/api/transactions/mostProducedProduct');
         console.log('Most Produced Product Response status:', response.status);
   
         if (!response.ok) {
@@ -93,7 +93,7 @@ export const Dashboard = () => {
   useEffect(() => {
     const fetchSalesByProduct = async () => {
       try {
-        const response = await fetch('https://ip-tienda-han-backend.onrender.com/api/transactions/salesByProduct');
+        const response = await fetch('http://localhost:4000/api/transactions/salesByProduct');
         if (!response.ok) throw new Error(`Network response was not ok, status: ${response.status}`);
         const data = await response.json();
         console.log('Sales by Product Data:', data); // Log the data fetched from the backend
@@ -109,7 +109,7 @@ export const Dashboard = () => {
   useEffect(() => {
     const fetchSalesByCategory = async () => {
       try {
-        const response = await fetch('https://ip-tienda-han-backend.onrender.com/api/transactions/salesByCategory');
+        const response = await fetch('http://localhost:4000/api/transactions/salesByCategory');
         if (!response.ok) throw new Error(`Network response was not ok, status: ${response.status}`);
         const data = await response.json();
         console.log('Fetched Sales by Category Data:', data); // Add this line for debugging
@@ -125,7 +125,7 @@ export const Dashboard = () => {
   useEffect(() => {
     const fetchSalesGrowthRate = async () => {
       try {
-        const response = await fetch('https://ip-tienda-han-backend.onrender.com/api/transactions/salesGrowthRate');
+        const response = await fetch('http://localhost:4000/api/transactions/salesGrowthRate');
         if (!response.ok) throw new Error(`Network response was not ok, status: ${response.status}`);
         const data = await response.json();
         console.log('Sales Growth Rate Data:', data);
@@ -141,7 +141,7 @@ export const Dashboard = () => {
   useEffect(() => {
     const fetchTopPurchasesProduct = async () => {
       try {
-        const response = await fetch('https://ip-tienda-han-backend.onrender.com/api/transactions/topPurchasesProduct');
+        const response = await fetch('http://localhost:4000/api/transactions/topPurchasesProduct');
         if (!response.ok) throw new Error(`Network response was not ok, status: ${response.status}`);
         const data = await response.json();
         console.log('Top Purchases Product Data:', data);

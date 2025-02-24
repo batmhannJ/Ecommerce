@@ -71,7 +71,7 @@ const LoginSignup = () => {
     }
 
     try {
-      const response = await fetch("https://ip-tienda-han-backend.onrender.com/send-otp", {
+      const response = await fetch("http://localhost:4000/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: formData.email }),
@@ -98,7 +98,7 @@ const LoginSignup = () => {
     }
 
     try {
-      const response = await fetch("https://ip-tienda-han-backend.onrender.com/verify-otp", {
+      const response = await fetch("http://localhost:4000/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -138,7 +138,7 @@ const LoginSignup = () => {
     }
 
     try {
-      const response = await fetch("https://ip-tienda-han-backend.onrender.com/reset-password", {
+      const response = await fetch("http://localhost:4000/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -175,7 +175,7 @@ const LoginSignup = () => {
     }
 
     try {
-      const response = await fetch("https://ip-tienda-han-backend.onrender.com/forgot-password", {
+      const response = await fetch("http://localhost:4000/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: emailForReset }),
@@ -223,7 +223,7 @@ const LoginSignup = () => {
     }
 
     try {
-      const response = await fetch("https://ip-tienda-han-backend.onrender.com/login", {
+      const response = await fetch("http://localhost:4000/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -258,7 +258,7 @@ const LoginSignup = () => {
 
     console.log("Signup Function Executed", formData);
     let responseData;
-    await fetch("https://ip-tienda-han-backend.onrender.com/signup", {
+    await fetch("http://localhost:4000/signup", {
       method: "POST",
       headers: {
         Accept: "application/json",

@@ -51,8 +51,7 @@ const AccountSettings = () => {
       console.log("Auth Token:", authToken); // Log this to ensure the token is correct
 
       try {
-        const response = await axios.get(`https://ip-tienda-han-backend.onre
-nder.com/api/superadmin/${userId}`, {
+        const response = await axios.get(`http://localhost:4000/api/superadmin/${userId}`, {
           headers: {
             Authorization: `Bearer ${authToken}`, // Adjusted to use the correct token
           },
@@ -102,8 +101,7 @@ nder.com/api/superadmin/${userId}`, {
 
       try {
         const response = await axios.patch(
-          `https://ip-tienda-han-backend.onre
-nder.com/api/editsuperadmin/${adminId}`, // Ensure this is correct
+          `http://localhost:4000/api/editsuperadmin/${adminId}`, // Ensure this is correct
           updateData, // Send only the data we want to update
           {
             headers: {

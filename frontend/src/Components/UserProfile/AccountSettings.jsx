@@ -34,7 +34,7 @@ const AccountSettings = () => {
       try {
         // Fetch user data for the currently logged-in user
         const response = await fetch(
-          `https://ip-tienda-han-backend.onrender.com/api/users/${userId}`,
+          `http://localhost:4000/api/users/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${authToken}`,
@@ -84,7 +84,7 @@ const AccountSettings = () => {
       const userId = getUserIdFromToken();
       try {
         const response = await axios.patch(
-          `https://ip-tienda-han-backend.onrender.com/api/edituser/${userId}`,
+          `http://localhost:4000/api/edituser/${userId}`,
           { name: formData.name, email: formData.email, phone: formData.phone }
         );
         console.log("User updated successfully:", response.data);

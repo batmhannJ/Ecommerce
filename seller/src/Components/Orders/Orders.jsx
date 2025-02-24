@@ -6,13 +6,13 @@ import { io } from "socket.io-client"; // Import Socket.IO client
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
-  const socket = io("https://ip-tienda-han-backend.onrender.com"); // Connect to Socket.IO server
+  const socket = io("http://localhost:4000"); // Connect to Socket.IO server
 
   // Fetch all orders (transactions)
   // Fetch all orders (transactions)
 const fetchAllOrders = async () => {
   try {
-    const response = await fetch("https://ip-tienda-han-backend.onrender.com/api/transactions"); // Fetch transaction data
+    const response = await fetch("http://localhost:4000/api/transactions"); // Fetch transaction data
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
@@ -35,7 +35,7 @@ const statusHandler = async (event, transactionId) => {
   if (window.confirm(`Are you sure you want to change the status to "${newStatus}"?`)) {
     try {
       const response = await fetch(
-        `https://ip-tienda-han-backend.onrender.com/api/transactions/${transactionId}`,
+        `http://localhost:4000/api/transactions/${transactionId}`,
         {
           method: "PATCH", // Using PATCH to update
           headers: {

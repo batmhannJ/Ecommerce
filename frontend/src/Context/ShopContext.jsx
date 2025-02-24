@@ -80,7 +80,7 @@ const ShopContextProvider = (props) => {
 
     const authToken = localStorage.getItem("auth-token");
     if (authToken) {
-      fetch("https://ip-tienda-han-backend.onrender.com/getcart", {
+      fetch("http://localhost:4000/getcart", {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -96,7 +96,7 @@ const ShopContextProvider = (props) => {
 
   const fetchAllProducts = async () => {
     try {
-      const response = await fetch("https://ip-tienda-han-backend.onrender.com/allproducts");
+      const response = await fetch("http://localhost:4000/allproducts");
       if (!response.ok) {
         throw new Error("Failed to fetch products");
       }
@@ -106,10 +106,10 @@ const ShopContextProvider = (props) => {
       const updatedProducts = allProducts.map((product) => {
         // Determine which image to display: edited or main
         const mainImage = product.image
-          ? `https://ip-tienda-han-backend.onrender.com/images/${product.image}`
+          ? `http://localhost:4000/images/${product.image}`
           : null;
         const editedImage = product.editedImage
-          ? `https://ip-tienda-han-backend.onrender.com/images/${product.editedImage}`
+          ? `http://localhost:4000/images/${product.editedImage}`
           : null; // Assuming editedImage is stored in the product object
 
         // Choose the edited image if it exists; otherwise, use the main image
@@ -151,7 +151,7 @@ const ShopContextProvider = (props) => {
   const fetchCartItems = async (userId) => {
     try {
       const response = await axios.get(
-        `https://ip-tienda-han-backend.onrender.com/api/cart/${userId}`,
+        `http://localhost:4000/api/cart/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("auth-token")}`,
@@ -179,7 +179,7 @@ const ShopContextProvider = (props) => {
     // First, get the existing cart
     try {
       const response = await axios.get(
-        `https://ip-tienda-han-backend.onrender.com/api/cart/${userId}`
+        `http://localhost:4000/api/cart/${userId}`
       );
       const existingCart = response.data.cartItems;
 
@@ -202,7 +202,7 @@ const ShopContextProvider = (props) => {
       }
 
       // Send the updated cart back to the server
-      await axios.post("https://ip-tienda-han-backend.onrender.com/api/cart", {
+      await axios.post("http://localhost:4000/api/cart", {
         userId,
         cartItems: existingCart,
       });
@@ -211,7 +211,7 @@ const ShopContextProvider = (props) => {
       if (error.response && error.response.status === 404) {
         console.warn("Cart not found, creating a new one.");
         // Create a new cart if it doesn't exist
-        await axios.post("https://ip-tienda-han-backend.onrender.com/api/cart", {
+        await axios.post("http://localhost:4000/api/cart", {
           userId,
           cartItems: [
             {
@@ -262,12 +262,12 @@ const ShopContextProvider = (props) => {
 
       // Send DELETE request to backend
       await axios.delete(
-        `https://ip-tienda-han-backend.onrender.com/api/cart/${userId}/${productId}?selectedSize=${selectedSize}`
+        `http://localhost:4000/api/cart/${userId}/${productId}?selectedSize=${selectedSize}`
       );
 
       // Refetch the cart to ensure consistency
       const response = await axios.get(
-        `https://ip-tienda-han-backend.onrender.com/api/cart/${userId}`
+        `http://localhost:4000/api/cart/${userId}`
       );
       setCartItems(response.data.cartItems);
     } catch (error) {
@@ -284,7 +284,7 @@ const ShopContextProvider = (props) => {
       }
   
       // Call backend API to clear cart items in the database
-      await axios.delete(`https://ip-tienda-han-backend.onrender.com/api/cart/${userId}`, {
+      await axios.delete(`http://localhost:4000/api/cart/${userId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("auth-token")}`,
         },
@@ -325,7 +325,7 @@ const ShopContextProvider = (props) => {
       const currentItem = cartItems[itemIndex];
   
       try {
-        const response = await axios.get(`https://ip-tienda-han-backend.onrender.com/api/products/${productId}`);
+        const response = await axios.get(`http://localhost:4000/api/products/${productId}`);
         const productData = response.data;
   
         if (productData && productData[`${selectedSize.toLowerCase()}_stock`] !== undefined) {
@@ -348,7 +348,7 @@ const ShopContextProvider = (props) => {
             // Update the quantity in the database
             try {
               const updateResponse = await axios.patch(
-                `https://ip-tienda-han-backend.onrender.com/api/cart/${userId}/${productId}?selectedSize=${selectedSize}`,
+                `http://localhost:4000/api/cart/${userId}/${productId}?selectedSize=${selectedSize}`,
                 { quantity: updatedQuantity }
               );
               console.log("Cart updated in database successfully:", updateResponse.data);
@@ -407,7 +407,7 @@ const decreaseItemQuantity = async (productId, selectedSize) => {
       // Update the database
       try {
         const updatedQuantity = currentQuantity - 1; // New quantity to update in the database
-        const response = await axios.patch(`https://ip-tienda-han-backend.onrender.com/api/cart/${userId}/${productId}?selectedSize=${selectedSize}`, { quantity: updatedQuantity });
+        const response = await axios.patch(`http://localhost:4000/api/cart/${userId}/${productId}?selectedSize=${selectedSize}`, { quantity: updatedQuantity });
         console.log("Cart updated in database successfully:", response.data);
       } catch (error) {
         console.error("Error updating cart in database:", error.response ? error.response.data : error.message);
@@ -418,7 +418,7 @@ const decreaseItemQuantity = async (productId, selectedSize) => {
 
       // Remove item from the database
       try {
-        const response = await axios.delete(`https://ip-tienda-han-backend.onrender.com/api/cart/${userId}/${productId}?selectedSize=${selectedSize}`);
+        const response = await axios.delete(`http://localhost:4000/api/cart/${userId}/${productId}?selectedSize=${selectedSize}`);
         console.log("Item removed from cart in database successfully:", response.data);
       } catch (error) {
         console.error("Error removing item from cart in database:", error.response ? error.response.data : error.message);

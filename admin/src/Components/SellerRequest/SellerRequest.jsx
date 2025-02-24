@@ -28,7 +28,7 @@ function SellerRequest() {
     setLoading(true);
     try {
       const response = await axios.get(
-        "https://ip-tienda-han-backend.onrender.com/api/seller/pending",
+        "http://localhost:4000/api/seller/pending",
         {
           headers: {
             Authorization: `Bearer ${adminToken}`,
@@ -54,7 +54,7 @@ function SellerRequest() {
     setApproving(true);
     try {
       const response = await axios.patch(
-        `https://ip-tienda-han-backend.onrender.com/api/seller/${id}/approve`, // Ensure this route matches your backend
+        `http://localhost:4000/api/seller/${id}/approve`, // Ensure this route matches your backend
         {},
         {
           headers: {
@@ -88,7 +88,7 @@ function SellerRequest() {
 
     try {
       const response = await axios.delete(
-        `https://ip-tienda-han-backend.onrender.com/api/seller/${id}`,
+        `http://localhost:4000/api/seller/${id}`,
         {
           headers: {
             Authorization: `Bearer ${adminToken}`,
@@ -140,7 +140,7 @@ function SellerRequest() {
                 <td>{seller.email}</td>
                 <td>
                   <img
-                    src={`https://ip-tienda-han-backend.onrender.com/upload/${seller.idPicture}`} // Adjust this path to match your server's setup
+                    src={`http://localhost:4000/upload/${seller.idPicture}`} // Adjust this path to match your server's setup
                     alt="ID Picture"
                     style={{ width: "100px", height: "auto" }} // You can adjust the size as needed
                   />

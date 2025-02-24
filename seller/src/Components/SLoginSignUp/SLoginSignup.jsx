@@ -130,7 +130,7 @@ const SLoginSignup = () => {
     console.log('Verifying OTP with data:', { email, otp, newPassword });
   
     try {
-      const response = await axios.post('https://ip-tienda-han-backend.onrender.com/api/seller/verify-otp-seller', {
+      const response = await axios.post('http://localhost:4000/api/seller/verify-otp-seller', {
         email,
         otp,
         newPassword,

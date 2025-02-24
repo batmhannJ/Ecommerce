@@ -1,0 +1,91 @@
+.userprofile {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 100px; /* Space for the footer */
+}
+
+.userprofilein {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin-top: 10vh;
+    gap: 20px;
+}
+
+.userprofile .userprofilein .left {
+    width: 20%;
+    border: 1px solid rgb(207, 207, 207);
+    border-radius: 5px;
+    min-height: 50vh; /* Ensure a minimum height for the sidebar */
+    padding: 10px; /* Add padding for better spacing */
+    margin-bottom: 10px; /* Adjust bottom margin */
+}
+
+.userprofile .userprofilein .right {
+    width: 60%;
+    border: 1px solid rgb(207, 207, 207);
+    border-radius: 5px;
+    min-height: 50vh; /* Ensure a minimum height for the content area */
+    padding: 20px; /* Add padding for content */
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Space between items */
+}
+
+/* Card style for content in the right section */
+.userprofile .userprofilein .right .card {
+    background-color: #fff; /* Card background */
+    border: 1px solid rgb(207, 207, 207); /* Light border */
+    border-radius: 8px; /* Rounded corners */
+    padding: 15px; /* Inner padding for cards */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+    .userprofilein {
+        flex-direction: column; /* Stack left and right sections */
+        align-items: center; /* Center align items */
+    }
+
+    .userprofile .userprofilein .left {
+        width: 100%; /* Full width for sidebar on smaller screens */
+        min-height: 10vh; /* Reduced minimum height for the left sidebar */
+    }
+
+    .userprofile .userprofilein .right {
+        width: 100%; /* Full width for content area on smaller screens */
+        min-height: 20vh; /* Reduced minimum height for the right content area */
+    }
+}
+
+@media (max-width: 768px) {
+    .userprofilein {
+        margin-top: 5vh; /* Reduce margin for smaller screens */
+    }
+
+    .userprofile .userprofilein .left {
+        min-height: 30vh; /* Further reduce minimum height for smaller screens */
+    }
+
+    .userprofile .userprofilein .right {
+        min-height: 30vh; /* Further reduce minimum height for smaller screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .userprofile .userprofilein .left {
+        padding: 5px; /* Reduce padding for sidebar on very small screens */
+        min-height: 20vh; /* Set a minimum height for very small screens */
+    }
+
+    .userprofile .userprofilein .right {
+        padding: 10px; /* Reduce padding for content area on very small screens */
+        min-height: 20vh; /* Set a minimum height for very small screens */
+    }
+
+    .userprofile .userprofilein .right .card {
+        padding: 10px; /* Adjust padding for cards on very small screens */
+    }
+}
+    

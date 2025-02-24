@@ -1,0 +1,177 @@
+
+
+.login-container {
+  width: 100%;
+  height: 100vh;
+  background-image: url(admin/src/assets/login_image.png);
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+
+.login-box {
+  width: 100%;
+  max-width: 400px;
+  padding: 50px;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  color: #2c3e50;
+}
+
+.login-box h1 {
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+.login-box label {
+  display: block;
+  margin: 10px 0 5px;
+  font-size: 14px;
+  color: #34495e;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #BDC3C7;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.login-box button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 4px;
+  background: #2c3e50;
+  color: #ffffff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.login-box button:hover {
+  background: #263544;
+  transform: scale(0.95);
+}
+
+.login-box button:active {
+  transform: scale(1);
+}
+
+.password-error {
+  color: red;
+  font-size: 0.9em;
+  margin-top: 0.5em;
+}
+
+.password-container {
+  position: relative;
+  margin-bottom: 20px; /* Space below the input */
+}
+
+.password-container label {
+  display: block; /* Block display for label */
+  margin-bottom: 5px; /* Space below the label */
+  color: #34495e; /* Primary color for label */
+}
+
+.password-container input {
+  width: 100%; /* Full width */
+  padding: 12px; /* Padding inside the input */
+  border: 1px solid #c9c9c9; /* Border color */
+  border-radius: 5px; /* Rounded corners */
+  font-size: 16px; /* Base font size */
+  color: #5c5c5c; /* Input text color */
+  transition: border-color 0.3s; /* Smooth transition for border color */
+}
+
+.password-container input:focus {
+  border-color: #BAC195; /* Focus border color */
+  outline: none; /* Remove default outline */
+}
+
+.eye-icon {
+  cursor: pointer; /* Pointer cursor for icon */
+  position: absolute; /* Position icon relative to the container */
+  right: 10px; /* Distance from the right */
+  top: 50%; /* Center the icon vertically */
+  transform: translateY(-50%); /* Adjust vertical position */
+  font-size: 20px; /* Size of the icon */
+  color: #000000; /* Icon color */
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+  .password-container input {
+      padding: 10px; /* Adjust padding for smaller screens */
+      font-size: 14px; /* Smaller font size for input */
+  }
+
+  .eye-icon {
+      font-size: 18px; /* Slightly smaller icon size on mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .password-container input {
+      padding: 8px; /* Further reduce padding on extra small screens */
+      font-size: 12px; /* Smaller font size */
+  }
+
+  .eye-icon {
+      font-size: 16px; /* Smaller icon size for mobile */
+  }
+}
+
+
+@media (max-width: 768px) {
+  .login-box {
+    padding: 30px;
+  }
+
+  .login-box h1 {
+    font-size: 18px;
+  }
+
+  .login-box input {
+    width: 80%;
+    font-size: 13px;
+    padding: 8px;
+  }
+
+  .login-box button {
+    width: 80%;
+    font-size: 14px;
+    padding: 8px;
+  }
+}
+
+@media (max-width: 500px) {
+  .login-box {
+    padding: 15px;
+    width: 60%;
+  }
+
+  .login-box h1 {
+    font-size: 15px;
+  }
+
+  .login-box input {
+    font-size: 11px;
+    padding: 8px;
+  }
+
+  .login-box button {
+    font-size: 14px;
+    padding: 8px;
+  }
+}

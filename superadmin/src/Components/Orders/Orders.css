@@ -1,0 +1,111 @@
+.order {
+  margin: 0 100px;
+}
+
+.order h3 {
+  margin: 22px 0;
+  font-size: 24px; /* Increased font size */
+  color: #333333; /* Darker color for better contrast */
+  font-weight: bold; /* Bold font weight */
+  padding: 10px; /* Added padding */
+  text-align: center; /* Center align the text */
+}
+
+
+.order {
+  margin-top: 20px;
+  padding: 20px;
+  width: 1000px;
+  height: 670px; /* Set the desired height */
+  overflow-y: auto; /* Allow vertical scrolling */
+  border-radius: 10px; /* Optional: Round the corners */
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Add shadow effect */
+}
+
+
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.order-item {
+  display: grid;
+  grid-template-columns: 0.5fr 2fr 1fr 1fr 1fr;
+  align-items: start;
+  gap: 30px;
+  border: 1px solid #333;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+  color: #505050;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.order-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.order-item-food, .order-item-name {
+  font-weight: 600;
+}
+
+.order-item-name {
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.order-item-address {
+  margin-bottom: 10px;
+}
+
+.order-item select {
+  background-color: #f6f6f6;
+  border: 1px solid #778c62;
+  width: max(10vw, 140px);
+  padding: 10px;
+  outline: none;
+  border-radius: 5px;
+  transition: transform 0.3s ease;
+}
+
+.order-item select:hover {
+  transform: scale(1.02);
+  background-color: #e6e6e6;
+}
+
+.order-item img {
+  width: 60px;
+  height: auto;
+  border-radius: 5px;
+}
+
+@media (max-width: 1000px) {
+  .order {
+    margin: 0 20px;
+  }
+
+  .order h3 {
+    margin: 30px 0;
+    font-size: 18px;
+  }
+
+  .order-item {
+    font-size: 12px;
+    grid-template-columns: 0.5fr 2fr 1fr;
+    padding: 15px 8px;
+  }
+
+  .order-item select {
+    padding: 5px;
+    font-size: 12px;
+  }
+
+  .order-item img {
+    width: 40px;
+  }
+}

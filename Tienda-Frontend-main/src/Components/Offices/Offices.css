@@ -1,0 +1,244 @@
+.offices {
+  padding: 10px;
+}
+
+.offices-content {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); /* 6 columns */
+  margin-top: 100px;
+  gap: 10px; /* Add some gap between items */
+}
+
+.offices-content img {
+  width: 90%; /* Adjust width to make images smaller */
+  height: auto; /* Maintain aspect ratio */
+  object-fit: cover; /* Cover the space without stretching */
+  margin: 20px auto; /* Center images horizontally and add vertical margin */
+  max-width: 150px; /* Set a max width to control the size */
+  transition: transform 0.3s ease, border 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for scaling, border color, and shadow */
+  border: 2px solid transparent; /* Default border */
+  border-radius: 5px; /* Optional: Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Default shadow */
+}
+
+.offices-content img:hover {
+  transform: scale(1.05); /* Slightly enlarge image on hover */
+  border: 0.5px solid rgb(136, 84, 11); /* Change border color to orange on hover */
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1); /* Increased shadow on hover */
+}
+
+.offices h1 {
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2.5rem;
+  color: #333;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  text-align: center;
+  z-index: 2;
+  margin-top: 70px;
+  margin-bottom: -10px;
+}
+
+.offices h1:hover {
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+/* Responsive Styles for Grid */
+@media (max-width: 1200px) {
+  .offices-content {
+    grid-template-columns: repeat(4, 1fr); /* 4 columns for medium screens */
+  }
+}
+
+@media (max-width: 992px) {
+  .offices-content {
+    grid-template-columns: repeat(3, 1fr); /* 3 columns for smaller screens */
+  }
+}
+
+@media (max-width: 768px) {
+  .offices-content {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns for tablets */
+  }
+}
+
+@media (max-width: 506px) {
+  .offices-content {
+    grid-template-columns: 1fr; /* 1 column for mobile screens */
+  }
+
+  .offices h1 {
+    font-size: 20px;
+  }
+}
+
+/* Newsletter Section */
+.newsletter {
+  width: 100%;
+  height: 70vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 90px;
+  margin-bottom: 100px;
+  position: relative;
+  overflow: hidden;
+  padding-top: 120px;
+}
+
+.newsletter img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.newsletter img:hover {
+  transform: scale(1.02);
+}
+
+.newsletter-form {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  width: calc(100% - 40px);
+  max-width: 700px;
+  height: 60px;
+  border-radius: 30px;
+  border: 1px solid #e3e3e3;
+  padding: 0 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  gap: 10px;
+}
+
+.newsletter input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 0 15px;
+  font-size: 16px;
+  color: #616161;
+  font-family: Poppins, sans-serif;
+}
+
+.newsletter button {
+  width: 160px;
+  height: 45px;
+  border-radius: 30px;
+  background: black;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.newsletter button:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.newsletter button:active {
+  transform: scale(0.95);
+}
+
+.newsletter h1 {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2.5rem;
+  color: #333;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  text-align: center;
+  z-index: 2;
+  margin-top: 20px;
+}
+
+.newsletter h1:hover {
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+/* Responsive Styles for Newsletter */
+@media (max-width: 1200px) {
+  .newsletter {
+    padding: 0 60px;
+  }
+}
+
+@media (max-width: 992px) {
+  .newsletter {
+    padding: 0 40px;
+    margin-bottom: 80px;
+  }
+
+  .newsletter-form {
+    height: 50px;
+    width: calc(100% - 30px);
+    max-width: 600px;
+    padding: 0 15px;
+  }
+
+  .newsletter button {
+    width: 140px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .newsletter {
+    padding: 0 20px;
+    margin-bottom: 60px;
+  }
+
+  .newsletter-form {
+    height: 45px;
+    width: calc(100% - 20px);
+    max-width: 500px;
+    padding: 0 10px;
+  }
+
+  .newsletter button {
+    width: 120px;
+    height: 35px;
+  }
+}
+
+@media (max-width: 506px) {
+  .newsletter {
+    height: 70vh;
+    padding: 0 10px;
+    margin-bottom: 40px;
+  }
+
+  .newsletter-form {
+    height: 40px;
+    max-width: 300px;
+    padding: 0 5px;
+  }
+
+  .newsletter input {
+    font-size: 11px;
+  }
+
+  .newsletter img {
+    width: 60vh;
+    height: 18vh;
+  }
+
+  .newsletter button {
+    width: 80px;
+    height: 25px;
+    font-size: 11px;
+  }
+}

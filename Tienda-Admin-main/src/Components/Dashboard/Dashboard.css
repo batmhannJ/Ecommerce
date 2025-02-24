@@ -1,0 +1,180 @@
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center the dashboard horizontally */
+    width: 100%;
+    max-width: 1200px; /* Matches the max-width of the dashboard */
+    max-height: 100vh; /* Ensure it does not exceed viewport height */
+    overflow-y: auto; /* Adds vertical scroll if content overflows */
+    margin-left: auto; /* Center the container if the sidebar takes full height */
+    margin-right: auto;
+    padding: 0 10px; /* Add padding to ensure content does not touch edges */
+}
+
+/* Existing Dashboard Styles */
+.dashboard {
+    padding: 90px; /* Adjust the padding as needed for spacing inside the container */
+    min-height: 100vh; /* Ensures the dashboard takes up at least the full viewport height */
+    min-width: 320px; /* Minimum width for the dashboard */
+    font-family: 'Poppins', sans-serif; /* Font for the dashboard */
+    width: 100%; /* Ensures the background spans the full width */
+    max-width: 1200px; /* Ensures the maximum width */
+    box-sizing: border-box; /* Ensures padding is included in the element's total width and height */
+    margin-left: 10px; /* Moves the entire dashboard to the right */
+    margin-right: auto; /* Keeps the right margin automatic */
+}
+
+/* Dashboard Heading */
+.dashboard h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-top: -70px; /* Adjusted to move the heading higher */
+    margin-bottom: 40px;
+    font-size: 2.5rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Metrics Section */
+.dashboard-metrics {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 25px;
+    margin-bottom: 50px;
+}
+
+.metric-box {
+    background: linear-gradient(145deg, #ffffff, #f0f0f0);
+    border-radius: 15px;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    padding: 10px;
+    text-align: center;
+    width: 30%; /* Adjusted width for better responsiveness */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #ddd;
+}
+
+.export-button-container {
+    display: flex;
+    justify-content: flex-end; /* Aligns the button to the right */
+    margin-top: -20px;
+    margin-bottom: 10px;
+  }
+  
+.metric-box:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}
+
+.metric-box h3 {
+    color: #34495e;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+}
+
+.metric-box p {
+    font-size: 1.5rem;
+    color: #1abc9c;
+    font-weight: 700;
+}
+
+/* General chart styles */
+.chart-container {
+    display: flex;
+    flex-wrap: wrap; /* Allows charts to wrap on smaller screens */
+    gap: 15px; /* Reduced gap between charts */
+    margin-bottom: 30px; /* Space between charts and other sections */
+}
+
+/* Sales Growth Rate Graph */
+.chart1 {
+    flex: 1;
+    max-width: 100%; /* Adjusts to the container width */
+    max-height: 310px; /* Constrained height */
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-right: 0; /* Removed right margin for wrapping */
+}
+
+
+/* Sales by Product Graph */
+.chart2 {
+    flex: 1;
+    max-width: 100%; /* Adjusts to the container width */
+    height: 510px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    padding: 30px;
+    margin-left: 0; /* Removed left margin for wrapping */
+}
+
+/* Sales by Category Graph */
+.chart3 {
+    flex: 1;
+    width: 48%; /* Set width while allowing flexibility */
+    max-width: 100%; /* Ensures it doesn't exceed the container width */
+    max-height: 310px; /* Constrained height */
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    padding: 30px;
+    box-sizing: border-box; /* Ensure padding is included in the width */
+    display: flex; /* Use flexbox to center content */
+    flex-direction: column; /* Arrange items vertically */
+    align-items: center; /* Center items horizontally */
+    justify-content: center; /* Center items vertically */
+    margin: 0 auto; /* Center the chart horizontally */
+}
+
+/* Heading styles for each chart */
+.chart1 h1, .chart2 h1, .chart3 h1 {
+    color: #34495e;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Responsive Design for Charts */
+@media (max-width: 768px) {
+    .dashboard h1 {
+        font-size: 2rem;
+    }
+
+    .chart-container {
+        flex-direction: column; /* Stacks charts vertically on small screens */
+    }
+
+    .metric-box {
+        width: 100%; /* Full width on small screens */
+    }
+
+    .chart1, .chart2, .chart3 {
+        margin-bottom: 25px; /* Space between stacked charts */
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard h1 {
+        font-size: 1.8rem;
+    }
+
+    .metric-box {
+        width: 95%; /* Adjusted width for better fit */
+    }
+
+    .metric-box p {
+        font-size: 1.8rem;
+    }
+
+    .chart1 h3, .chart2 h3, .chart3 h3 {
+        font-size: 1.3rem;
+    }
+}

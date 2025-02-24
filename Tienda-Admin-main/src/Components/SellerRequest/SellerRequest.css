@@ -1,0 +1,93 @@
+.seller-management-container {
+  margin-top: 20px;
+  padding: 20px;
+  width: 1000px;
+  height: 670px; /* Set the desired height */
+  overflow-y: auto; /* Allow vertical scrolling */
+  border-radius: 10px; /* Optional: Round the corners */
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Add shadow effect */
+  margin-left: 100px;
+}
+
+.seller-management-container h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center; /* Center the heading */
+}
+
+.seller-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.seller-table th,
+.seller-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+
+.seller-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+  color: #333;
+}
+
+.seller-table td {
+  color: #333;
+}
+
+.seller-table img {
+  width: 100px;
+  height: auto; /* Maintain aspect ratio */
+  border-radius: 4px; /* Optional: Rounded corners for images */
+}
+
+.action-button {
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-right: 8px;
+  font-weight: 600;
+}
+
+.action-button.approve {
+  background-color: #28a745; /* Green for approve */
+  color: white;
+}
+
+.action-button.approve:hover {
+  background-color: #218838; /* Darker green on hover */
+}
+
+.action-button.delete {
+  background-color: #dc3545; /* Red for delete */
+  color: white;
+}
+
+.action-button.delete:hover {
+  background-color: #c82333; /* Darker red on hover */
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .seller-management-container {
+    width: 100%; /* Full width on mobile */
+    margin: 10px; /* Adjust margins */
+  }
+
+  .seller-table th, .seller-table td {
+    font-size: 12px; /* Smaller text on mobile */
+    padding: 10px; /* Adjust padding */
+  }
+
+  .action-button {
+    font-size: 12px; /* Smaller buttons on mobile */
+    padding: 6px 10px;
+  }
+}

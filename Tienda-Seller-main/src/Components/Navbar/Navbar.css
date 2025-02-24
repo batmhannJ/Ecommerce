@@ -1,0 +1,160 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 30px; /* Reduced padding */
+  box-shadow: 0 1px 3px -2px #000;
+  background-color: white;
+  height: 100px; /* Adjusted height */
+  position: relative;
+  z-index: 10; /* Ensures it's above the sidebar */
+}
+
+.nav-logo {
+  width: 80px; /* Adjusted width */
+  height: auto;
+}
+
+.nav-profile-container {
+  position: relative;
+}
+
+.nav-profile {
+  width: 80px; /* Adjusted size */
+  height: auto;
+  cursor: pointer;
+}
+
+.navbar p {
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.profile-menu {
+  display: none;
+  position: absolute;
+  top: 60px; /* Adjusted based on the new height */
+  right: 0;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.profile-menu button {
+  width: 100%;
+  padding: 10px;
+  background: white;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.profile-menu button:hover {
+  background: #f0f0f0;
+}
+
+.nav-profile-container .profile-menu {
+  display: block;
+}
+
+/* Responsive Styles */
+@media (max-width: 1200px) {
+  .navbar {
+    padding: 10px 20px; /* Reduced padding for large screens */
+    height: 80px; /* Reduced height */
+  }
+
+  .nav-logo {
+    width: 70px; /* Adjusted logo size */
+  }
+
+  .nav-profile {
+    width: 70px; /* Adjusted profile size */
+  }
+
+  .navbar p {
+    font-size: 25px; /* Adjusted font size */
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column; /* Stack elements vertically */
+    align-items: center;
+    height: auto; /* Auto height for flexibility */
+    padding: 10px 15px; /* Adjust padding */
+  }
+
+  .navbar p {
+    font-size: 22px; /* Smaller font size */
+    margin-top: 10px;
+  }
+
+  .nav-logo {
+    width: 60px; /* Smaller logo size */
+  }
+
+  .nav-profile {
+    width: 60px; /* Smaller profile icon */
+  }
+
+  .profile-menu {
+    top: 50px; /* Adjusted menu position */
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 10px 15px; /* Even more reduced padding for mobile */
+    height: auto; /* Auto height for mobile screens */
+  }
+
+  .nav-logo {
+    width: 50px; /* Smaller logo size */
+  }
+
+  .nav-profile {
+    width: 50px; /* Smaller profile icon */
+  }
+
+  .navbar p {
+    font-size: 18px; /* Even smaller font size */
+    margin-top: 5px; /* Reduced margin on mobile */
+  }
+
+  .profile-menu {
+    top: 50px; /* Adjusted menu position for mobile */
+    width: 100%; /* Full-width profile menu */
+  }
+
+  .profile-menu button {
+    font-size: 12px; /* Smaller buttons for mobile */
+  }
+}
+
+@media (max-width: 375px) {
+  .navbar {
+    padding: 8px 10px; /* Even smaller padding for very small screens */
+    height: auto;
+  }
+
+  .nav-logo {
+    width: 45px; /* Smaller logo size for very small screens */
+  }
+
+  .nav-profile {
+    width: 45px; /* Smaller profile icon for very small screens */
+  }
+
+  .navbar p {
+    font-size: 16px; /* Much smaller font size */
+    margin-top: 5px;
+  }
+
+  .profile-menu button {
+    font-size: 10px; /* Adjust button text size */
+  }
+}

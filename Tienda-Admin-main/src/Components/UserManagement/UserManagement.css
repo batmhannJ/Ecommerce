@@ -1,0 +1,219 @@
+.user-management-container {
+  margin: 20px;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  height: 650px; /* Increased height */
+  overflow-y: auto; /* Enable vertical scrolling */
+  width: 100%; /* Use full width on smaller screens */
+  max-width: 1400px; /* Adjusted maximum width */
+}
+
+.user-management-container h1 {
+  font-size: 24px;
+  color: #333;
+  text-align: center; /* Center text */
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.user-table th,
+.user-table td {
+  border: 2px solid #ddd;
+  padding: 17px;
+  text-align: left;
+}
+
+.user-table th {
+  background-color: #f4f4f4;
+  color: #333;
+  font-weight: 600;
+}
+
+.user-table td {
+  color: #333;
+}
+
+.action-button {
+  border: none;
+  padding: 8px 12px; /* Increased padding for better click area */
+  border-radius: 4px;
+  font-size: 14px; /* Slightly larger font size */
+  cursor: pointer;
+  margin-right: 8px;
+  font-weight: 600;
+  transition: background-color 0.3s, transform 0.2s; /* Added transition for hover effect */
+}
+
+.action-button.view {
+  background-color: #007bff; /* Blue color for View button */
+  color: #fff;
+}
+
+.action-button.view:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+  transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+.action-button.delete {
+  background-color: #dc3545; /* Red color for Delete button */
+  color: #fff;
+}
+
+.action-button.delete:hover {
+  background-color: #c82333; /* Darker red on hover */
+  transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+
+.edit-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit-form {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+}
+
+.edit-form h2 {
+  margin-top: 0;
+  font-size: 20px;
+  color: #333;
+  text-align: center; /* Center text */
+}
+
+.edit-form .form-group {
+  margin-bottom: 15px;
+}
+
+.edit-form .form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.edit-form .form-group input {
+  width: calc(100% - 16px);
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+}
+
+.submit-button {
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 600;
+  width: 100%; /* Full width for button */
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: none;
+  background: #dc3545;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.close-button:hover {
+  background-color: #c82333;
+}
+
+/* Responsive design */
+@media (max-width: 1000px) {
+  .user-management-container {
+    margin: 15px 10px;
+    padding: 15px;
+  }
+
+  .user-table td, .user-table th {
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  .edit-form {
+    padding: 15px;
+  }
+
+  .edit-form .form-group input {
+    font-size: 12px;
+  }
+
+  .submit-button {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .user-management-container {
+    margin: 10px;
+    padding: 10px;
+  }
+
+  .user-table {
+    font-size: 12px;
+  }
+
+  .edit-form .form-group input {
+    width: 100%;
+    font-size: 12px;
+  }
+
+  .submit-button {
+    font-size: 12px; /* Smaller font size */
+    padding: 6px 12px; /* Adjust padding */
+  }
+}
+
+@media (max-width: 480px) {
+  .user-management-container h1 {
+    font-size: 20px; /* Smaller font size for headings */
+  }
+
+  .edit-form h2 {
+    font-size: 18px; /* Smaller font size for edit form heading */
+  }
+
+  .edit-form .form-group input {
+    font-size: 12px; /* Smaller font size for inputs */
+  }
+}

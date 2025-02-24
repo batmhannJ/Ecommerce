@@ -1,0 +1,152 @@
+:root {
+  --primary-color: #BAC195;
+  --hover-color: #747b50;
+  --error-color: #FF0000;
+  --input-border-color: #c9c9c9;
+  --input-text-color: #5c5c5c;
+  --background-opacity: 0.9;
+}
+
+.admin-layout {
+  display: flex;
+  flex-direction: row; /* Align Navbar and Sidebar horizontally */
+  width: 100%;
+}
+
+.sidebar {
+  width: 250px; /* Adjust the width of the sidebar as needed */
+ /* Example background color for sidebar */
+}
+
+.navbar {
+  width: 100%;
+}
+
+.account-settings {
+  display: flex;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  margin-bottom: 40px; /* Added space below */
+}
+
+.account-settings-container {
+  flex: 1;
+  padding: 20px;
+
+}
+
+.account-settings__heading {
+  margin-bottom: 20px;
+  font-size: 20px;
+  text-align: center;
+}
+
+.account-settings__form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.account-settings__form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.account-settings__form-group label {
+  font-size: 1.0rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.account-settings__form-group input {
+  height: 50px;
+  padding: 10px;
+  border: 1px solid var(--input-border-color);
+  border-radius: 5px;
+  font-size: 16px;
+  color: var(--input-text-color);
+}
+
+.account-settings__form-group input:focus {
+  border-color: var(--primary-color);
+}
+
+.account-settings__error {
+  color: var(--error-color);
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+.account-settings__button {
+  width: 100%;
+  height: 50px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  font-size: 18px;
+  font-weight: 200;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-top: 20px;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.account-settings__button:hover {
+  background: var(--hover-color);
+}
+
+.account-settings__button:active {
+  transform: scale(0.95);
+}
+
+.account-settings__success {
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+@media (max-width: 992px) {
+  .account-settings-container {
+    padding: 20px 30px;
+  }
+
+  .account-settings__heading {
+    font-size: 24px;
+  }
+
+  .account-settings__form-group input {
+    height: 45px;
+  }
+
+  .account-settings__button {
+    height: 45px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .account-settings {
+    padding: 0 20px;
+  }
+
+  .account-settings-container {
+    width: 95%;
+    padding: 20px;
+  }
+
+  .account-settings__heading {
+    font-size: 22px;
+  }
+
+  .account-settings__form-group input {
+    height: 40px;
+  }
+
+  .account-settings__button {
+    height: 40px;
+    font-size: 14px;
+  }
+}

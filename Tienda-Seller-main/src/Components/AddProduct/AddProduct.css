@@ -1,0 +1,304 @@
+/* Container for tags */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Each tag box */
+.tag-box {
+  background-color: #f0f0f0;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  display: inline-block;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+/* Tag text styling */
+.tag {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Heading for the add product section */
+.add-product h3 {
+  margin: 20px 0;
+  font-size: 21px;
+  color: #505050;
+}
+
+/* Add product form container */
+.add-product {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1010px;
+  padding: 30px 50px;
+  margin: 20px auto;
+  border-radius: 6px;
+  background: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Fieldset for product item input fields */
+.addproduct-itemfield {
+  width: 100%;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 16px;
+}
+
+.addproduct-itemfield p {
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+/* Styling for inputs, selects, and textareas */
+.addproduct-itemfield input,
+.addproduct-itemfield select,
+.addproduct-description textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 4px;
+  border: 1px solid #c3c3c3;
+  outline: none;
+  color: #333;
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  background-color: #f9f9f9;
+}
+
+/* Label styling with grid layout */
+.addproduct-itemfield label {
+  display: grid;
+  grid-template-columns: 1fr 4fr; /* 1 fraction for labels, 4 fractions for inputs */
+  align-items: center;
+}
+
+/* Specific styling for size and stock inputs */
+.addproduct-itemfield .size-stock input {
+  margin-left: 10px;
+  width: 150px;
+  margin-top: 5px;
+}
+
+.addproduct-description {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.addproduct-description p {
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+/* Focused input styling */
+.addproduct-itemfield input:focus,
+.addproduct-itemfield select:focus,
+.addproduct-description textarea:focus {
+  border-color: #333;
+}
+
+/* Price field layout */
+.addproduct-price {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.add-product-selector {
+  padding: 10px;
+  width: 100%;
+  font-size: 14px;
+  color: #333;
+  border: 1px solid #c3c3c3;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+/* Thumbnail image styling */
+.addproduct-thumbnail-img {
+  height: 120px;
+  width: 120px;
+  border: 1px solid #c3c3c3;
+  object-fit: contain;
+  margin: 10px 0;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.addproduct-thumbnail-img:hover {
+  transform: scale(1.02);
+}
+
+.addproduct-thumbnail-img:active {
+  transform: scale(1);
+}
+
+/* Submit button styling */
+.addproduct-btn {
+  margin-top: 20px;
+  width: 100%;
+  height: 50px;
+  border-radius: 6px;
+  background: #6079ff;
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  transition: transform 0.3s ease;
+}
+
+.addproduct-btn:hover {
+  background: #5068e1;
+}
+
+.addproduct-btn:active {
+  background: #5068e1;
+  transform: scale(0.98);
+}
+
+/* Responsive size options layout */
+.size-option {
+  display: flex;
+  align-items: center;
+}
+
+.size-option label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.size-stock-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Styling for labels in size-stock container */
+.size-stock-container label {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+/* Media Queries for Responsiveness */
+
+/* Large devices (desktop) */
+@media (min-width: 1280px) {
+  .add-product {
+    padding: 40px 60px;
+    margin: 30px auto;
+  }
+
+  .addproduct-price {
+    gap: 30px;
+  }
+
+  .addproduct-itemfield input,
+  .addproduct-itemfield select,
+  .addproduct-description textarea {
+    font-size: 16px;
+  }
+
+  .addproduct-thumbnail-img {
+    height: 150px;
+    width: 150px;
+  }
+
+  .addproduct-btn {
+    font-size: 18px;
+  }
+}
+
+/* Medium devices (tablets) */
+@media (max-width: 1024px) {
+  .add-product {
+    padding: 20px 30px;
+    margin: 10px auto;
+  }
+
+  .addproduct-price {
+    flex-direction: column;
+  }
+
+  .addproduct-itemfield input,
+  .addproduct-itemfield select,
+  .addproduct-description textarea {
+    font-size: 14px;
+  }
+
+  .addproduct-thumbnail-img {
+    height: 100px;
+    width: 100px;
+  }
+
+  .addproduct-btn {
+    font-size: 16px;
+  }
+}
+
+/* Small devices (mobile) */
+@media (max-width: 800px) {
+  .add-product {
+    padding: 20px;
+    margin: 10px;
+  }
+
+  .addproduct-price {
+    flex-direction: column;
+  }
+
+  .addproduct-price .addproduct-itemfield {
+    width: 100%;
+  }
+
+  .addproduct-thumbnail-img {
+    height: 90px;
+    width: 90px;
+  }
+
+  .addproduct-btn {
+    font-size: 14px;
+  }
+
+  .size-stock-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Extra small devices (mobile) */
+@media (max-width: 480px) {
+  .add-product {
+    padding: 15px;
+    margin: 5px;
+  }
+
+  .addproduct-price {
+    flex-direction: column;
+  }
+
+  .addproduct-thumbnail-img {
+    height: 80px;
+    width: 80px;
+  }
+
+  .addproduct-btn {
+    font-size: 14px;
+  }
+
+  .size-stock-container {
+    grid-template-columns: 1fr;
+  }
+}

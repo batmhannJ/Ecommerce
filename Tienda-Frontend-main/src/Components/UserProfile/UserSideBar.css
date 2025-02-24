@@ -1,0 +1,110 @@
+:root {
+    --primary-color: #BAC195;
+    --hover-color: #747b50;
+    --active-color: #f0f0f0;
+    --icon-color: gray;
+    --text-color: #333;
+  }
+  
+  .usersidebar {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 10px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+}
+
+.usersidebar .s1,
+.usersidebar .s2 {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    transition: background-color 0.3s, color 0.3s;
+    height: 50px;
+}
+
+.usersidebar .s1 {
+    color: var(--text-color);
+}
+
+.usersidebar .s1:hover {
+    background-color: var(--active-color);
+    cursor: pointer;
+}
+
+.usersidebar .s2 {
+    background-color: var(--active-color);
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.usersidebar .s2.active {
+    background-color: var(--active-color);
+    color: var(--primary-color);
+}
+
+.usersidebar svg {
+    width: 24px;
+    height: 24px;
+    color: black;
+}
+
+.usersidebar .active svg,
+.usersidebar .s1:hover svg {
+    color: var(--primary-color);
+}
+
+.stylenone {
+    text-decoration: none;
+    color: inherit;
+}
+
+@media (max-width: 768px) {
+
+    .usersidebar .s1 {
+        display: flex;
+        align-items: center;
+        padding-left: 25px; /* Adjust padding for larger icons */
+    }
+   /* User Icon */
+.usersidebar .s1:nth-child(1)::before {
+    content: "";
+    display: inline-block;
+    width: 128px; /* Increase width further */
+    height: 0px; /* Increase height further */
+    margin-right: -120px; /* Adjust margin to match new size */
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* Eye Icon */
+.usersidebar .s1:nth-child(2)::before {
+    content: "";
+    display: inline-block;
+    width: 128px; /* Increase width further */
+    height: 128px; /* Increase height further */
+    margin-right: -120px; /* Adjust margin to match new size */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>');
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* Home Icon */
+.usersidebar .s1:nth-child(3)::before {
+    content: "";
+    display: inline-block;
+    width: 128px; /* Increase width further */
+    height: 128px; /* Increase height further */
+    margin-right: -120px; /* Adjust margin to match new size */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 22V12h6v10"/></svg>');
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+
+}

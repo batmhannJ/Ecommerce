@@ -1,0 +1,174 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* Darker background for better focus */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.edit-form {
+  background: #ffffff;
+  padding: 30px; /* Increased padding for more space */
+  border-radius: 15px; /* Larger rounded corners for a softer look */
+  position: relative;
+  max-width: 700px; /* Increased width */
+  width: 95%; /* Width set to 95% of the viewport */
+  height: 500px; /* Increased height for more space */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Softer and larger shadow for depth */
+  transition: all 0.3s ease;
+  overflow-y: auto; /* Enables scrolling when content exceeds height */
+}
+
+.edit-form h2 {
+  font-size: 26px; /* Larger font size for headings */
+  color: #333; /* Darker text for better readability */
+  margin-bottom: 20px;
+  font-weight: 700; /* Bold font weight */
+  text-align: center; /* Center-align the heading */
+}
+
+.edit-form input,
+.edit-form select {
+  width: 100%;
+  padding: 12px 15px; /* Larger padding for inputs and selects */
+  margin: 12px 0;
+  border: 2px solid #ddd; /* Thicker border for inputs */
+  border-radius: 10px; /* Larger border radius */
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.edit-form input:focus,
+.edit-form select:focus {
+  border-color: #ff6f61; /* Change border color on focus */
+  outline: none; /* Remove default outline */
+}
+
+.edit-form button {
+  border: none;
+  border-radius: 10px; /* Larger border radius for buttons */
+  padding: 12px 20px; /* Larger button padding */
+  font-size: 16px; /* Larger text size */
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  width: 100%; /* Make button span the full width */
+  margin-top: 15px; /* Space between input fields and buttons */
+}
+
+/* Specific styles for the Update button */
+.update-button {
+  background-color: #4CAF50; /* Green for the "Update" button */
+  color: white;
+}
+
+.update-button:hover {
+  background-color: #45a049; /* Slightly darker green on hover */
+  transform: scale(1.05); /* Slight scale effect on hover */
+}
+
+/* Specific styles for the Cancel button */
+.cancel-button {
+  background-color: #f44336; /* Red for the "Cancel" button */
+  color: white;
+}
+
+.cancel-button:hover {
+  background-color: #e53935; /* Slightly darker red on hover */
+  transform: scale(1.05); /* Slight scale effect on hover */
+}
+
+.cancel-button + .cancel-button {
+  margin-left: 10px; /* Space between buttons */
+}
+
+
+.edit-form button:hover {
+  background-color: #e55b52;
+  transform: scale(1.05); /* Slight scale effect on hover */
+}
+
+.edit-form button + button {
+  margin-top: 10px; /* Add space between buttons */
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .edit-form {
+    padding: 25px;
+    width: 85%;
+    height: 450px; /* Adjusted height for medium screens */
+  }
+
+  .edit-form h2 {
+    font-size: 24px;
+    margin-bottom: 18px;
+  }
+
+  .edit-form input,
+  .edit-form select {
+    font-size: 15px;
+    padding: 10px;
+  }
+
+  .edit-form button {
+    font-size: 15px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .edit-form {
+    padding: 20px;
+    width: 90%;
+    height: 450px; /* Adjusted height for smaller screens */
+  }
+
+  .edit-form h2 {
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
+
+  .edit-form input,
+  .edit-form select {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .edit-form button {
+    font-size: 14px;
+    padding: 10px;
+  }
+  
+  .edit-form button + button {
+    margin-top: 12px; /* Space between stacked buttons */
+  }
+}
+
+@media (max-width: 480px) {
+  .edit-form {
+    padding: 18px;
+    width: 95%;
+    height: 420px; /* Adjusted height for mobile */
+  }
+
+  .edit-form h2 {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+
+  .edit-form input,
+  .edit-form select {
+    font-size: 13px;
+    padding: 8px;
+  }
+
+  .edit-form button {
+    font-size: 13px;
+    padding: 8px;
+  }
+}

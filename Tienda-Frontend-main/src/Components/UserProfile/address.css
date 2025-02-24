@@ -1,0 +1,185 @@
+.address .container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+  margin-bottom: 40px;
+  background-color: #f4f4f4; /* Change this to your desired secondary color */
+}
+
+.address-form {
+  max-width: 550px;
+  width: 100%; /* Allow full width for smaller screens */
+  margin: 0 auto;
+  padding: 30px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+h1 {
+  text-align: center; /* Center the text horizontally */
+  font-size: 32px; /* Adjust the font size as needed */
+  color: #000000; /* Replace with your desired color */
+  margin-bottom: 10px;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.form-row label {
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #bac195; /* Replace with your primary color */
+}
+
+.form-row select,
+.form-row input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #c9c9c9; /* Replace with your input border color */
+  border-radius: 5px;
+  font-size: 16px;
+  color: #5c5c5c; /* Replace with your input text color */
+  transition: border-color 0.3s;
+}
+
+.form-row select:focus,
+.form-row input:focus {
+  border-color: #bac195; /* Replace with your primary color */
+  outline: none;
+}
+
+.account-settings__error {
+  color: #ff0000; /* Replace with your error color */
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+.selected-address {
+  background: #f4f4f4; /* Change this to your desired secondary color */
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.selected-address h3 {
+  margin-bottom: 10px;
+  color: #bac195; /* Replace with your primary color */
+}
+
+.submit-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #bac195; /* Replace with your primary color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 18px;
+  text-align: center; /* Center text */
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  display: flex; /* Center loading text */
+  justify-content: center;
+  align-items: center;
+}
+
+.submit-button:hover {
+  background-color: #747b50; /* Replace with your hover color */
+}
+
+.submit-button.loading {
+  opacity: 0.7; /* Slightly fade the button when loading */
+  pointer-events: none; /* Prevent interaction */
+}
+
+/* Optional: Add loading spinner styles if you want to show a spinner while loading */
+.submit-button.loading::after {
+  content: "";
+  border: 4px solid transparent; /* Border color */
+  border-top: 4px solid white; /* Spinner color */
+  border-radius: 50%;
+  width: 16px; /* Spinner size */
+  height: 16px; /* Spinner size */
+  animation: spin 1s linear infinite;
+  margin-left: 10px; /* Space between text and spinner */
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.selected-address p {
+  margin: 5px 0;
+  font-size: 16px;
+  color: #5c5c5c; /* Replace with your input text color */
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 992px) {
+  .address-form {
+    padding: 20px;
+  }
+
+  .submit-button {
+    font-size: 16px; /* Adjust font size for buttons */
+  }
+}
+
+@media (max-width: 768px) {
+  .account-settings {
+    padding: 0 10px;
+  }
+
+  .address-form {
+    width: 90%; /* Ensure form is responsive and fits smaller screens */
+    padding: 15px; /* Reduce padding for smaller screens */
+  }
+
+  .form-row label {
+    font-size: 14px; /* Adjust label font size for smaller screens */
+  }
+
+  .form-row select,
+  .form-row input {
+    font-size: 14px; /* Adjust input font size for smaller screens */
+  }
+
+  .submit-button {
+    font-size: 16px; /* Smaller button text for mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .address-form {
+    padding: 10px; /* Further reduce padding on extra small screens */
+  }
+
+  .form-row {
+    margin-bottom: 15px; /* Reduce margin between rows */
+  }
+
+  .form-row label {
+    font-size: 12px; /* Smaller label font size */
+  }
+
+  .form-row select,
+  .form-row input {
+    font-size: 12px; /* Smaller input font size */
+  }
+
+  .submit-button {
+    font-size: 14px; /* Smaller button text for mobile */
+  }
+}

@@ -4,10 +4,12 @@ import "react-toastify/dist/ReactToastify.css";
 import Navbar from "./Components/Navbar/Navbar";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Shop from "./Pages/Shop";
+import Store from "./Pages/Store";
 import Product from "./Pages/Product";
 import ShopCategory from "./Pages/ShopCategory";
 import Cart from "./Pages/Cart";
 import LoginSignup from "./Pages/LoginSignup";
+import SLoginSignup from "./Pages/SLoginSignup";
 import Footer from "./Components/Footer/Footer";
 import PlaceOrder from "./Components/PlaceOrder/PlaceOrder";
 import Crafts_Banner from "./Components/Assets/Clothes_Banner.png";
@@ -82,6 +84,7 @@ function App() {
           path="/crafts"
           element={<ShopCategory banner={Crafts_Banner} category="crafts" />}
         />
+        <Route path="/store" element={<Store />} />
         <Route
           path="/clothes"
           element={<ShopCategory banner={Clothes_Banner} category="clothes" />}
@@ -95,6 +98,7 @@ function App() {
         </Route>
         <Route path="/cart" element={<Cart />} />
         <Route path="/login" element={<LoginSignup />} />
+        <Route path="/business-signup" element={<SLoginSignup />} />
         <Route path="/order" element={<PlaceOrder />} />
         <Route path="/verify" element={<Verify />} />
         <Route path="/myorders" element={<MyOrders />} />

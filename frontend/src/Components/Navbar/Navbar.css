@@ -161,6 +161,35 @@
   margin-top: 20px;
 }
 
+.business-account-banner {
+  background-color: #778c62;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.business-signup-btn {
+  background-color: white;
+  color: #778c62;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  margin-left: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.business-signup-btn:hover {
+  background-color: #5b7541;
+  color: #f3f3f3;
+}
+
+
 /* Media Queries */
 
 @media (max-width: 1280px) {

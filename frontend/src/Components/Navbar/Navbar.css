@@ -161,34 +161,6 @@
   margin-top: 20px;
 }
 
-.business-account-banner {
-  background-color: #778c62;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 10px;
-  font-weight: bold;
-  font-size: 14px;
-}
-
-.business-signup-btn {
-  background-color: white;
-  color: #778c62;
-  border: none;
-  padding: 8px 12px;
-  font-size: 14px;
-  font-weight: bold;
-  margin-left: 10px;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-.business-signup-btn:hover {
-  background-color: #5b7541;
-  color: #f3f3f3;
-}
-
 
 /* Media Queries */
 
@@ -308,4 +280,64 @@
   .nav-menu-dropdown.open {
     transform: rotate(0deg);
   }
+}
+
+
+.business-account-banner {
+  background-color: #078fe4;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.business-signup-btn {
+  background: rgba(255, 255, 255, 0.2); /* Transparent White */
+  color: #ffffff;
+  padding: 10px 16px;
+  font-size: 16px;
+  font-weight: bold;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  backdrop-filter: blur(10px); /* Glass Effect */
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.business-signup-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.1);
+}
+
+
+.truck-icon {
+  color: #ff6600; /* Orange color */
+  font-size: 32px; /* Mas malaking size */
+  margin-right: 15px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.truck-icon:hover {
+  transform: scale(1.2); /* Mas malaki kapag hinover */
+}
+
+
+/* Positioning the Close Button (X) to the Upper Right Corner */
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s, color 0.2s;
+}
+
+.close-btn:hover {
+  transform: scale(1.2);
+  color: #ffcccc; /* Light red for hover effect */
 }

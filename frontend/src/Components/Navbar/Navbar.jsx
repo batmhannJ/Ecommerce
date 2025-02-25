@@ -8,10 +8,12 @@ import menu_icon from "../Assets/menu_icon.png";
 import profile_icon from "../Assets/profile_icon.png";
 import navbar_icon from "../Assets/navbar_icon.png";
 import SearchTags from "../SearchTags/SearchTags";
+import { Truck, X } from "lucide-react";
 
 const Navbar = () => {
   const [menu, setMenu] = useState("shop");
   const [profileMenuVisible, setProfileMenuVisible] = useState(false);
+  const [isBannerVisible, setIsBannerVisible] = useState(true); // State for banner visibility
   const { getTotalCartItems } = useContext(ShopContext);
   const menuRef = useRef();
   const profileMenuRef = useRef();
@@ -50,13 +52,17 @@ const Navbar = () => {
 
   return (
     <div className="navbar-container">
-      {/* Business Account Banner */}
-      <div className="business-account-banner">
-        <p>Be one of our partner stores</p>
-        <Link to="/business-signup">
-          <button className="business-signup-btn">Sign Up Now</button>
-        </Link>
-      </div>
+      {/* Business Account Banner (Dismissible) */}
+      {isBannerVisible && (
+        <div className="business-account-banner">
+          <Truck className="truck-icon" size={32} />
+          <p>Be one of our partner stores!</p>
+          <Link to="/business-signup">
+            <button className="business-signup-btn">Sign Up Now</button>
+          </Link>
+          <X className="close-btn" size={24} onClick={() => setIsBannerVisible(false)} />
+        </div>
+      )}
 
       <div className="navbar">
         <div className="nav-left">

@@ -13,7 +13,10 @@
 
 /* Existing Dashboard Styles */
 .dashboard {
-    padding: 90px; /* Adjust the padding as needed for spacing inside the container */
+    padding-top: 90px;
+    padding-right: 30px;
+    padding-left: 30px;
+    padding-bottom: 40px;
     min-height: 100vh; /* Ensures the dashboard takes up at least the full viewport height */
     min-width: 320px; /* Minimum width for the dashboard */
     font-family: 'Poppins', sans-serif; /* Font for the dashboard */
@@ -22,6 +25,10 @@
     box-sizing: border-box; /* Ensures padding is included in the element's total width and height */
     margin-left: 10px; /* Moves the entire dashboard to the right */
     margin-right: auto; /* Keeps the right margin automatic */
+    
+  border-radius: 10px; /* Optional: Round the corners */
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Add shadow effect */
 }
 
 /* Dashboard Heading */

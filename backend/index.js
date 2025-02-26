@@ -58,22 +58,7 @@ const allowedOrigins = [
   'http://localhost:5174', 
   'http://localhost:46631',
   'http://localhost:47106',
-  'https://tienda-han.onrender.com',
-  'https://tienda-frontend.onrender.com',
-  'https://tienda-admin.onrender.com',
-  'https://tienda-seller.onrender.com',
   'http://localhost:4000',
-  'https://ip-tienda.onrender.com',
-  'https://ip-tienda-han-admin.onrender.com',
-  'https://ip-tienda-han-super-admin.onrender.com',
-  'https://ip-tienda-han-seller.onrender.com',
-  'https://ip-tienda-han.onrender.com',
-  'https://ip-tienda-seller.onrender.com',// This is the specific origin to allow
-  'https://ip-tienda-han-backend.onrender.com',
-  'https://ip-tienda-han-backend.onrender.com:4000',
-  'https://ip-tienda-han-backend.onrender.com/myorders?message=true',
-  'https://ip-tienda-han-backend.onrender.com/api/admin/send-otp',
-  'https://ip-tienda-han-backend.onrender.com/images/', 
 ];
 
 app.use(
@@ -344,6 +329,7 @@ app.post("/addproduct", async (req, res) => {
   });
 });
 
+
 app.get("/store-products/:sellerId", async (req, res) => {
   const { sellerId } = req.params;
 
@@ -353,8 +339,15 @@ app.get("/store-products/:sellerId", async (req, res) => {
     if (!products.length) {
       return res.json([]);
     }
+    const updatedProducts = products.map((product) => ({
+      ...product,
+      image: `http://localhost:4000/upload/images/${product.image}`,
+    }));
 
-    res.json(products);
+    console.log("Fetched products from DB:", products);
+
+
+    res.json(updatedProducts);
   } catch (error) {
     console.error("Error fetching store products:", error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -449,8 +442,8 @@ app.get("/newcollections", async (req, res) => {
     // Map through the products to construct the full image URL
     const updatedProducts = newcollection.map(product => {
       // Determine which image to display: edited or main
-      const mainImage = product.image ? `https://ip-tienda-han-backend.onrender.com/images/${product.image}` : null;
-      const editedImage = product.editedImage ? `https://ip-tienda-han-backend.onrender.com/images/${product.editedImage}` : null; // Assuming editedImage is stored in the product object
+      const mainImage = product.image ? `http://localhost:4000/images/${product.image}` : null;
+      const editedImage = product.editedImage ? `http://localhost:4000/images/${product.editedImage}` : null; // Assuming editedImage is stored in the product object
 
       // Choose the edited image if it exists; otherwise, use the main image
       const imageToDisplay = editedImage || mainImage;
@@ -479,8 +472,8 @@ app.get("/popularincrafts", async (req, res) => {
     // Map through the products to construct the full image URL
     const updatedProducts = popular_in_crafts.map(product => {
       // Determine which image to display: edited or main
-      const mainImage = product.image ? `https://ip-tienda-han-backend.onrender.com/images/${product.image}` : null;
-      const editedImage = product.editedImage ? `https://ip-tienda-han-backend.onrender.com/images/${product.editedImage}` : null; // Assuming editedImage is stored in the product object
+      const mainImage = product.image ? `http://localhost:4000/images/${product.image}` : null;
+      const editedImage = product.editedImage ? `http://localhost:4000/images/${product.editedImage}` : null; // Assuming editedImage is stored in the product object
 
       // Choose the edited image if it exists; otherwise, use the main image
       const imageToDisplay = editedImage || mainImage;
@@ -563,8 +556,8 @@ app.get("/relatedproducts/:category", async (req, res) => {
     // Map through the related products to construct the full image URL
     const updatedRelatedProducts = relatedProducts.map(product => {
       // Determine which image to display: edited or main
-      const mainImage = product.image ? `https://ip-tienda-han-backend.onrender.com/images/${product.image}` : null;
-      const editedImage = product.editedImage ? `https://ip-tienda-han-backend.onrender.com/images/${product.editedImage}` : null; // Assuming editedImage is stored in the product object
+      const mainImage = product.image ? `http://localhost:4000/images/${product.image}` : null;
+      const editedImage = product.editedImage ? `http://localhost:4000/images/${product.editedImage}` : null; // Assuming editedImage is stored in the product object
 
       // Choose the edited image if it exists; otherwise, use the main image
       const imageToDisplay = editedImage || mainImage;

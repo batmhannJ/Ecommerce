@@ -23,7 +23,8 @@ const Partner = () => {
       <div className="popular-item">
         {stores.map((store, i) => (
           <ShopList
-            key={i}
+            key={store._id}
+            id={store._id}
             shopName={store.shopName}
             image={store.idPicture}
             businessLocation={store.businessLocation}

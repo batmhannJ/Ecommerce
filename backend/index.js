@@ -268,10 +268,10 @@ app.get("/fetchuser/:id", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
 app.post("/addproduct", async (req, res) => {
   let products = await Product.find({});
   let id;
+
   if (products.length > 0) {
     let last_product_array = products.slice(-1);
     let last_product = last_product_array[0];
@@ -279,27 +279,7 @@ app.post("/addproduct", async (req, res) => {
   } else {
     id = 1;
   }
-  const product = new Product({
-    id: id,
-    name: req.body.name,
-    image: req.body.image,
-    category: req.body.category,
-    new_price: req.body.new_price,
-    old_price: req.body.old_price,
-    s_stock: req.body.s_stock,
-    m_stock: req.body.m_stock,
-    l_stock: req.body.l_stock,
-    xl_stock: req.body.xl_stock,
-    stock: req.body.stock,
-    description: req.body.description,
-    tags: req.body.tags,
-  });
-  await product.save();
-  console.log(product);
-  res.json({
-    success: true,
-    name: req.body.name,
-  });
+
   const {
     name,
     image,
@@ -313,7 +293,38 @@ app.post("/addproduct", async (req, res) => {
     stock,
     description,
     tags,
+    sellerId, // Extract sellerId from request body
   } = req.body;
+
+  if (!sellerId) {
+    return res.status(400).json({ success: false, message: "Seller ID is required" });
+  }
+
+  const product = new Product({
+    id,
+    name,
+    image,
+    category,
+    new_price,
+    old_price,
+    s_stock,
+    m_stock,
+    l_stock,
+    xl_stock,
+    stock,
+    description,
+    tags,
+    sellerId, // Save sellerId in database
+  });
+
+  await product.save();
+  console.log("Product Added:", product);
+
+  res.json({
+    success: true,
+    message: "Product added successfully!",
+    product,
+  });
 
   // Log received product data
   console.log("Received Product Data:", {
@@ -329,8 +340,27 @@ app.post("/addproduct", async (req, res) => {
     stock,
     description,
     tags,
+    sellerId,
   });
 });
+
+app.get("/store-products/:sellerId", async (req, res) => {
+  const { sellerId } = req.params;
+
+  try {
+    const products = await Product.find({ sellerId: sellerId });
+
+    if (!products.length) {
+      return res.json([]);
+    }
+
+    res.json(products);
+  } catch (error) {
+    console.error("Error fetching store products:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 
 // Creating API for deleting Products
 app.post("/removeproduct", async (req, res) => {

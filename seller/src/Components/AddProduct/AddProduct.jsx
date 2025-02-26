@@ -17,8 +17,35 @@ export const AddProduct = () => {
     xl_stock: 0,
     stock: 0,
     description: "",
+    sellerId: "", 
   });
   //const [addedProduct, setAddedProduct] = useState(null); // State to store added product details
+  const getUserIdFromToken = () => {
+    const authToken = localStorage.getItem("admin_token");
+    if (authToken) {
+      try {
+        const payload = JSON.parse(atob(authToken.split(".")[1]));
+        console.log("Decoded token payload:", payload); // Check the decoded token payload
+        return payload.id;
+      } catch (error) {
+        console.error("Error decoding token:", error);
+        return null;
+      }
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    const sellerId = getUserIdFromToken();
+    if (sellerId) {
+      setProductDetails((prevDetails) => ({
+        ...prevDetails,
+        sellerId,
+      }));
+    } else {
+      toast.error("Failed to retrieve seller ID. Please log in again.", { position: "top-left" });
+    }
+  }, []);
 
   const computeTotalStock = () => {
     const { s_stock, m_stock, l_stock, xl_stock } = productDetails;
@@ -147,6 +174,7 @@ export const AddProduct = () => {
       m_stock,
       l_stock,
       xl_stock,
+      sellerId,
       category,
       tags
     } = productDetails;
@@ -234,6 +262,7 @@ export const AddProduct = () => {
               stock: "",
               description: "",
               tags: "",
+              sellerId,
             });
             setImage(null); // Clear image
           }

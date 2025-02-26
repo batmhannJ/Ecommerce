@@ -22,7 +22,11 @@ import Terms from "./Components/Terms/Terms";
 import UserProfile from "./Pages/User/UserProfile";
 import UserSideBar from "./Components/UserProfile/UserSideBar";
 import AccountSettings from "./Components/UserProfile/AccountSettings";
-import Offices from "./Components/Offices/Offices"; // Add this import
+import Offices from "./Components/Offices/Offices"; 
+import Partner from "./Components/Partner/Partner";
+import StoreProducts from "./Components/StoreProducts/StoreProducts";
+
+
 import {
   regions,
   provincesByCode,
@@ -110,6 +114,8 @@ function App() {
         <Route path="/about" element={<About />} /> {/* Add this route */}
         <Route path="/" element={<SearchBar />} />
         <Route path="/search-results" element={<SearchResults />} />
+        <Route path="/partner" element={<Partner />} /> {/* Add this route */}
+        <Route path="/store/:id" element={<StoreProducts />} />
       </Routes>
       <Footer />
     </BrowserRouter>

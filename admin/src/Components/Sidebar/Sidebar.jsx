@@ -32,6 +32,12 @@ export const Sidebar = () => {
           <p>User Manager</p>
         </div>
       </Link>
+      <Link to='/admin/sellerlist' style={{ textDecoration: 'none' }}>
+        <div className="sidebar-item">
+          <img src={user_management_icon} alt="User Management Icon" />
+          <p>Seller List</p>
+        </div>
+      </Link>
       <Link to='/admin/transactionmanagement' style={{ textDecoration: 'none' }}>
         <div className="sidebar-item">
           <img src={user_management_icon} alt="User Management Icon" />

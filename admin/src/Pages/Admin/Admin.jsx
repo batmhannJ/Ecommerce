@@ -9,6 +9,7 @@ import TransactionManagement from '../../Components/TransactionManagement/Transa
 import Dashboard from '../../Components/Dashboard/Dashboard';
 import SellerRequest from '../../Components/SellerRequest/SellerRequest';
 import AccountSettings from '../../Components/AdminProfile/AccountSettings'; // Adjust path as necessary
+import SellerList from '../../Components/SellerList/SellerList';
 
 const Admin = () => {
   return (
@@ -23,6 +24,7 @@ const Admin = () => {
           <Route path="transactionmanagement" element={<TransactionManagement />} />
           <Route path="sellerrequest" element={<SellerRequest />} />
           <Route path="accountsettings" element={<AccountSettings />} />
+          <Route path="sellerlist" element={<SellerList />} />
         </Routes>
       </div>
     </div>

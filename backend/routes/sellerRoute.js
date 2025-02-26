@@ -210,4 +210,26 @@ router.post("/verify-otp-seller", async (req, res) => {
 
 router.patch("/editseller/:id", upload.single("idPicture"), updateSeller);
 
+router.get("/sellers", async (req, res) => {
+  try {
+    const users = await Seller.find({});
+    res.json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
+
+router.delete("/deleteseller/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    await Seller.findByIdAndDelete(id);
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ error: "Failed to delete user" });
+  }
+});
+
+
 module.exports = router;

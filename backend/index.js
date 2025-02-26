@@ -804,22 +804,17 @@ const fetchSalesGrowthRateFromDB = async () => {
 
 app.get("/api/transactions/salesGrowthRate", async (req, res) => {
   try {
-    // Fetch sales growth rate data from the database
     const data = await fetchSalesGrowthRateFromDB();
-    // Send the data as JSON response
     res.json(data);
   } catch (error) {
-    // Log the error and send a 500 Internal Server Error response
     console.error("Error fetching sales growth rate:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
 
-// Example Express route for fetching a user by ID
 app.get("/api/users/:userId", (req, res) => {
   const userId = req.params.userId;
 
-  // Logic to find the user in the database by userId
   Users.findById(userId)
     .then((user) => {
       if (!user) {
@@ -834,12 +829,10 @@ app.patch("/api/edituser/address", async (req, res) => {
   try {
     const { userId, addressData } = req.body;
 
-    // Check if userId and addressData exist
     if (!userId || !addressData) {
       return res.status(400).json({ error: "Missing userId or addressData" });
     }
 
-    // Perform the update in your database
     const updatedUser = await Users.findByIdAndUpdate(
       userId,
       { address: addressData },

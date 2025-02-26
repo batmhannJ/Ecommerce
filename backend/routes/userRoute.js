@@ -52,27 +52,9 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// Route to get user data
-/*router.get('/user', authMiddleware, async (req, res) => {
-    try {
-        const user = await Users.findById(req.user.id);  // req.user.id comes from the middleware
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        res.json({ 
-            name: user.name, 
-            phone: user.phone, 
-            email: user.email 
-        });
-    } catch (error) {
-        console.error('Error fetching user data:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});*/
 
 router.get("/api/users/search", getUsers);
 
-// Fetch all users
 router.get("/users", async (req, res) => {
   try {
     const users = await Users.find({});

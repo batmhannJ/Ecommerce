@@ -21,11 +21,12 @@
 }
 
 .nav-logo p {
-  color: #ff6600;
+  color: #f4d160; /* Pastel Yellow */
   font-size: 30px;
   font-weight: 600;
   margin: 0;
 }
+
 
 .nav-menu {
   display: flex;
@@ -319,7 +320,7 @@
 
 
 .business-account-banner {
-  background-color: #078fe4;
+  background-color: #5b7fa7; /* Much Darker Blueish Pastel */
   color: white;
   display: flex;
   justify-content: center;

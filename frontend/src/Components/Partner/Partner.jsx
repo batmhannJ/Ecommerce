@@ -14,6 +14,10 @@ const Partner = () => {
 
   return (
     <div id="popular" className="popular">
+      <div className="banner">
+        <h1>Discover Our Partner Stores</h1>
+        <p>Supporting local businesses with quality products</p>
+      </div>
       <h1>PARTNER STORES</h1>
       <hr />
       <div className="popular-item">

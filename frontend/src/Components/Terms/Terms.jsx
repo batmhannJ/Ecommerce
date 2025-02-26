@@ -92,27 +92,24 @@ const Terms = () => {
     <section id="terms" className="section__container location__container">
       <h2 className="section__header">Terms of Service</h2>
       <div className="terms">
-        <div className="terms-container">
-          <div className="sidebar">
-            {['terms_of_use', 'user_accounts', 'product_listing', 'purchases_and_payments', 'contact_info'].map(tab => (
-              <div
-                key={tab}
-                className={`tab ${activeTab === tab ? 'active' : ''}`}
-                onClick={() => handleTabClick(tab)}
-              >
-{tab.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-              </div>
-            ))}
-          </div>
-
-          <div className="content">
-            <h3>{content[activeTab]?.title}</h3>
-            {content[activeTab]?.description ? (
-              <div dangerouslySetInnerHTML={{ __html: content[activeTab]?.description }}></div>
-            ) : (
-              <p>No content available for this section.</p> // Error handling for missing content
-            )}
-          </div>
+        <div className="tabs">
+          {['terms_of_use', 'user_accounts', 'product_listing', 'purchases_and_payments', 'contact_info'].map(tab => (
+            <div
+              key={tab}
+              className={`tab ${activeTab === tab ? 'active' : ''}`}
+              onClick={() => handleTabClick(tab)}
+            >
+              {tab.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+            </div>
+          ))}
+        </div>
+        <div className="content">
+          <h3>{content[activeTab]?.title}</h3>
+          {content[activeTab]?.description ? (
+            <div dangerouslySetInnerHTML={{ __html: content[activeTab]?.description }}></div>
+          ) : (
+            <p>No content available for this section.</p> // Error handling for missing content
+          )}
         </div>
       </div>
     </section>

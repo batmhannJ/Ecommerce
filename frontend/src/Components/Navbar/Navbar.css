@@ -58,52 +58,72 @@
 .nav-login-cart {
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 20px;
   position: relative;
 }
 
+/* 🛒 Cart Icon - Clean & Minimal */
 .nav-login-cart img {
-  width: 35px;
-  height: 35px;
+  width: 45px;
+  height: 45px;
+  padding: 8px;
+  background: white; /* Kept it white as requested */
+  border-radius: 12px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
 }
 
-.nav-login-cart button {
-  width: 100px;
-  height: 40px;
-  outline: none;
-  border: 1px solid #7a7a7a;
-  border-radius: 50px;
-  color: #515151;
-  font-size: 16px;
-  font-weight: 500;
-  background: white;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s, transform 0.2s;
+.nav-login-cart img:hover {
+  transform: scale(1.1);
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-.nav-login-cart button:hover {
-  background-color: #078fe4;
-  color: #f3f3f3;
-}
-
-.nav-login-cart button:active {
-  background: #778c62db;
-  transform: scale(0.95);
-}
-
+/* 🛒 Cart Counter - Softened Colors */
 .nav-cart-count {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
+  font-size: 12px;
+  font-weight: bold;
+  background: #ffadad; /* Soft pastel red */
+  color: white;
+  border: 2px solid white;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: -35px;
-  margin-left: -40px;
+  position: absolute;
+  top: -5px;
+  right: -5px;
   border-radius: 50%;
-  font-size: 10px;
-  background: red;
-  color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
+
+/* ✨ Modern Pastel Login Button */
+.nav-login-cart button {
+  width: 140px;
+  height: 42px;
+  border: none;
+  border-radius: 8px;
+  font-size: 17px;
+  font-weight: 600;
+  background: #7395AE; /* Dark pastel blue */
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0px 4px 10px rgba(115, 149, 174, 0.3);
+}
+
+.nav-login-cart button:hover {
+  background: #BDE0FE; /* Light pastel blue hover */
+  color: #4a4a4a;
+  transform: translateY(-3px);
+  box-shadow: 0px 8px 15px rgba(189, 224, 254, 0.5);
+}
+
+.nav-login-cart button:active {
+  background: #A2D2FF;
+  transform: scale(0.95);
+}
+
 
 .nav-profile-container {
   position: relative;

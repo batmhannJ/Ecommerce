@@ -1,3 +1,5 @@
+
+
 .loginsignup {
   width: 100%;
   height: 100vh;
@@ -10,83 +12,75 @@
   margin: 0;
 }
 
-.forgot-password {
-  color: #007bff;
-  cursor: pointer;
-  margin-top: 10px;
-  font-size: 0.9em;
-  text-align: right;
-  text-decoration: underline;
-}
-
-.forgot-password:hover {
-  color: #0056b3;
-}
-
 .loginsignup-container {
   width: 100%;
-  max-width: 450px;
-  height: auto;
-  max-height: 800px; /* Increased max-height */
-  background: rgba(255, 255, 255, 0.9);
+  max-width: 400px;
+  background: #fff;
   border-radius: 10px;
-  padding: 30px 40px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  position: relative;
-  display: flex; /* Added for flexbox layout */
-  flex-direction: column; /* Stacks children vertically */
-  align-items: stretch; /* Allows children to stretch */
-}
-
-.loginsignup-container h1 {
-  margin: 5px 0;
-  font-size: 28px;
-  text-align: center;
-}
-
-.loginsignup-fields {
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  margin-top: 20px;
-}
-
-.password-container {
-  display: flex;
   align-items: center;
 }
 
-.eye-icon {
-  margin-left: -30px;
+.loginsignup-container h1 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #3b5998; /* Darker pastel blue */
+  font-weight: 900; /* Make it bolder */
+}
+
+.loginsignup-fields {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .loginsignup-fields input {
-  height: 50px;
+  height: 45px;
   width: 100%;
-  padding-left: 15px;
-  border: 1px solid #c9c9c9;
-  outline: none;
-  color: #5c5c5c;
-  font-size: 16px;
+  padding: 0 15px;
+  border: 1px solid #ddd;
   border-radius: 5px;
+  font-size: 16px;
+  color: #333;
+  transition: border-color 0.3s;
+}
+
+.loginsignup-fields input:focus {
+  border-color: #007bff;
+}
+
+.password-container {
+  position: relative;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #888;
 }
 
 .loginsignup-container button {
   width: 100%;
-  height: 50px;
-  color: white;
-  background: #bac195;
-  margin-top: 20px;
+  height: 45px;
+  background: #f4d160; /* Pastel dark yellow */
+  color: #fff;
   border: none;
-  font-size: 20px;
-  font-weight: 500;
-  cursor: pointer;
   border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
   transition: background 0.3s, transform 0.2s;
+  margin-top: 15px; /* Add top margin to create space */
 }
 
 .loginsignup-container button:hover {
-  background: #747b50;
+  background: #f7e3a1; /* Lighter pastel yellow */
 }
 
 .loginsignup-container button:active {
@@ -95,26 +89,36 @@
 
 .loginsignup-login {
   margin-top: 15px;
-  color: #5c5c5c;
-  font-size: 16px;
-  font-weight: 500;
-  text-align: center;
+  color: #333;
+  font-size: 14px;
 }
 
 .loginsignup-login span {
-  color: #333;
-  font-weight: 600;
+  color: #007bff;
   cursor: pointer;
+}
+
+.forgot-password {
+  color: #007bff;
+  cursor: pointer;
+  font-size: 0.9em;
+  text-align: right;
+  text-decoration: underline;
+  margin-top: 0; /* Remove top margin */
+  margin-bottom: 2px; /* Add bottom margin */
+}
+
+.forgot-password:hover {
+  color: #0056b3;
 }
 
 .loginsignup-agree {
   display: flex;
   align-items: center;
   margin-top: 20px;
-  gap: 15px;
-  color: #5c5c5c;
-  font-size: 16px;
-  font-weight: 500;
+  gap: 10px;
+  color: #333;
+  font-size: 14px;
 }
 
 .loginsignup-agree .checkbox {
@@ -122,35 +126,32 @@
   height: 15px;
 }
 
-.loginsignup-agree a{
-  color:#0056b3;
+.loginsignup-agree a {
+  color: #007bff;
   text-decoration: underline;
 }
 
-/* reCAPTCHA styling */
 .recaptcha-container {
-  margin-top: 10px; /* Increase margin-top for more space above */
+  margin-top: 10px;
   margin-bottom: 10px;
   display: flex;
-  flex-direction: column; /* Allow items to stack vertically */
-  align-items: center; /* Center align items */
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Adjusts the size and appearance of the reCAPTCHA widget */
 .recaptcha-container .g-recaptcha {
-  margin-top: 5px; /* Space above the widget */
-  transform: scale(0.9); /* Scale down the reCAPTCHA widget */
-  transform-origin: 0 0; /* Adjust origin for scaling */
-  width: 100%; /* Make it responsive */
-  max-width: 300px; /* Limit max width for larger screens */
+  margin-top: 5px;
+  transform: scale(0.9);
+  transform-origin: 0 0;
+  width: 100%;
+  max-width: 300px;
 }
 
-/* Optional styling for a label or description */
 .recaptcha-description {
-  color: #5c5c5c;
+  color: #333;
   font-size: 14px;
-  text-align: center; /* Center-align the text */
-  margin-bottom: 10px; /* Space below the description */
+  text-align: center;
+  margin-bottom: 10px;
 }
 
 .phone-number-container {
@@ -170,35 +171,9 @@ input[name="phone"] {
   font-size: 14px;
 }
 
-
 /* Media queries for responsiveness */
-@media (max-width: 1280px) {
+@media (max-width: 768px) {
   .loginsignup-container {
-    max-width: 90%; /* Adjust width for smaller screens */
-    padding: 20px; /* Add padding for small screens */
-  }
-
-  .loginsignup-container h1 {
-    font-size: 24px; /* Adjust font size */
-  }
-
-  .loginsignup-fields input {
-    height: 50px; /* Maintain height */
-  }
-
-  .loginsignup-container button {
-    font-size: 18px; /* Adjust button font size */
-  }
-
-  .loginsignup-login,
-  .loginsignup-agree {
-    font-size: 14px; /* Adjust font size */
-  }
-}
-
-@media (max-width: 992px) {
-  .loginsignup-container {
-    width: 80%;
     padding: 20px;
   }
 
@@ -206,74 +181,41 @@ input[name="phone"] {
     font-size: 22px;
   }
 
-  .loginsignup-fields {
-    margin-top: 15px;
-  }
-
   .loginsignup-fields input {
-    height: 50px; /* Maintain height */
+    height: 40px;
   }
 
   .loginsignup-container button {
-    height: 50px;
-    font-size: 16px;
-  }
-}
-
-@media (max-width: 768px) {
-  .loginsignup {
-    padding: 0 20px;
-  }
-
-  .loginsignup-container {
-    max-width: 95%;
-    padding: 20px; /* Add padding for small screens */
-  }
-
-  .loginsignup-container h1 {
-    font-size: 20px; /* Adjust font size */
-  }
-
-  .loginsignup-fields input {
-    height: 45px; /* Adjust height */
-  }
-
-  .loginsignup-container button {
-    height: 45px; /* Adjust button height */
-    font-size: 14px; /* Adjust button font size */
+    height: 40px;
+    font-size: 14px;
   }
 
   .loginsignup-login,
   .loginsignup-agree {
-    font-size: 14px; /* Adjust font size */
+    font-size: 12px;
   }
 }
 
 @media (max-width: 576px) {
-  .loginsignup {
-    padding: 0 10px; /* Add padding for small screens */
-  }
-
   .loginsignup-container {
-    max-width: 100%;
-    padding: 15px; /* Adjust padding */
+    padding: 15px;
   }
 
   .loginsignup-container h1 {
-    font-size: 18px; /* Adjust font size */
+    font-size: 20px;
   }
 
   .loginsignup-fields input {
-    height: 40px; /* Adjust height */
+    height: 35px;
   }
 
   .loginsignup-container button {
-    height: 40px; /* Adjust button height */
-    font-size: 12px; /* Adjust button font size */
+    height: 35px;
+    font-size: 12px;
   }
 
   .loginsignup-login,
   .loginsignup-agree {
-    font-size: 12px; /* Adjust font size */
+    font-size: 12px;
   }
 }

@@ -130,9 +130,13 @@ const Navbar = () => {
               Logout
             </button>
           )}
-          <Link to="/cart">
-            <img src={cart_icon} alt="Cart Icon" />
-          </Link>
+          <Link to="/cart" className="cart-button">
+  <button className="modern-cart-btn">
+    <img src={cart_icon} alt="Cart Icon" className="cart-icon" />
+    Add to Cart
+  </button>
+</Link>
+
           <div className="nav-cart-count">{getTotalCartItems()}</div>
           {isLoggedIn && (
             <div className="nav-profile-container">

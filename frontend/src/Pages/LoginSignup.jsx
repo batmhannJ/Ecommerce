@@ -306,54 +306,32 @@ const LoginSignup = () => {
                   type="text"
                   placeholder="Enter OTP"
                 />
-                <div
-                  className="password-container"
-                  style={{ position: "relative" }}
-                >
+                <div className="password-container">
                   <input
                     name="newPassword"
                     value={resetPasswordForm.newPassword}
                     onChange={handleResetPasswordFormChange}
-                    //type={showPassword ? "text" : "password"}
+                    type={showPassword ? "text" : "password"}
                     placeholder="New Password"
                   />
                   <span
                     className="eye-icon"
                     onClick={togglePasswordVisibility}
-                    style={{
-                      cursor: "pointer",
-                      position: "absolute",
-                      right: "10px",
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                    }}
                   >
-                    {showPassword ? <FaEyeSlash /> : <FaEye />}{" "}
-                    {/* Toggle eye icon */}
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
                   </span>
                 </div>
-                {/* Confirm Password Input */}
-                <div
-                  className="password-container"
-                  style={{ position: "relative" }}
-                >
+                <div className="password-container">
                   <input
                     name="confirmPassword"
                     value={resetPasswordForm.confirmPassword}
                     onChange={handleResetPasswordFormChange}
-                    //type={showPassword ? "text" : "password"}
+                    type={showPassword ? "text" : "password"}
                     placeholder="Confirm Password"
                   />
                   <span
                     className="eye-icon"
                     onClick={toggleConfirmPasswordVisibility}
-                    style={{
-                      cursor: "pointer",
-                      position: "absolute",
-                      right: "10px",
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                    }}
                   >
                     {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                   </span>
@@ -389,39 +367,30 @@ const LoginSignup = () => {
                 type="email"
                 placeholder="Email Address"
               />
-              {/* Phone number input field */}
-              {/* Phone number input field */}
-{state === "Sign Up" && (
-  <div className="phone-number-container">
-    <span className="country-code">+63</span>
-    <input
-      name="phone"
-      value={formData.phone}
-      onChange={changeHandler}
-      onInput={(e) => {
-        // Remove non-numeric characters
-        e.target.value = e.target.value.replace(/[^0-9]/g, '');
-
-        // Ensure the phone number starts with '9' and is 10 digits long (excluding country code)
-        if (e.target.value.length > 10) {
-          e.target.value = e.target.value.slice(0, 10);
-        }
-        if (e.target.value && e.target.value[0] !== '9') {
-          e.target.value = '9' + e.target.value.slice(1);
-        }
-      }}
-      type="tel"
-      placeholder="Phone Number"
-      maxLength="10"
-      aria-required="true"
-    />
-  </div>
-)}
-
-              <div
-                className="password-container"
-                style={{ position: "relative" }}
-              >
+              {state === "Sign Up" && (
+                <div className="phone-number-container">
+                  <span className="country-code">+63</span>
+                  <input
+                    name="phone"
+                    value={formData.phone}
+                    onChange={changeHandler}
+                    onInput={(e) => {
+                      e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                      if (e.target.value.length > 10) {
+                        e.target.value = e.target.value.slice(0, 10);
+                      }
+                      if (e.target.value && e.target.value[0] !== '9') {
+                        e.target.value = '9' + e.target.value.slice(1);
+                      }
+                    }}
+                    type="tel"
+                    placeholder="Phone Number"
+                    maxLength="10"
+                    aria-required="true"
+                  />
+                </div>
+              )}
+              <div className="password-container">
                 <input
                   name="password"
                   value={formData.password}
@@ -432,18 +401,15 @@ const LoginSignup = () => {
                 <span
                   className="eye-icon"
                   onClick={togglePasswordVisibility}
-                  style={{
-                    cursor: "pointer",
-                    position: "absolute",
-                    right: "10px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                  }}
                 >
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </span>
               </div>
-
+              {state === "Login" && (
+                <p className="forgot-password" onClick={() => setForgotPasswordMode(true)}>
+                  Forgot Password?
+                </p>
+              )}
               {otpSent && (
                 <input
                   name="otp"
@@ -465,27 +431,19 @@ const LoginSignup = () => {
                     onChange={onRecaptchaChange}
                   />
                 </div>
-
-                <p
-                  className="forgot-password"
-                  onClick={() => setForgotPasswordMode(true)}
-                >
-                  Forgot Password?
-                </p>
               </>
             )}
-
             <button
               onClick={() => {
                 if (state === "Sign Up" && !formData.agreed) {
                   alert("Please agree to the terms of use & privacy policy before continuing.");
-                  return; // Prevent sending OTP if checkbox is unchecked
+                  return;
                 }
                 state === "Login"
-                  ? login() // Only CAPTCHA verification for Login
+                  ? login()
                   : otpSent
                   ? verifyOtp()
-                  : sendOtp(); // OTP verification for Sign Up
+                  : sendOtp();
               }}
             >
               Continue
@@ -493,22 +451,14 @@ const LoginSignup = () => {
             {state === "Sign Up" ? (
               <p className="loginsignup-login">
                 Already have an account?{" "}
-                <span
-                  onClick={() => {
-                    setState("Login");
-                  }}
-                >
+                <span onClick={() => setState("Login")}>
                   Login
                 </span>
               </p>
             ) : (
               <p className="loginsignup-login">
                 Create an account?{" "}
-                <span
-                  onClick={() => {
-                    setState("Sign Up");
-                  }}
-                >
+                <span onClick={() => setState("Sign Up")}>
                   Sign Up
                 </span>
               </p>

@@ -1,93 +1,83 @@
 .my-order-container {
-  margin: 20px;
+  margin: 20px auto;
   padding: 20px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
+  max-width: 1200px; /* Increased width */
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow-x: auto; /* Enables horizontal scroll for small screens */
 }
 
-.my-order-container h1 {
-  font-size: 24px;
-  margin-bottom: 20px;
+h1 {
+  font-size: 26px;
+  text-align: center;
   color: #333;
 }
 
-.order-search {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 20px;
-}
-
-.order-search input {
-  padding: 8px;
-  font-size: 14px;
-  border: 2px solid #ddd;
-  border-radius: 4px;
-  margin-right: 10px;
-  width: 300px;
-}
-
-.order-search button {
-  padding: 8px 16px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.order-search button:hover {
-  background-color: #0056b3;
-}
-
+/* 📦 Table Styles */
 .order-table {
   width: 100%;
   border-collapse: collapse;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-.order-table th,
-.order-table td {
-  border: 1px solid #ddd;
-  padding: 12px;
+.order-table th, .order-table td {
+  padding: 14px;
   text-align: left;
 }
 
 .order-table th {
-  background-color: #f4f4f4;
+  background-color: #078fe4;
+  color: white;
   font-weight: bold;
+  text-transform: uppercase;
 }
 
-.order-table td {
-  color: #333;
+.order-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
 }
 
-.action-button {
-  border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
+.order-table tbody tr:hover {
+  background-color: #e3f2fd;
+  transition: 0.3s;
+}
+
+/* 🔖 Status Badges */
+.order-table td:last-child {
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 8px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: bold;
   font-size: 14px;
-  cursor: pointer;
-  margin-right: 8px;
-  font-weight: 600;
 }
 
-.action-button.view {
-  background-color: #28a745;
-  color: white;
+.status-pending { background: #ffc107; color: #333; }
+.status-completed { background: #28a745; color: white; }
+.status-cancelled { background: #dc3545; color: white; }
+
+/* 📱 Responsive Adjustments */
+@media (max-width: 1024px) {
+  .my-order-container {
+    max-width: 95%; /* Slightly smaller on medium screens */
+  }
 }
 
-.action-button.edit {
-  background-color: #007bff;
-  color: white;
-}
+@media (max-width: 768px) {
+  .order-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
 
-.action-button.delete {
-  background-color: #dc3545;
-  color: white;
-}
-
-.action-button:hover {
-  opacity: 0.9;
+  .my-order-container {
+    padding: 15px;
+    max-width: 100%;
+  }
 }

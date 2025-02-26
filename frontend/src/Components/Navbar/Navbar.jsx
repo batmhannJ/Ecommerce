@@ -7,8 +7,9 @@ import cart_icon from "../Assets/cart_icon.png";
 import menu_icon from "../Assets/menu_icon.png";
 import profile_icon from "../Assets/profile_icon.png";
 import navbar_icon from "../Assets/navbar_icon.png";
-import SearchTags from "../SearchTags/SearchTags";
+//import SearchTags from "../SearchTags/SearchTags";
 import { Truck, X } from "lucide-react";
+import { User, Package, LifeBuoy } from "lucide-react"; // Import icons
 
 const Navbar = () => {
   const [menu, setMenu] = useState("shop");
@@ -74,7 +75,6 @@ const Navbar = () => {
               <p>BizGo</p>
             </Link>
           </div>
-          <SearchBar />
         </div>
         <img
           className="nav-menu-dropdown"
@@ -149,16 +149,24 @@ const Navbar = () => {
                 }`}
               >
                 <Link to="/user/accountsettings" onClick={closeProfileMenu}>
-                  <button>Profile</button>
-                </Link>
-                <Link to="/myorders" onClick={closeProfileMenu}>
-                  <button>Orders</button>
-                </Link>
+    <button>
+      <User size={18} className="menu-icon" /> Profile
+    </button>
+  </Link>
+  <Link to="/myorders" onClick={closeProfileMenu}>
+    <button>
+      <Package size={18} className="menu-icon" /> Orders
+    </button>
+  </Link>
+  <Link to="/help-center" onClick={closeProfileMenu}>
+    <button>
+      <LifeBuoy size={18} className="menu-icon" /> Help Center
+    </button>
+  </Link>
               </div>
             </div>
           )}
         </div>
-        <SearchTags />
       </div>
     </div>
   );

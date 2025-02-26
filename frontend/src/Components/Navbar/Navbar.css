@@ -104,57 +104,92 @@
   color: white;
 }
 
-.nav-menu-dropdown {
-  display: none;
-}
-
 .nav-profile-container {
   position: relative;
   margin-right: 16px;
 }
 
 .nav-profile-icon {
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.nav-profile-icon:hover {
+  border-color: #007aff;
+  transform: scale(1.1);
 }
 
 .profile-menu {
-  display: none;
   position: absolute;
   top: 50px;
   right: 0;
   background: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  border-radius: 5px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
   overflow: hidden;
+  min-width: 160px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease-in-out;
   z-index: 1000;
 }
 
 .profile-menu-visible {
-  display: block;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 .profile-menu button {
   width: 100%;
-  padding: 8px 16px;
-  background: white;
+  padding: 12px 16px;
+  background: none;
   border: none;
   text-align: left;
-  cursor: pointer;
   font-size: 14px;
-  transition: background-color 0.3s, transform 0.3 ease;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  color: #333;
 }
 
 .profile-menu button:hover {
-  background: #778c62;
+  background: rgba(255, 255, 255, 0.3);
+  color: #007aff;
 }
 
 .profile-menu button:active {
   transform: scale(0.95);
 }
+.nav-menu-dropdown {
+  display: none; /* Default: Hidden on large screens */
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+}
+
+/* Show menu icon only on small screens */
+@media (max-width: 1024px) {
+  .nav-menu-dropdown {
+    display: block;
+  }
+}
+
+/* Hide menu icon on larger screens (laptops & desktops) */
+@media (min-width: 1025px) {
+  .nav-menu-dropdown {
+    display: none;
+  }
+}
+
+
 
 .search-tags {
   width: 100%;

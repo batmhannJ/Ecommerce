@@ -39,7 +39,7 @@ const handleLogout = () => {
 
   return (
     <div className='navbar'>
-        <p>TIENDA</p>
+        <p>BIZGO</p>
       <p>ADMIN PANEL</p>
       <div className="nav-profile-container">
         <img

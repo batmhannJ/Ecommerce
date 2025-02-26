@@ -41,7 +41,7 @@ export const Navbar = () => {
 
         <img src={navlogo} alt="Logo" className="nav-logo" />
 
-        <p>TIENDA   -    SELLER PANEL</p>
+        <p>BIZGO   -    SELLER PANEL</p>
 
       <div className="nav-profile-container">
         <img

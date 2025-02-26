@@ -98,7 +98,7 @@ function UserManagement() {
       <table className="user-table">
         <thead>
           <tr>
-            <th>Id</th>
+            <th>No.</th>
             <th>Name</th>
             <th>Email</th>
             <th>Contact</th>
@@ -108,7 +108,7 @@ function UserManagement() {
         <tbody>
           {users.map((user, index) => (
             <tr key={user._id}>
-              <td>{user._id}</td>
+              <td>{index + 1}</td>
               <td>{user.name}</td>
               <td>{user.email}</td>
               <td>{user.phone}</td>

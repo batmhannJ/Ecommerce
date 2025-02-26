@@ -118,7 +118,7 @@ export const CartItems = () => {
   const getDistanceFromLatLonInKm = (lat1, lon1, lat2, lon2) => {
     const R = 6371; // Radius of the Earth in km
     const dLat = degreesToRadians(lat2 - lat1);
-    const dLon = degreesToRadians(lon2 - lon1);
+    const dLon = degreesToRadians(lat2 - lon1);
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(degreesToRadians(lat1)) *
@@ -228,80 +228,71 @@ export const CartItems = () => {
   // Convert grouped object to array for rendering
   const groupedItemsArray = Object.values(groupedCartItems);
 
-    return (
-      <div className="cartitems">
-        <div className="cartitems-format-main">
-          <p>Products</p>
-          <p>Title</p>
-          <p>Price</p>
-          <p>Size</p>
-          <p>Quantity</p>
-          <p>Total</p>
-          <p>Remove</p>
-        </div>
-        <hr />
+  return (
+    <div className="cart-container">
+      <div className="cart-items">
         {groupedItemsArray.length > 0 ? (
           groupedItemsArray.map((groupedItem, index) => (
-            <div key={`${groupedItem.product.id}_${groupedItem.size}`}>
-              <div className="cartitems-format cartitems-format-main">
-                <img
-                  src={groupedItem.product.image || remove_icon}
-                  alt="Product"
-                  className="cartitem-product-icon"
-                />
-                <p>{groupedItem.product.name}</p>
+            <div key={`${groupedItem.product.id}_${groupedItem.size}`} className="cart-item">
+              <img
+                src={groupedItem.product.image || remove_icon}
+                alt="Product"
+              />
+              <div className="cart-item-details">
+                <h3>{groupedItem.product.name}</h3>
                 <p>₱{groupedItem.adjustedPrice}</p>
-                <p>{groupedItem.size}</p>
-                <div className="cartitems-quantity-controls">
+                <p>Size: {groupedItem.size}</p>
+              </div>
+              <div className="cart-item-quantity">
+                <div className="cart-item-quantity-controls">
                   <button
-                    className="cartitems-quantity-button"
                     onClick={() => decreaseItemQuantity(groupedItem.product.id, groupedItem.size)}
-                    >
+                  >
                     -
                   </button>
-                  <button className="cartitems-quantity-button">
-                    {groupedItem.quantity}
-                  </button>
+                  <input
+                    type="text"
+                    value={groupedItem.quantity}
+                    readOnly
+                  />
                   <button
-                    className="cartitems-quantity-button"
                     onClick={() => increaseItemQuantity(groupedItem.product.id, groupedItem.size)}
-                    >
+                  >
                     +
                   </button>
                 </div>
-                <p>₱{groupedItem.adjustedPrice * groupedItem.quantity}</p>
-                <img
-                  className="cartitems-remove-icon"
-                  src={remove_icon}
-                  onClick={() => handleQuantityChange(groupedItem.product.id, groupedItem.size, -groupedItem.quantity)}  // Set quantity to 0
-                  alt="Remove"
-                />
+                <p className="cart-item-total">₱{groupedItem.adjustedPrice * groupedItem.quantity}</p>
               </div>
-              <hr />
+              <span
+                className="cart-item-remove"
+                onClick={() => handleQuantityChange(groupedItem.product.id, groupedItem.size, -groupedItem.quantity)}  // Set quantity to 0
+              >
+                &times;
+              </span>
             </div>
           ))
         ) : (
           <p>No products in the cart</p>
         )}
-        <div className="cartitems-down">
-          <div className="cartitems-total">
-            <h1>Cart Totals</h1>
-            <div>
-              <div className="cartitems-total-item">
-                <p>Subtotal</p>
-                <p>₱{getTotalCartAmount()}</p>
-              </div>
-              <hr />
-              <div className="cartitems-total-item">
-                <h3>Total</h3>
-                <h3>₱{getTotalCartAmount() + deliveryFee}</h3>
-              </div>
-            </div>
-            <button onClick={handleProceedToCheckout}>PROCEED TO CHECKOUT</button>
-          </div>
-        </div>
       </div>
-    );
-  };
+      <div className="cart-summary">
+        <h2>Cart Summary</h2>
+        <div className="cart-summary-item">
+          <p>Subtotal</p>
+          <p>₱{getTotalCartAmount()}</p>
+        </div>
+        <div className="cart-summary-item">
+          <p>Delivery Fee</p>
+          <p>₱{deliveryFee}</p>
+        </div>
+        <div className="cart-summary-total">
+          <p>Total</p>
+          <p>₱{getTotalCartAmount() + deliveryFee}</p>
+        </div>
+        <button onClick={handleProceedToCheckout}>PROCEED TO CHECKOUT</button>
+      </div>
+    </div>
+  );
+};
 
 export default CartItems;

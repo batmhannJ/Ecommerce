@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import "./Partner.css";
 import Item from "../Item/Item";
+import ShopList from "../ShopList/ShopList";
 
-const Popular = () => {
-  const [popularProducts, setPopularProducts] = useState([]);
+const Partner = () => {
+  const [stores, setStores] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:4000/popularincrafts")
+    fetch("http://localhost:4000/partner-stores")
       .then((response) => response.json())
-      .then((data) => setPopularProducts(data));
+      .then((data) => setStores(data));
   }, []);
 
   return (
@@ -16,20 +17,17 @@ const Popular = () => {
       <h1>PARTNER STORES</h1>
       <hr />
       <div className="popular-item">
-        {popularProducts.map((item, i) => {
-          return (
-            <Item
-              key={i}
-              id={item.id}
-              name={item.name}
-              image={item.image}
-              new_price={item.new_price}
-            />
-          );
-        })}
+        {stores.map((store, i) => (
+          <ShopList
+            key={i}
+            shopName={store.shopName}
+            image={store.idPicture}
+            businessLocation={store.businessLocation}
+          />
+        ))}
       </div>
     </div>
   );
 };
 
-export default Popular;
+export default Partner;

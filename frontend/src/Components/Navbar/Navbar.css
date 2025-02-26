@@ -21,7 +21,7 @@
 }
 
 .nav-logo p {
-  color: #171717;
+  color: #ff6600;
   font-size: 30px;
   font-weight: 600;
   margin: 0;
@@ -81,7 +81,7 @@
 }
 
 .nav-login-cart button:hover {
-  background-color: #778c62;
+  background-color: #078fe4;
   color: #f3f3f3;
 }
 

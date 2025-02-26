@@ -1169,6 +1169,27 @@ app.delete("/api/cart/:userId", async (req, res) => {
   }
 });
 
+app.get("/partner-stores", async (req, res) => {
+  try {
+    const approvedSellers = await Seller.find({ isApproved: true }, "shopName idPicture businessLocation");
+
+    const updatedSellers = approvedSellers.map((seller) => {
+      return {
+        ...seller.toObject(),
+        idPicture: seller.idPicture
+          ? `http://localhost:4000/upload/${seller.idPicture}`
+          : null,
+      };
+    });
+
+    console.log("Partner Stores Fetched");
+    res.json(updatedSellers);
+  } catch (error) {
+    console.error("Error fetching partner stores:", error);
+    res.status(500).json({ error: "Failed to fetch partner stores" });
+  }
+});
+
 
 
 //======================== M O B I L E ==================================//

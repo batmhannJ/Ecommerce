@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./SAccountSettings.css";
 import axios from "axios";
-import Navbar from '../Navbar/Navbar'; // Adjust the import path as necessary
-import Sidebar from '../Sidebar/Sidebar'; // Adjust the import path as necessary
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const SAccountSettings = () => {
@@ -10,6 +8,8 @@ const SAccountSettings = () => {
     name: "",
     phone: "",
     email: "",
+    shopName: "",
+    businessLocation: "",
     password: "",
   });
 
@@ -52,8 +52,8 @@ const SAccountSettings = () => {
         });
         console.log("Fetched user data:", response.data);
 
-        const { name, phone, email } = response.data;
-        setFormData({ name, phone, email, password: "" });
+        const { name, phone, email, shopName, businessLocation } = response.data;
+        setFormData({ name, phone, email, shopName, businessLocation, password: "" });
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -72,6 +72,8 @@ const SAccountSettings = () => {
     if (!formData.name) errors.name = "Name is required";
     if (!formData.phone) errors.phone = "Phone is required";
     if (!formData.email) errors.email = "Email is required";
+    if (!formData.shopName) errors.shopName = "Shop Name is required";
+    if (!formData.businessLocation) errors.businessLocation = "Business Address is required";
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -86,6 +88,8 @@ const SAccountSettings = () => {
         name: formData.name, 
         email: formData.email, 
         phone: formData.phone,
+        shopName: formData.shopName, 
+        businessLocation: formData.businessLocation,
       };
 
       if (formData.password) {
@@ -93,7 +97,7 @@ const SAccountSettings = () => {
       }
 
       try {
-        console.log("Outgoing update request data:", updateData); // Check the data before making request
+        console.log("Outgoing update request data:", updateData);
         const response = await axios.patch(
           `http://localhost:4000/api/editseller/${adminId}`,
           updateData,
@@ -147,15 +151,14 @@ const SAccountSettings = () => {
               value={formData.phone}
               onChange={handleChange}
               onInput={(e) => {
-                let value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+                let value = e.target.value.replace(/[^0-9]/g, "");
                 if (value.length > 0) {
-                  value = '9' + value.slice(1); // Ensure it starts with 9
+                  value = '9' + value.slice(1);
                 }
-                e.target.value = value.slice(0, 10); // Restrict to 10 digits
+                e.target.value = value.slice(0, 10);
               }}
               maxLength="10"
               aria-required="true"
-              //placeholder="Enter your 11-digit phone number"
             />
             {formErrors.phone && (
               <span className="account-settings__error">
@@ -176,35 +179,57 @@ const SAccountSettings = () => {
               />
               {formErrors.email && <span className="account-settings__error">{formErrors.email}</span>}
             </div>
-
+            <div className="account-settings__form-group">
+              <label htmlFor="name">Shop Name <span>*</span></label>
+              <input
+                type="text"
+                name="shopName"
+                id="shopName"
+                value={formData.shopName}
+                onChange={handleChange}
+                aria-required="true"
+              />
+              {formErrors.shopName && <span className="account-settings__error">{formErrors.shopName}</span>}
+            </div>
+            <div className="account-settings__form-group">
+              <label htmlFor="name">Business Address <span>*</span></label>
+              <input
+                type="text"
+                name="businessLocation"
+                id="businessLocation"
+                value={formData.businessLocation}
+                onChange={handleChange}
+                aria-required="true"
+              />
+              {formErrors.businessLocation && <span className="account-settings__error">{formErrors.businessLocation}</span>}
+            </div>
             <div className="account-settings__form-group">
               <label htmlFor="password">Password <span>(optional)</span></label>
               <div style={{ position: 'relative' }}>
-    <input
-      type={showPassword ? "text" : "password"}
-      name="password"
-      id="password"
-      value={formData.password}
-      onChange={handleChange}
-      style={{ paddingRight: '30px', width: '100%'}} // Add padding to make space for the icon
-    />
-    <span
-      className="eye-icon"
-      onClick={togglePasswordVisibility}
-      style={{
-        cursor: 'pointer',
-        position: 'absolute',
-        right: '10px',
-        top: '50%',
-        transform: 'translateY(-50%)',
-      }}
-    >
-      {showPassword ? <FaEyeSlash /> : <FaEye />}
-    </span>
-  </div>
-  {formErrors.password && <span className="account-settings__error">{formErrors.password}</span>}
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                id="password"
+                value={formData.password}
+                onChange={handleChange}
+                style={{ paddingRight: '30px', width: '100%'}}
+              />
+              <span
+                className="eye-icon"
+                onClick={togglePasswordVisibility}
+                style={{
+                  cursor: 'pointer',
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                }}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
             </div>
-
+            {formErrors.password && <span className="account-settings__error">{formErrors.password}</span>}
+                      </div>
             <button className="account-settings__button" type="submit">
               Save Changes
             </button>

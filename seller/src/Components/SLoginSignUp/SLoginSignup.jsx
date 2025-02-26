@@ -3,7 +3,7 @@ import { sellerSignup, sellerLogin, requestPasswordReset, verifyOtp, resetPasswo
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import './SLoginSignup.css'; // Import your CSS file
+import './SLoginSignup.css';
 import axios from 'axios';
 import loginImage from "../../assets/login_image.png";
 
@@ -11,21 +11,21 @@ import loginImage from "../../assets/login_image.png";
 const SLoginSignup = () => {
   const [formData, setFormData] = useState({
     name: '',
+    shopName: '',
     email: '',
     password: '',
-    idPicture: null,  // New field for ID picture
+    idPicture: null,
+    businessLocation: '',
   });
   const [passwordError, setPasswordError] = useState('');
-  const [isLogin, setIsLogin] = useState(false); // To toggle between login and sign up
+  const [isLogin, setIsLogin] = useState(false);
   const navigate = useNavigate();
-  const [forgotPassword, setForgotPassword] = useState(false); // State for forgot password
+  const [forgotPassword, setForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [otpSent, setOtpSent] = useState(false); // State to handle OTP sent
-
-  // New state variable to handle password visibility
+  const [otpSent, setOtpSent] = useState(false); 
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {
@@ -48,29 +48,30 @@ const SLoginSignup = () => {
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    const { name, email, password, idPicture } = formData;
+    const { name, shopName, email, password, idPicture, businessLocation } = formData;
 
-    if (!name || !email || !password || !idPicture) {
+    if (!name || !shopName || !email || !password || !idPicture || !businessLocation) {
       toast.error("Please fill out all fields.");
       return;
     }
 
     const signupData = new FormData();
     signupData.append('name', name);
+    signupData.append('shopName', shopName);
     signupData.append('email', email);
     signupData.append('password', password);
     signupData.append('idPicture', idPicture);
+    signupData.append('businessLocation', businessLocation);
 
     try {
       const result = await sellerSignup(signupData);
       toast.success('Sign up successful! Waiting for admin approval.');
       navigate('/login');
     } catch (error) {
-      // Extract response or responseText from the error object
       const errorMessage = error.response?.data?.errors?.[0] || error.response?.data || error.message; 
   
-      toast.error(errorMessage); // Show error message in a toast notification
-      console.error('Sign up error:', error.response); // Log the error response for debugging
+      toast.error(errorMessage);
+      console.error('Sign up error:', error.response);
   }
   
   };
@@ -103,7 +104,7 @@ const SLoginSignup = () => {
       localStorage.setItem('admin_token', responseData.data.token);
       toast.success('Login successful! Redirecting to the dashboard...');
       navigate('/addproduct');
-      window.location.reload(); // Optional: Reload if necessary
+      window.location.reload();
     } catch (error) {
       console.error('Login error:', error);
       toast.error(error.response?.data?.message || 'Login failed. Please try again.');
@@ -116,12 +117,12 @@ const SLoginSignup = () => {
 
     try {
       const result = await requestPasswordReset(email);
-      setOtpSent(true); // Set OTP sent state to true
+      setOtpSent(true);
       toast.success(result.message || 'OTP sent successfully.');
     } catch (error) {
       console.error("Error sending OTP:", error);
       setMessage(error.response?.data?.errors || 'Error sending OTP');
-      toast.error(setMessage); // Notify the user of the error
+      toast.error(setMessage);
     }
   };
 
@@ -136,7 +137,7 @@ const SLoginSignup = () => {
         newPassword,
       });
   
-      console.log('Server response:', response.data); // Log server response
+      console.log('Server response:', response.data);
   
       if (response.data.success) {
         toast.success(response.data.message);
@@ -146,14 +147,14 @@ const SLoginSignup = () => {
       }
     } catch (error) {
       console.error('Error verifying OTP:', error);
-      console.log('Error response:', error.response?.data); // Log error response
+      console.log('Error response:', error.response?.data);
       toast.error(error.response?.data?.errors || 'Error verifying OTP');
     }
   };
   
   
 const handleResetPassword = async (e) => {
-  e.preventDefault(); // Prevent default form submission
+  e.preventDefault();
   if (!newPassword || !otp) {
       toast.error("Please enter both OTP and new password.");
       return;
@@ -162,8 +163,8 @@ const handleResetPassword = async (e) => {
   try {
       const result = await resetPassword(email, otp, newPassword);
       if (result.success) {
-          toast.success(result.message); // Display success message
-          navigate('/login'); // Redirect to login on success
+          toast.success(result.message);
+          navigate('/login');
       } else {
           toast.error(result.errors || 'Error resetting password');
       }
@@ -180,7 +181,7 @@ const handleResetPassword = async (e) => {
       <div className="login-box">
         <h1>{isLogin ? 'Seller Login' : 'Sign up as Seller'}</h1>
 
-        {forgotPassword ? ( // Conditional rendering for forgot password form
+        {forgotPassword ? (
           <>
             <form onSubmit={handleForgotPassword}>
               <input
@@ -193,7 +194,7 @@ const handleResetPassword = async (e) => {
               <button type="submit">Send OTP</button>
             </form>
 
-            {otpSent && ( // Show OTP input box only if OTP is sent
+            {otpSent && (
               <form onSubmit={handleVerifyOtp}>
                 <input
                   type="text"
@@ -270,6 +271,16 @@ const handleResetPassword = async (e) => {
               />
             </div>
             <div>
+              <label>Shop Name:</label>
+              <input
+                type="text"
+                name="shopName"
+                value={formData.shopName}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div>
               <label>Email:</label>
               <input
                 type="email"
@@ -287,22 +298,18 @@ const handleResetPassword = async (e) => {
         name="password"
         value={formData.password}
         onChange={(e) => {
-          let password = e.target.value; // Get the password input value
-          
-          // Restrict the password to 20 characters
+          let password = e.target.value;
           if (password.length > 20) {
-            password = password.slice(0, 20); // Truncate to 20 characters
+            password = password.slice(0, 20);
           }
 
-          // Update the form data
           handleChange({ target: { name: 'password', value: password } });
 
-          // Validate the password
           const isValidPassword = validatePassword(password);
           if (!isValidPassword) {
             setPasswordError('Password must be between 8 and 20 characters and contain at least one uppercase letter.');
           } else {
-            setPasswordError(''); // Clear error if password is valid
+            setPasswordError(''); 
           }
         }}
         required
@@ -329,6 +336,16 @@ const handleResetPassword = async (e) => {
                 type="file"
                 name="idPicture"
                 onChange={handleChange}
+              />
+            </div>
+            <div>
+            <label>Business Location:</label>
+              <input
+                type="text"
+                name="businessLocation"
+                value={formData.businessLocation}
+                onChange={handleChange}
+                required
               />
             </div>
             <button type="submit">Sign up</button>

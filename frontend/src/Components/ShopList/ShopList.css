@@ -1,0 +1,108 @@
+.item {
+  width: 280px; /* Adjust as needed */
+  height: auto; /* Allows flexibility for height */
+  box-sizing: border-box; /* Includes padding and border in width */
+  overflow: hidden; /* Hides any overflow content */
+  border: 1px solid #ddd; /* Light border around the item */
+  border-radius: 8px; /* Rounded corners for the container */
+  transition: box-shadow 0.3s ease, transform 0.3s ease; /* Smooth transition for shadow and transform */
+  padding-top: 10px; /* Adds space between the image and top border */
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.item img {
+  width: 100%; /* Ensures images fill their container */
+  height: 200px; /* Fixed height for uniformity */
+  object-fit: cover; /* Ensures images cover the area without stretching */
+  margin-bottom: 10px; /* Adds space between the image and the text below */
+}
+
+.item p {
+  margin: 6px 0;
+  font-size: 14px; /* Consistent font size for text */
+}
+
+.item_prices {
+  display: flex;
+  gap: 20px;
+}
+
+.item_price_new {
+  color: #374151;
+  font-size: 16px; /* Adjusted for readability */
+  font-weight: 600;
+}
+
+.item_price_old {
+  color: #8c8c8c;
+  font-size: 16px; /* Adjusted for readability */
+  font-weight: 500;
+  text-decoration: line-through;
+}
+
+.item:hover {
+  transform: scale(1.05); /* Slightly enlarges the item on hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Adds shadow effect */
+}
+
+/* Responsive adjustments */
+@media (max-width: 1280px) {
+  .item {
+    width: 220px;
+  }
+
+  .item_price_new,
+  .item_price_old {
+    font-size: 14px;
+  }
+
+  .item p {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .item {
+    width: 170px;
+  }
+
+  .item_price_new,
+  .item_price_old {
+    font-size: 13px;
+  }
+
+  .item p {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 800px) {
+  .item {
+    width: 120px;
+  }
+
+  .item_price_new,
+  .item_price_old {
+    font-size: 12px;
+  }
+
+  .item p {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 500px) {
+  .item {
+    width: 160px;
+  }
+
+  .item_price_new,
+  .item_price_old {
+    font-size: 12px;
+  }
+
+  .item p {
+    font-size: 10px;
+  }
+}

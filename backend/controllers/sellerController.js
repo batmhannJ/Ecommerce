@@ -109,8 +109,14 @@ const updateSeller = async (req, res) => {
   console.log("Seller ID:", req.params.id);
 
   const { name, email, phone, shopName, businessLocation, password } = req.body;
+  const idPicture = req.file ? req.file.filename : null;
+
   try {
-    const updateFields = { name, email, phone, shopName, businessLocation };
+    const updateFields = { name, email, phone, shopName, businessLocation};
+
+    if (idPicture) {
+      updateFields.idPicture = idPicture;
+    }
 
     if (password) {
       const salt = await bcrypt.genSalt(10);

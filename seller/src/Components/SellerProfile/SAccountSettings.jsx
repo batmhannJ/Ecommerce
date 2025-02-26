@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./SAccountSettings.css";
 import axios from "axios";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import upload_area from "../../assets/upload_area.png";
 
 const SAccountSettings = () => {
   const [formData, setFormData] = useState({
@@ -10,15 +11,27 @@ const SAccountSettings = () => {
     email: "",
     shopName: "",
     businessLocation: "",
+    idPicture: "",
     password: "",
   });
-
+  const [image, setImage] = useState(null);
   const [formErrors, setFormErrors] = useState({});
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
+  const imageHandler = (e) => {
+    const file = e.target.files[0];
+    setImage(file); // Update the state for preview
+  
+    // Update `idPicture` in `formData`
+    setFormData((prev) => ({
+      ...prev,
+      idPicture: file, // Store the file, not just the name
+    }));
+  };
+  
   const getUserIdFromToken = () => {
     const authToken = localStorage.getItem("admin_token");
     if (authToken) {
@@ -52,8 +65,8 @@ const SAccountSettings = () => {
         });
         console.log("Fetched user data:", response.data);
 
-        const { name, phone, email, shopName, businessLocation } = response.data;
-        setFormData({ name, phone, email, shopName, businessLocation, password: "" });
+        const { name, phone, email, shopName, businessLocation, idPicture } = response.data;
+        setFormData({ name, phone, email, shopName, businessLocation, idPicture, password: "" });
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -83,36 +96,43 @@ const SAccountSettings = () => {
     if (validateForm()) {
       setFormSubmitted(true);
       const adminId = getUserIdFromToken();
-
-      const updateData = { 
-        name: formData.name, 
-        email: formData.email, 
-        phone: formData.phone,
-        shopName: formData.shopName, 
-        businessLocation: formData.businessLocation,
-      };
-
-      if (formData.password) {
-        updateData.password = formData.password;
+  
+      let formDataUpload = new FormData();
+      formDataUpload.append("name", formData.name);
+      formDataUpload.append("email", formData.email);
+      formDataUpload.append("phone", formData.phone);
+      formDataUpload.append("shopName", formData.shopName);
+      formDataUpload.append("businessLocation", formData.businessLocation);
+  
+      // **Kung may bagong image, idagdag sa FormData**
+      if (image) {
+        formDataUpload.append("idPicture", image);
       }
-
+  
+      if (formData.password) {
+        formDataUpload.append("password", formData.password);
+      }
+  
       try {
-        console.log("Outgoing update request data:", updateData);
+        console.log("Outgoing update request data:", formDataUpload);
         const response = await axios.patch(
           `http://localhost:4000/api/editseller/${adminId}`,
-          updateData,
+          formDataUpload,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("admin_token")}`,
+              "Content-Type": "multipart/form-data",
             },
           }
         );
+  
         console.log("User updated successfully:", response.data);
       } catch (error) {
         console.error("Error updating user:", error.response ? error.response.data : error.message);
       }
     }
   };
+  
 
   return (
     <div className="account-settings">
@@ -202,6 +222,22 @@ const SAccountSettings = () => {
                 aria-required="true"
               />
               {formErrors.businessLocation && <span className="account-settings__error">{formErrors.businessLocation}</span>}
+            </div>
+            <div className="account-settings__form-group">
+              <label htmlFor="file-input">
+                <img
+                  src={image ? URL.createObjectURL(image) : upload_area}
+                  className="addproduct-thumbnail-img"
+                  alt=""
+                />
+              </label>
+              <input
+                onChange={imageHandler}
+                type="file"
+                name="idPicture"
+                id="file-input"
+                hidden
+              />
             </div>
             <div className="account-settings__form-group">
               <label htmlFor="password">Password <span>(optional)</span></label>

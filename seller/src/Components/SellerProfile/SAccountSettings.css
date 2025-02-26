@@ -150,3 +150,22 @@
     font-size: 14px;
   }
 }
+
+/* Thumbnail image styling */
+.addproduct-thumbnail-img {
+  height: 120px;
+  width: 120px;
+  border: 1px solid #c3c3c3;
+  object-fit: contain;
+  margin: 10px 0;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.addproduct-thumbnail-img:hover {
+  transform: scale(1.02);
+}
+
+.addproduct-thumbnail-img:active {
+  transform: scale(1);
+}

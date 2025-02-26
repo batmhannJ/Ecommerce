@@ -208,6 +208,6 @@ router.post("/verify-otp-seller", async (req, res) => {
   }
 });
 
-router.patch("/editseller/:id", updateSeller);
+router.patch("/editseller/:id", upload.single("idPicture"), updateSeller);
 
 module.exports = router;

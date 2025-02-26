@@ -15,6 +15,7 @@ const Seller = require("../models/sellerModels"); // Import the Seller model
 const bcrypt = require("bcrypt"); // Add this line
 const jwt = require("jsonwebtoken"); // Import jsonwebtoken here
 const otpStore = {}; // Store OTPs temporarily
+const Product = require("../models/productModels");
 
 const generateAuthToken = (seller) => {
   const token = jwt.sign({ id: seller._id }, "admin_token", {
@@ -228,6 +229,25 @@ router.delete("/deleteseller/:id", async (req, res) => {
   } catch (error) {
     console.error("Error deleting user:", error);
     res.status(500).json({ error: "Failed to delete user" });
+  }
+});
+
+
+router.get("/my-products", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized: No token provided" });
+    }
+    const decoded = jwt.verify(token, "admin_token"); 
+    const sellerId = decoded.id;
+
+    const products = await Product.find({ sellerId: sellerId });
+
+    res.json(products);
+  } catch (error) {
+    console.error("Error fetching seller products:", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 

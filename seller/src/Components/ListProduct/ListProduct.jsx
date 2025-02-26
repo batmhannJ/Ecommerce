@@ -27,28 +27,43 @@ export const ListProduct = () => {
   
   const fetchAllProducts = async () => {
     try {
-      const response = await fetch("http://localhost:4000/allproducts");
+      const authToken = localStorage.getItem("admin_token"); // Kunin ang token sa localStorage
+      const response = await fetch("http://localhost:4000/api/my-products", {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+  
       if (!response.ok) {
-        throw new Error("Failed to fetch products");
+        throw new Error("Failed to fetch seller products");
       }
-      const allProducts = await response.json();
-      
+  
+      const sellerProducts = await response.json();
+  
       // Construct the full image URL for each product
-      const updatedProducts = allProducts.map(product => ({
+      const updatedProducts = sellerProducts.map((product) => ({
         ...product,
-        image: product.image ? `http://localhost:4000/images/${product.image}?t=${new Date().getTime()}` : null
+        image: product.image
+          ? `http://localhost:4000/images/${product.image}?t=${new Date().getTime()}`
+          : null,
       }));
-
+  
       return updatedProducts;
     } catch (error) {
-      console.error("Error fetching products:", error);
+      console.error("Error fetching seller products:", error);
       return [];
     }
   };
+  
 
   useEffect(() => {
-    fetchInfo();
+    const fetchProducts = async () => {
+      const sellerProducts = await fetchAllProducts();
+      setAllProducts(sellerProducts);
+    };
+    fetchProducts();
   }, []);
+  
 
   const remove_product = async (id) => {
     if (window.confirm("Are you sure you want to delete this product?")) {

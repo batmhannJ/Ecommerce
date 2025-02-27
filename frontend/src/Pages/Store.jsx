@@ -12,9 +12,6 @@ const Store = () => {
   return (
     <div>
       <Partner />
-      <Offers />
-      <NewCollections />
-      <NewsLetter />
     </div>
   )
 }

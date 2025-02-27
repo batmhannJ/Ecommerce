@@ -3,8 +3,11 @@ import './Dashboard.css';
 import { Bar, Pie, Line } from 'react-chartjs-2';
 import Chart from 'chart.js/auto';
 import html2canvas from 'html2canvas';
+import Plot from "react-plotly.js"; // Import Plotly
+
 
 export const Dashboard = () => {
+  const [ribbonData, setRibbonData] = useState([]);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [salesData, setSalesData] = useState({
     avgOrderValue: 0,
@@ -17,6 +20,22 @@ export const Dashboard = () => {
   const [salesByProductData, setSalesByProductData] = useState([]);
   const [salesGrowthRateData, setSalesGrowthRateData] = useState([]);
   const [topPurchasesProductData, setTopPurchasesProductData] = useState([]);
+
+  useEffect(() => {
+    const fetchRibbonData = async () => {
+      try {
+        const response = await fetch(
+          "https://raw.githubusercontent.com/plotly/datasets/master/3d-ribbon.json"
+        );
+        const figure = await response.json();
+        setRibbonData(figure.data); // Store fetched data
+      } catch (error) {
+        console.error("Error fetching ribbon data:", error);
+      }
+    };
+
+    fetchRibbonData();
+  }, []);
 
   useEffect(() => {
     const fetchTotalRevenue = async () => {
@@ -426,6 +445,33 @@ const generatePDF = async () => {
               <button className="action-button view" onClick={generatePDF}>Export to PDF</button>
             </div>
                 <div className='chart-container'>
+
+                {/*<h2>Sales Growth Visualization (3D Ribbon Plot)</h2>
+                  <Plot
+                    data={
+                      ribbonData.length > 0
+                        ? ribbonData.map((item) => ({
+                            x: item.x,
+                            y: item.y,
+                            z: item.z,
+                            type: "surface",
+                            colorscale: item.colorscale,
+                            showscale: false,
+                          }))
+                        : []
+                    }
+                    layout={{
+                      title: "Ribbon Plot",
+                      autosize: true,
+                      width: 700,
+                      height: 500,
+                      scene: {
+                        xaxis: { title: "Sample #" },
+                        yaxis: { title: "Wavelength" },
+                        zaxis: { title: "OD" },
+                      },
+                    }}
+                  />
             {/* Sales Growth Rate Graph */}
             <div className='chart1'>
                 <h3>Sales Growth Rate</h3>

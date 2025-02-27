@@ -151,9 +151,9 @@ export const PlaceOrder = () => {
   
 
   const fetchCoordinates = async (address) => {
-    const apiKey = process.env.REACT_APP_POSITION_STACK_API_KEY; // Set this in your .env file
+    const apiKey = process.env.REACT_APP_POSITION_STACK_API_KEY;
     console.log("Position Stack API Key:", apiKey);
-    const url = `https://api.positionstack.com/v1/forward?access_key=1e898dd6e9c8d306350d701870c5e1a8&query=${address}`;
+    const url = `https://api.positionstack.com/v1/forward?access_key=48ceab57881e0d4b21c7d7c68d31d792&query=${address}`;
 
     try {
       const response = await axios.get(url);
@@ -226,6 +226,7 @@ export const PlaceOrder = () => {
     const value = event.target.value;
     setData((prevData) => ({ ...prevData, [name]: value }));
   };
+
   const handleProceedToCheckout = async (event) => {
     event.preventDefault();
   
@@ -251,13 +252,15 @@ export const PlaceOrder = () => {
   
     const paymongoUrl = "https://api.paymongo.com/v1";
     const secretKey = process.env.REACT_APP_PAYMONGO_SECRET_KEY;
-    if (!secretKey) {
+    console.log("PayMongo Secret Key:", process.env.REACT_APP_PAYMONGO_SECRET_KEY);
+
+    /*if (!secretKey) {
       toast.error("Payment configuration error. Please contact support.");
       return;
-    }
+    }*/
     const headers = {
       "Content-Type": "application/json",
-      Authorization: `Basic ${btoa(secretKey)}`,
+      Authorization: `Basic ${btoa(`${secretKey}:`)}`,
     };
   
     const totalAmount = (getTotalCartAmount() + deliveryFee) * 100; // Amount in cents
@@ -280,8 +283,8 @@ export const PlaceOrder = () => {
             payment_method_types: ["gcash", "grab_pay", "paymaya", "card"],
             livemode: false,
             statement_descriptor: "Tienda",
-            success_url: `https://ip-tienda-han.onrender.com/myorders?message=true`,
-            cancel_url: `https://ip-tienda-han.onrender.com/cart?message=false`,
+            success_url: `http://localhost:3000/myorders?message=true`,
+            cancel_url: `http://localhost:3000/cart?message=false`,
             metadata: {
               reference_number: referenceNumber,
               delivery_fee: deliveryFee,

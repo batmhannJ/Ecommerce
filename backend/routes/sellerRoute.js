@@ -213,11 +213,11 @@ router.patch("/editseller/:id", upload.single("idPicture"), updateSeller);
 
 router.get("/sellers", async (req, res) => {
   try {
-    const users = await Seller.find({});
+    const users = await Seller.find({ isApproved: true });
     res.json(users);
   } catch (error) {
-    console.error("Error fetching users:", error);
-    res.status(500).json({ error: "Failed to fetch users" });
+    console.error("Error fetching approved sellers:", error);
+    res.status(500).json({ error: "Failed to fetch approved sellers" });
   }
 });
 

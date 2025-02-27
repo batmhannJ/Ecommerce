@@ -89,7 +89,7 @@ const Navbar = () => {
             </Link>
             {menu === "shop" ? <hr /> : null}
           </li>
-          <li onClick={() => setMenu("/store")}>
+          <li onClick={() => setMenu("store")}>
             <Link style={{ textDecoration: "none" }} to="/store">
               Shops
             </Link>

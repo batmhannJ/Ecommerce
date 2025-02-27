@@ -125,19 +125,23 @@ function SellerRequest() {
         <table className="seller-table">
           <thead>
             <tr>
-              <th>Id</th>
+              <th>No.</th>
               <th>Name</th>
               <th>Email</th>
+              <th>Shop Name</th>
+              <th>Business Location</th>
               <th>Valid ID</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {sellers.map((seller) => (
+            {sellers.map((seller, index) => (
               <tr key={seller._id}>
-                <td>{seller._id}</td>
+                <td>{index + 1}</td>
                 <td>{seller.name}</td>
                 <td>{seller.email}</td>
+                <td>{seller.shopName}</td>
+                <td>{seller.businessLocation}</td>
                 <td>
                   <img
                     src={`http://localhost:4000/upload/${seller.idPicture}`} // Adjust this path to match your server's setup

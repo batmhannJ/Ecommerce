@@ -148,7 +148,7 @@ useEffect(() => {
       setOrders(sortedOrders);
     } catch (error) {
       console.error("Error fetching orders:", error);
-      toast.error("No orders found.");
+      //toast.error("No orders found.");
     } finally {
       setLoading(false);
     }
@@ -160,7 +160,7 @@ useEffect(() => {
     fetchOrders();
 
     // Initialize Socket.IO
-    const socket = io("http://localhost:4000/myorders");
+    const socket = io("http://localhost:3000/myorders");
 
     // Listen for real-time updates on order status
     socket.on("orderUpdated", (updatedOrder) => {

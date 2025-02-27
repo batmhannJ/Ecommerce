@@ -66,14 +66,14 @@ const SLoginSignup = () => {
     try {
       const result = await sellerSignup(signupData);
       toast.success('Sign up successful! Waiting for admin approval.');
-      navigate('/login');
+      navigate('/');
     } catch (error) {
       const errorMessage = error.response?.data?.errors?.[0] || error.response?.data || error.message; 
   
       toast.error(errorMessage);
       console.error('Sign up error:', error.response);
-  }
-  
+    }
+
   };
 
   const handleLogin = async (e) => {

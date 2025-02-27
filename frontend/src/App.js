@@ -88,7 +88,7 @@ function App() {
           path="/crafts"
           element={<ShopCategory banner={Crafts_Banner} category="crafts" />}
         />
-        <Route path="/store" element={<Store />} />
+        <Route path="/store" element={<Store />} category="store" />
         <Route
           path="/clothes"
           element={<ShopCategory banner={Clothes_Banner} category="clothes" />}
@@ -109,12 +109,12 @@ function App() {
         <Route path="/user/:activepage" element={<UserProfile />} />
         <Route path="usersidebar" element={<UserSideBar />} />
         <Route path="accountsettings" element={<AccountSettings />} />
-        <Route path="/offices" element={<Offices />} /> {/* Add this route */}
-        <Route path="/terms" element={<Terms />} /> {/* Add this route */}
-        <Route path="/about" element={<About />} /> {/* Add this route */}
+        <Route path="/offices" element={<Offices />} /> 
+        <Route path="/terms" element={<Terms />} /> 
+        <Route path="/about" element={<About />} /> 
         <Route path="/" element={<SearchBar />} />
         <Route path="/search-results" element={<SearchResults />} />
-        <Route path="/partner" element={<Partner />} /> {/* Add this route */}
+        <Route path="/partner" element={<Partner />} />
         <Route path="/store/:id" element={<StoreProducts />} />
       </Routes>
       <Footer />

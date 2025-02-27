@@ -1,6 +1,6 @@
 import React from "react";
 import "./Hero.css";
-import hero_image from "../Assets/hero_image.png";
+import cover from "../Assets/cover.png";
 
 const Hero = () => {
   const scrollTo = () => {
@@ -15,7 +15,7 @@ const Hero = () => {
 
   return (
     <div className="hero">
-      <img src={hero_image} alt="Banner" onClick={scrollTo} />
+      <img src={cover} alt="Banner" onClick={scrollTo} />
     </div>
   );
 };

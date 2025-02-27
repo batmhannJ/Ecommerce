@@ -27,7 +27,6 @@
   margin: 0;
 }
 
-
 .nav-menu {
   display: flex;
   align-items: center;
@@ -63,6 +62,11 @@
 }
 
 /* 🛒 Cart Icon - Clean & Minimal */
+.nav-cart-container {
+  position: relative;
+  display: inline-block;
+}
+
 .nav-login-cart img {
   width: 45px;
   height: 45px;
@@ -123,7 +127,6 @@
   background: #A2D2FF;
   transform: scale(0.95);
 }
-
 
 .nav-profile-container {
   position: relative;
@@ -189,6 +192,7 @@
 .profile-menu button:active {
   transform: scale(0.95);
 }
+
 .nav-menu-dropdown {
   display: none; /* Default: Hidden on large screens */
   cursor: pointer;
@@ -210,13 +214,10 @@
   }
 }
 
-
-
 .search-tags {
   width: 100%;
   margin-top: 20px;
 }
-
 
 /* Media Queries */
 
@@ -338,7 +339,6 @@
   }
 }
 
-
 .business-account-banner {
   background-color: #5b7fa7; /* Much Darker Blueish Pastel */
   color: white;
@@ -370,7 +370,6 @@
   transform: scale(1.1);
 }
 
-
 .truck-icon {
   color: #ff6600; /* Orange color */
   font-size: 32px; /* Mas malaking size */
@@ -381,7 +380,6 @@
 .truck-icon:hover {
   transform: scale(1.2); /* Mas malaki kapag hinover */
 }
-
 
 /* Positioning the Close Button (X) to the Upper Right Corner */
 .close-btn {

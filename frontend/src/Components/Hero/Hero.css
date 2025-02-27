@@ -3,7 +3,6 @@
   width: 100%;
   height: auto;
   overflow: hidden;
-  margin-top: 50px;
   margin-bottom: 40px;
   display: flex;
   align-items: center;
@@ -14,7 +13,7 @@
 .hero img {
   width: 100%;
   height: auto;
-  max-height: 80vh;
+  max-height: 100vh;
   object-fit: cover;
   cursor: pointer;
   border-radius: 4px;

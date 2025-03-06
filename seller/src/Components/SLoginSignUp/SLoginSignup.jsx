@@ -331,7 +331,7 @@ const handleResetPassword = async (e) => {
               {passwordError && <p className="password-error">{passwordError}</p>}
             </div>
             <div>
-            <label>Valid ID/GOVERNMENT ISSUED:</label>
+            <label>Shop Logo/Image</label>
             <input
                 type="file"
                 name="idPicture"

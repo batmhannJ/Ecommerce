@@ -30,7 +30,6 @@ require("dotenv").config();
 
 const mongoURI = process.env.MONGODB_URI;
 
-// Define the sendEmail function
 const sendEmail = async (to, subject, text) => {
   const mailOptions = {
     from: process.env.EMAIL_USER,
@@ -64,7 +63,6 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (mobile apps, server-side scripts, etc.)
       if (!origin || allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
@@ -82,19 +80,14 @@ app.use("/api/transactions", transactionRoutes);
 app.use("/api", productRoute);
 app.use("/api/cart", cartRoute);
 app.use((req, res, next) => {
-  // Enforce HTTPS
   res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
 
-  // Control Referrer Information
   res.setHeader("Referrer-Policy", "no-referrer");
 
-  // Prevent MIME Sniffing
   res.setHeader("X-Content-Type-Options", "nosniff");
 
-  // Prevent Clickjacking
   res.setHeader("X-Frame-Options", "SAMEORIGIN");
 
-  // Control Browser Permissions
   res.setHeader(
     "Permissions-Policy",
     "camera=(), microphone=(), geolocation=(), interest-cohort=()"
@@ -102,13 +95,12 @@ app.use((req, res, next) => {
 
   next();
 });
-// Database Connection
+
 mongoose
   .connect(mongoURI)
   .then(() => console.log("MongoDB connected successfully"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-// API Creation
 app.get("/", (req, res) => {
   res.send("Express App is Running");
 });
@@ -116,7 +108,7 @@ app.get("/", (req, res) => {
 app.get("/api/transactions", (req, res) => {
   res.json({ message: "This is the transactions endpoint" });
 });
-app.get('/api/users/search', getUsers); // Define the route that uses getUsers
+app.get('/api/users/search', getUsers);
 app.get('/api/admin/search', searchAdmin);
 
 
@@ -128,7 +120,6 @@ app.listen(port, (error) => {
   }
 });
 
-// Image Storage Engine
 const storage = multer.diskStorage({
   destination: "./upload/images",
   filename: (req, file, cb) => {
@@ -141,17 +132,16 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Creating Upload Endpoints for Images
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path} - Preflight Check`);
 
-  res.header('Access-Control-Allow-Origin', '*'); // Allow all origins
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS'); // Explicitly allow PATCH
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Allow required headers
+  res.header('Access-Control-Allow-Origin', '*'); 
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS'); 
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); 
 
   if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS'); // Include PATCH in response
-    return res.status(200).json({}); // Send a 200 OK response for preflight
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    return res.status(200).json({}); 
   }
 
   next();
@@ -162,7 +152,7 @@ app.use(
   "/upload",
   express.static(path.join(__dirname, "upload"), {
     setHeaders: (res) => {
-      res.set("Access-Control-Allow-Origin", "*"); // Allow all origins for testing
+      res.set("Access-Control-Allow-Origin", "*"); 
       res.set("Content-Security-Policy", "default-src 'self'; img-src * data: blob:;");
     },
   })
@@ -170,7 +160,7 @@ app.use(
 
 app.use("/images", express.static("upload/images", {
   setHeaders: (res) => {
-    res.set("Access-Control-Allow-Origin", "*"); // For testing
+    res.set("Access-Control-Allow-Origin", "*"); 
     console.log("Headers set for image request:", res.getHeaders());
   }
 }));
@@ -190,27 +180,20 @@ app.post("/api/signup", upload.single("idPicture"), signup);
 
 const CartItems = require("./models/orderedItemsModel");
 
-// Schema for Creating Products
 const Product = require("./models/productModels");
 
-// Creating Middleware to fetch user
 const fetchUser = require("./middleware/auth");
 
-// Schema Creation for User Model
 const Users = require("./models/userModels");
 const Seller = require("./models/sellerModels");
 const Cart = require('./models/cartModel'); 
 
-// Schema Creation for Transaction Model
 const Transaction = require("./models/transactionModel");
 
-// Creating PlaceOrder Endpoint
 app.use("/api/order", orderRouter);
 
-// Seller Login Sign Up Endpoint
 app.use("/api/seller", sellerRouter);
 
-// Fetch all users
 app.get("/users", async (req, res) => {
   try {
     const users = await Users.find({});
@@ -233,6 +216,7 @@ app.get("/users", async (req, res) => {
   }
 });*/
 //change password api
+
 app.post("/updatepassword/:id", async (req, res) => {
   const { id } = req.params;
   const { password: password } = req.body;
@@ -311,7 +295,6 @@ app.post("/addproduct", async (req, res) => {
     product,
   });
 
-  // Log received product data
   console.log("Received Product Data:", {
     name,
     image,

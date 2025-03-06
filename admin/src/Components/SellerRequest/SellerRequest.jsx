@@ -130,7 +130,7 @@ function SellerRequest() {
               <th>Email</th>
               <th>Shop Name</th>
               <th>Business Location</th>
-              <th>Valid ID</th>
+              <th>Shop Image</th>
               <th>Actions</th>
             </tr>
           </thead>

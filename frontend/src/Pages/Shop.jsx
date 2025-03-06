@@ -11,6 +11,7 @@ const Shop = () => {
   return (
     <div>
       <Hero/>
+      <NewCollections/>
     </div>
   )
 }

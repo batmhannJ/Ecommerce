@@ -96,8 +96,8 @@ const Navbar = () => {
             {menu === "store" ? <hr /> : null}
           </li>
           <li onClick={() => setMenu("crafts")}>
-            <Link style={{ textDecoration: "none" }} to="/crafts">
-              Crafts
+            <Link style={{ textDecoration: "none" }} to="/gadgets">
+              Gadgets
             </Link>
             {menu === "crafts" ? <hr /> : null}
           </li>

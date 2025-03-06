@@ -357,14 +357,31 @@ app.get("/store-products/:sellerId", async (req, res) => {
 
 // Creating API for deleting Products
 app.post("/removeproduct", async (req, res) => {
-  await Product.findOneAndDelete({ id: req.body.id });
-  console.log("Removed");
-  res.json({
-    success: true,
-    name: req.body.name,
-  });
-});
+  const productId = req.body.id;
 
+  try {
+    // Delete the product
+    await Product.findOneAndDelete({ id: productId });
+
+    // Remove cart items that reference the deleted product
+    await Cart.updateMany(
+      { "cartItems.productId": productId },
+      { $pull: { cartItems: { productId } } }
+    );
+
+    console.log("Product and associated cart items removed successfully.");
+    res.json({
+      success: true,
+      name: req.body.name,
+    });
+  } catch (error) {
+    console.error("Error removing product and associated cart items:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to remove product and associated cart items",
+    });
+  }
+});
 // Creating API for getting All Products
 app.get("/allproducts", async (req, res) => {
   let products = await Product.find({});
@@ -1205,6 +1222,23 @@ app.get("/partner-stores", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch partner stores" });
   }
 });
+
+app.delete("/api/products/:id", async (req, res) => {
+  try {
+      const productId = req.params.id;
+      
+      // Delete product from Products collection
+      await Product.findByIdAndDelete(productId);
+
+      // Delete related cart items
+      await Cart.deleteMany({ productId });
+
+      res.status(200).json({ message: "Product and related cart items deleted successfully" });
+  } catch (error) {
+      res.status(500).json({ message: "Error deleting product", error });
+  }
+});
+
 
 
 

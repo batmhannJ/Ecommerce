@@ -13,34 +13,42 @@ const getCartWithProductDetails = async (req, res) => {
 
     const populatedCartItems = await Promise.all(
       cart.cartItems.map(async (item) => {
-        const product = await Product.findOne({ id: item.productId });
+        const product = await Product.findById(item.productId);
+
+        // If the product is deleted, return null
+        if (!product) return null;
+
         return {
           ...item.toObject(),
           productId: item.productId.toString(), // Ensure productId is a string
           cartItemId: item.cartItemId.toString(),
-          product: product
-            ? {
-                ...product.toObject(),
-                id: product.id.toString(), // Ensure id is a string
-                image: Array.isArray(product.image)
-                  ? product.image
-                  : [product.image || 'default.jpg'],
-              }
-            : null,
+          product: {
+            ...product.toObject(),
+            id: product.id.toString(), // Ensure id is a string
+            image: Array.isArray(product.image)
+              ? product.image
+              : [product.image || "default.jpg"],
+          },
         };
       })
     );
-    
+
+    // Filter out null values (deleted products)
+    const validCartItems = populatedCartItems.filter((item) => item !== null);
+
+    // If there are invalid items, update the cart in the database
+    if (validCartItems.length !== cart.cartItems.length) {
+      await Cart.updateOne({ userId }, { cartItems: validCartItems });
+    }
 
     res.status(200).json({
       ...cart.toObject(),
-      cartItems: populatedCartItems,
+      cartItems: validCartItems, // Only valid items are returned
     });
   } catch (error) {
     console.error("Error fetching cart. Error:", error);
     res.status(500).json({ message: "Failed to fetch cart" });
   }
 };
-
 
 module.exports = { getCartWithProductDetails };

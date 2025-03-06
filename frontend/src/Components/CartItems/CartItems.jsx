@@ -26,30 +26,30 @@ export const CartItems = () => {
   const [deliveryFee, setDeliveryFee] = useState(0);
   const [data, setData] = useState({ street: "", city: "" });
 
-  // Fetch cart from database on component mount
   useEffect(() => {
     const fetchCartFromDatabase = async () => {
       const userId = localStorage.getItem("userId");
       if (!userId) return;
-
+  
       try {
-        const response = await axios.get(
-          `http://localhost:4000/api/cart/${userId}`
-        );
+        const response = await axios.get(`http://localhost:4000/api/cart/${userId}`);
+        
         if (response.data && response.data.cartItems) {
-          console.log(
-            "Cart items fetched from database:",
-            response.data.cartItems
-          ); // Check what's being returned
-          setCartItems(response.data.cartItems); // Update local state with saved cart items
+          console.log("Cart items fetched from database:", response.data.cartItems); 
+          
+          // Filter out cart items where productId is missing or invalid
+          const validCartItems = response.data.cartItems.filter(item => item.productId);
+  
+          setCartItems(validCartItems); // Update state only with valid items
         }
       } catch (error) {
         console.error("Error fetching cart:", error);
       }
     };
-
+  
     fetchCartFromDatabase();
   }, [setCartItems]);
+  
 
   // Function to save cart to the database
   const saveCartToDatabase = async () => {

@@ -164,69 +164,60 @@ const ShopContextProvider = (props) => {
     }
   };
 
-  const addToCart = async (
-    productId,
-    selectedSize,
-    adjustedPrice,
-    quantity
-  ) => {
-    const userId = localStorage.getItem("userId"); // Make sure userId exists
+  const addToCart = async (productId, selectedSize, adjustedPrice, quantity) => {
+    const userId = localStorage.getItem("userId");
     if (!userId) {
       console.error("No user ID found in local storage. Cannot add to cart.");
       return;
     }
-
-    // First, get the existing cart
+  
+    const newCartItem = {
+      productId,
+      adjustedPrice,
+      quantity,
+      ...(selectedSize && { selectedSize }) // ✅ I-send lang kung may laman
+    };
+  
     try {
-      const response = await axios.get(
-        `http://localhost:4000/api/cart/${userId}`
-      );
-      const existingCart = response.data.cartItems;
-
-      // Check if the product with the selected size already exists
+      // Fetch existing cart
+      const response = await axios.get(`http://localhost:4000/api/cart/${userId}`);
+      const existingCart = response.data.cartItems || [];
+  
+      // Check if the product with the same size already exists
       const existingItemIndex = existingCart.findIndex(
-        (item) => item.productId === productId && item.size === selectedSize
+        (item) => item.productId === productId && item.selectedSize === selectedSize
       );
-
+  
       if (existingItemIndex !== -1) {
-        // Item exists, update the quantity
+        // If item exists, update the quantity
         existingCart[existingItemIndex].quantity += quantity;
       } else {
-        // Item doesn't exist, add new item
-        existingCart.push({
-          productId,
-          selectedSize: selectedSize, // Adjusted this line
-          adjustedPrice: adjustedPrice,
-          quantity,
-        });
+        // If item doesn't exist, add new item
+        existingCart.push(newCartItem);
       }
-
-      // Send the updated cart back to the server
+  
+      // Send updated cart to the server
       await axios.post("http://localhost:4000/api/cart", {
         userId,
-        cartItems: existingCart,
+        cartItems: existingCart
       });
-      console.log("Cart updated successfully in frontend"); // Debugging
+  
+      console.log("Cart updated successfully.");
     } catch (error) {
       if (error.response && error.response.status === 404) {
         console.warn("Cart not found, creating a new one.");
-        // Create a new cart if it doesn't exist
+  
+        // If cart doesn't exist, create a new one with the newCartItem
         await axios.post("http://localhost:4000/api/cart", {
           userId,
-          cartItems: [
-            {
-              productId,
-              selectedSize: selectedSize,
-              adjustedPrice: adjustedPrice,
-              quantity,
-            },
-          ],
+          cartItems: [newCartItem]
         });
       } else {
-        console.error("Error fetching/updating cart in frontend:", error);
+        console.error("Error updating cart:", error);
       }
     }
   };
+  
 
   const updateQuantity = (key, newQuantity) => {
     setCartItems((prevItems) => {

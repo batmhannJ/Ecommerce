@@ -312,7 +312,7 @@ export const AddProduct = () => {
             name="category"
             className="add-product-selector"
           >
-            {/*<option value="crafts">Crafts</option>*/}
+            <option value="crafts">Select Category</option>
             <option value="gadgets">Gadgets</option>
             <option value="clothes">Clothes</option>
             <option value="food">Food</option>

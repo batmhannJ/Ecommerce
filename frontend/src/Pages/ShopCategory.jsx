@@ -9,14 +9,17 @@ const ShopCategory = (props) => {
   const [sortBy, setSortBy] = useState("relevance");
   const [quickFilters, setQuickFilters] = useState({
     rating: false,
-    topRestaurants: false,
+    topBrands: false,
   });
   const [offers, setOffers] = useState({
     freeDelivery: false,
     acceptsVouchers: false,
     deals: false,
   });
-  const [cuisine, setCuisine] = useState("");
+  const [brand, setBrand] = useState("");
+  const [priceRange, setPriceRange] = useState("");
+  const [ram, setRam] = useState("");
+  const [storage, setStorage] = useState("");
 
   // Function to get unique products
   const getUniqueProducts = (products) => {
@@ -39,8 +42,8 @@ const ShopCategory = (props) => {
   if (quickFilters.rating) {
     filteredProducts = filteredProducts.filter((item) => item.rating >= 4);
   }
-  if (quickFilters.topRestaurants) {
-    filteredProducts = filteredProducts.filter((item) => item.isTopRestaurant);
+  if (quickFilters.topBrands) {
+    filteredProducts = filteredProducts.filter((item) => item.isTopBrand);
   }
 
   // Apply offers filters
@@ -54,9 +57,25 @@ const ShopCategory = (props) => {
     filteredProducts = filteredProducts.filter((item) => item.hasDeals);
   }
 
-  // Apply cuisine filter
-  if (cuisine) {
-    filteredProducts = filteredProducts.filter((item) => item.cuisine === cuisine);
+  // Apply brand filter
+  if (brand) {
+    filteredProducts = filteredProducts.filter((item) => item.brand === brand);
+  }
+
+  // Apply price range filter
+  if (priceRange) {
+    const [minPrice, maxPrice] = priceRange.split("-");
+    filteredProducts = filteredProducts.filter((item) => item.new_price >= minPrice && item.new_price <= maxPrice);
+  }
+
+  // Apply RAM filter
+  if (ram) {
+    filteredProducts = filteredProducts.filter((item) => item.ram === ram);
+  }
+
+  // Apply storage filter
+  if (storage) {
+    filteredProducts = filteredProducts.filter((item) => item.storage === storage);
   }
 
   // Sort products
@@ -65,6 +84,94 @@ const ShopCategory = (props) => {
   } else if (sortBy === "distance") {
     filteredProducts.sort((a, b) => a.distance - b.distance);
   }
+
+  // Define filters for each category
+  const categoryFilters = {
+    clothes: (
+      <>
+        <div className="filter-section">
+          <h4>Brands</h4>
+          <select value={brand} onChange={(e) => setBrand(e.target.value)}>
+            <option value="">All Brands</option>
+            <option value="nike">Nike</option>
+            <option value="adidas">Adidas</option>
+            <option value="puma">Puma</option>
+            <option value="zara">Zara</option>
+          </select>
+        </div>
+        <div className="filter-section">
+          <h4>Price Range</h4>
+          <select value={priceRange} onChange={(e) => setPriceRange(e.target.value)}>
+            <option value="">All Prices</option>
+            <option value="0-100">0 - 100</option>
+            <option value="100-500">100 - 500</option>
+            <option value="500-1000">500 - 1000</option>
+            <option value="1000-2000">1000 - 2000</option>
+          </select>
+        </div>
+      </>
+    ),
+    gadgets: (
+      <>
+        <div className="filter-section">
+          <h4>Brands</h4>
+          <select value={brand} onChange={(e) => setBrand(e.target.value)}>
+            <option value="">All Brands</option>
+            <option value="apple">Apple</option>
+            <option value="samsung">Samsung</option>
+            <option value="sony">Sony</option>
+            <option value="lg">LG</option>
+            <option value="dell">Dell</option>
+          </select>
+        </div>
+        <div className="filter-section">
+          <h4>Price Range</h4>
+          <select value={priceRange} onChange={(e) => setPriceRange(e.target.value)}>
+            <option value="">All Prices</option>
+            <option value="0-100">0 - 100</option>
+            <option value="100-500">100 - 500</option>
+            <option value="500-1000">500 - 1000</option>
+            <option value="1000-2000">1000 - 2000</option>
+            <option value="2000-5000">2000 - 5000</option>
+          </select>
+        </div>
+        <div className="filter-section">
+          <h4>RAM</h4>
+          <select value={ram} onChange={(e) => setRam(e.target.value)}>
+            <option value="">All RAM</option>
+            <option value="4GB">4GB</option>
+            <option value="8GB">8GB</option>
+            <option value="16GB">16GB</option>
+            <option value="32GB">32GB</option>
+          </select>
+        </div>
+        <div className="filter-section">
+          <h4>Storage</h4>
+          <select value={storage} onChange={(e) => setStorage(e.target.value)}>
+            <option value="">All Storage</option>
+            <option value="128GB">128GB</option>
+            <option value="256GB">256GB</option>
+            <option value="512GB">512GB</option>
+            <option value="1TB">1TB</option>
+          </select>
+        </div>
+      </>
+    ),
+    foods: (
+      <>
+        <div className="filter-section">
+          <h4>Price Range</h4>
+          <select value={priceRange} onChange={(e) => setPriceRange(e.target.value)}>
+            <option value="">All Prices</option>
+            <option value="0-50">0 - 50</option>
+            <option value="50-100">50 - 100</option>
+            <option value="100-200">100 - 200</option>
+            <option value="200-500">200 - 500</option>
+          </select>
+        </div>
+      </>
+    ),
+  };
 
   return (
     <div className="shopcategory-container">
@@ -80,7 +187,6 @@ const ShopCategory = (props) => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button>🔍</button>
         </div>
 
         {/* Sort By */}
@@ -93,76 +199,69 @@ const ShopCategory = (props) => {
           </select>
         </div>
 
+        {/* Dynamic Filters */}
+        {categoryFilters[props.category]}
+
         {/* Quick Filters */}
         <div className="filter-section">
           <h4>Quick Filters</h4>
-          <label>
-            <input
-              type="checkbox"
-              checked={quickFilters.rating}
-              onChange={() => setQuickFilters({ ...quickFilters, rating: !quickFilters.rating })}
-            />
+          <button
+            className={`filter-button ${quickFilters.rating ? 'active' : ''}`}
+            onClick={() => setQuickFilters({ ...quickFilters, rating: !quickFilters.rating })}
+          >
             Rating 4+
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={quickFilters.topRestaurants}
-              onChange={() =>
-                setQuickFilters({ ...quickFilters, topRestaurants: !quickFilters.topRestaurants })
-              }
-            />
-            Top Restaurants
-          </label>
+          </button>
+          <button
+            className={`filter-button ${quickFilters.topBrands ? 'active' : ''}`}
+            onClick={() => setQuickFilters({ ...quickFilters, topBrands: !quickFilters.topBrands })}
+          >
+            Top Brands
+          </button>
         </div>
 
         {/* Offers */}
         <div className="filter-section">
           <h4>Offers</h4>
-          <label>
-            <input
-              type="checkbox"
-              checked={offers.freeDelivery}
-              onChange={() => setOffers({ ...offers, freeDelivery: !offers.freeDelivery })}
-            />
+          <button
+            className={`filter-button ${offers.freeDelivery ? 'active' : ''}`}
+            onClick={() => setOffers({ ...offers, freeDelivery: !offers.freeDelivery })}
+          >
             Free Delivery
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={offers.acceptsVouchers}
-              onChange={() => setOffers({ ...offers, acceptsVouchers: !offers.acceptsVouchers })}
-            />
+          </button>
+          <button
+            className={`filter-button ${offers.acceptsVouchers ? 'active' : ''}`}
+            onClick={() => setOffers({ ...offers, acceptsVouchers: !offers.acceptsVouchers })}
+          >
             Accepts Vouchers
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={offers.deals}
-              onChange={() => setOffers({ ...offers, deals: !offers.deals })}
-            />
+          </button>
+          <button
+            className={`filter-button ${offers.deals ? 'active' : ''}`}
+            onClick={() => setOffers({ ...offers, deals: !offers.deals })}
+          >
             Deals
-          </label>
-        </div>
-
-        {/* Cuisines */}
-        <div className="filter-section">
-          <h4>Cuisines</h4>
-          <select value={cuisine} onChange={(e) => setCuisine(e.target.value)}>
-            <option value="">All Cuisines</option>
-            <option value="italian">Italian</option>
-            <option value="chinese">Chinese</option>
-            <option value="japanese">Japanese</option>
-            <option value="mexican">Mexican</option>
-            <option value="indian">Indian</option>
-          </select>
+          </button>
         </div>
       </div>
 
       {/* Products Grid */}
       <div className="shopcategory-products">
         {filteredProducts.map((item, i) => (
-          <Item key={i} id={item.id} name={item.name} image={item.image} new_price={item.new_price} />
+          <div key={i} className="item">
+            <div className="item-image-container" onClick={() => window.location.href = `/product/${item.id}`}>
+              <img src={item.image} alt={item.name} className="item-image" />
+            </div>
+            <div className="item-info">
+              <h4>{item.name}</h4>
+              <p>₱{item.new_price}</p>
+              {item.colors && (
+                <div className="color-palette">
+                  {item.colors.map((color, index) => (
+                    <span key={index} className="color-swatch" style={{ backgroundColor: color }}></span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         ))}
       </div>
     </div>

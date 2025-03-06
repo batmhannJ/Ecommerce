@@ -1,9 +1,8 @@
-
 .shop-category {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 30px;
+  padding: 20px;
   background-color: #f4f4f4;
 }
 
@@ -15,7 +14,7 @@
   border-radius: 15px;
   object-fit: cover;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 /* 🔍 Search Bar */
@@ -28,13 +27,13 @@
   background: white;
   border-radius: 50px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .shopcategory-searchbar input {
   flex: 1;
   border: none;
-  padding: 12px 20px;
+  padding: 10px 15px;
   font-size: 16px;
   border-radius: 50px;
   outline: none;
@@ -44,8 +43,8 @@
   border: none;
   background: #ff6b6b;
   color: white;
-  padding: 12px 20px;
-  font-size: 18px;
+  padding: 10px 15px;
+  font-size: 16px;
   border-radius: 50px;
   cursor: pointer;
   transition: 0.3s ease-in-out;
@@ -58,9 +57,10 @@
 /* 🛒 Products Grid */
 .shopcategory-products {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  padding: 20px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 3px; /* Binawasan ang gap sa gitna ng products */
+  padding: 15px;
+  margin-bottom: 400px;
   width: 90%;
   justify-items: center;
 }
@@ -73,9 +73,11 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
   width: 100%;
-  max-width: 280px;
-  text-align: center;
-  padding: 15px;
+  max-width: 600px;
+  height: 140px;
+  display: flex;
+  flex-direction: row;
+  padding: 10px;
 }
 
 .shopcategory-products .item:hover {
@@ -83,45 +85,71 @@
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
+.shopcategory-products .item-image-container {
+  flex: 1;
+  max-width: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shopcategory-products .item-image {
+  width: 70px;
+  height: 70px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.shopcategory-products .item-info {
+  flex: 2;
+  padding-left: 10px;
+}
+
+.shopcategory-products .item-info h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.shopcategory-products .item-info p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.shopcategory-products .color-palette {
+  display: flex;
+  gap: 5px;
+}
+
+.shopcategory-products .color-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+}
+
 /* 📱 Responsive Design */
+@media (max-width: 1200px) {
+  .shopcategory-products {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 800px) {
   .shopcategory-searchbar {
     width: 80%;
   }
 
   .shopcategory-products {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
   }
 }
 
-/* 🔍 Search Bar */
-.shopcategory-searchbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 60%;
-  max-width: 500px;
-  margin: 20px auto;
-  padding: 10px 15px;
-  background: #fff;
-  border-radius: 25px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.shopcategory-searchbar input {
-  border: none;
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  outline: none;
-}
-
-.shopcategory-searchbar button {
-  background: none;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-  color: #666;
+@media (max-width: 500px) {
+  .shopcategory-products {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* 🏷 Filters */
@@ -129,14 +157,14 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 15px;
-  margin: 20px 0;
+  gap: 10px;
+  margin: 15px 0;
 }
 
 .shopcategory-filters select,
 .shopcategory-filters .filter-group label {
   background: #fff;
-  padding: 10px 15px;
+  padding: 8px 12px;
   border-radius: 20px;
   border: 1px solid #ddd;
   cursor: pointer;
@@ -144,12 +172,12 @@
 }
 
 .shopcategory-filters select {
-  width: 200px;
+  width: 180px;
 }
 
 .shopcategory-filters .filter-group {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
 /* 🌎 Responsive Design */
@@ -166,23 +194,23 @@
 /* 🎯 General Layout */
 .shopcategory-container {
   display: flex;
-  gap: 20px;
-  padding: 30px;
+  gap: 15px;
+  padding: 20px;
   background-color: #f4f4f4;
 }
 
 /* 📌 Filters Sidebar */
 .shopcategory-filters-container {
-  width: 250px;
-  padding: 15px;
+  width: 240px;
+  padding: 12px;
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
   position: sticky;
-  top: 20px;
+  top: 15px;
   height: fit-content;
 }
 
@@ -196,7 +224,7 @@
 .filter-section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .filter-section h4 {
@@ -208,23 +236,49 @@
 .filter-section select,
 .filter-section label {
   background: #fff;
-  padding: 8px;
+  padding: 6px;
   border-radius: 5px;
   border: 1px solid #ddd;
   font-size: 14px;
   cursor: pointer;
 }
 
+/* Filter Buttons */
+.filter-button {
+  background: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.filter-button.active {
+  background: #3498db;
+  color: #fff;
+  border-color: #2980b9;
+}
+
+.filter-button:hover {
+  background: #e0e0e0;
+}
+
 /* 🏷 Products Grid */
 .shopcategory-products {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  padding: 20px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 3px; /* Binawasan ang gap sa gitna ng products */
+  padding: 15px;
 }
 
 /* 🌎 Responsive Design */
+@media (max-width: 1200px) {
+  .shopcategory-products {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 800px) {
   .shopcategory-container {
     flex-direction: column;
@@ -237,6 +291,12 @@
   }
 
   .shopcategory-products {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 500px) {
+  .shopcategory-products {
+    grid-template-columns: 1fr;
   }
 }

@@ -16,8 +16,10 @@
 }
 
 .nav-logo img {
-  width: 50px;
+  width: 40px;
   height: auto;
+  margin-top: 5px;
+  padding-right: 0px;
 }
 
 .nav-logo p {
@@ -25,6 +27,7 @@
   font-size: 30px;
   font-weight: 600;
   margin: 0;
+  padding-left: 0px;
 }
 
 .nav-menu {

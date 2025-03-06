@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './Navbar.css';
 import { Link } from 'react-router-dom';
-import navlogo from '../../assets/nav-logo.png';
+import navlogo from '../../assets/bizgo.png';
 import navProfile from '../../assets/nav-profile.png';
 
 export const Navbar = () => {
@@ -41,7 +41,7 @@ export const Navbar = () => {
 
         <img src={navlogo} alt="Logo" className="nav-logo" />
 
-        <p>BIZGO   -    SELLER PANEL</p>
+        <p>SELLER PANEL</p>
 
       <div className="nav-profile-container">
         <img

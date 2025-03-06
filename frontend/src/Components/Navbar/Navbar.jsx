@@ -6,7 +6,7 @@ import "./Navbar.css";
 import cart_icon from "../Assets/cart_icon.png";
 import menu_icon from "../Assets/menu_icon.png";
 import profile_icon from "../Assets/profile_icon.png";
-import navbar_icon from "../Assets/navbar_icon.png";
+import navbar_icon from "../Assets/bizgo.png";
 //import SearchTags from "../SearchTags/SearchTags";
 import { Truck, X } from "lucide-react";
 import { User, Package, LifeBuoy } from "lucide-react"; // Import icons

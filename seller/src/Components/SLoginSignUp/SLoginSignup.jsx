@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import './SLoginSignup.css';
 import axios from 'axios';
-import loginImage from "../../assets/login_image.png";
+import loginImage from "../../assets/askilogo.png";
 
 
 const SLoginSignup = () => {

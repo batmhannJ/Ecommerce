@@ -1,68 +1,88 @@
 .login-container {
   width: 100%;
   height: 100vh;
-  /*background-image: url(Tienda-Admin-main/src/assets/login_image.png);*/
+  background-image: url("../../Components/Assets/askilogo.png");
   background-size: cover;
   background-position: center;
   display: flex;
   justify-content: center;
   align-items: center;
   margin: 0;
+  padding: 20px; /* Added padding to prevent overflow */
+  box-sizing: border-box;
 }
 
 .login-box {
   width: 100%;
   max-width: 400px;
-  padding: 50px;
-  border-radius: 8px;
-  background: #ffffff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-height: 90vh; /* Added max-height to prevent overflow */
+  overflow-y: auto; /* Make the box scrollable if content exceeds max-height */
+  padding: 20px; /* Reduced padding */
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   text-align: center;
   color: #2c3e50;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
 }
 
 .login-box h1 {
-  margin-bottom: 20px;
-  color: #2c3e50;
+  margin-bottom: 15px; /* Reduced margin */
+  color: #3b5998;
+  font-size: 24px;
+  font-weight: 700;
 }
 
 .login-box label {
   display: block;
-  margin: 10px 0 5px;
+  margin: 8px 0 4px; /* Reduced margins */
   font-size: 14px;
   color: #34495e;
 }
 
 .login-box input {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
+  padding: 10px; /* Reduced padding */
+  margin-bottom: 10px; /* Reduced margin */
   border: 1px solid #BDC3C7;
-  border-radius: 4px;
+  border-radius: 6px;
   box-sizing: border-box;
   font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.login-box input:focus {
+  border-color: #3498db;
+  outline: none;
 }
 
 .login-box button {
   width: 100%;
-  padding: 10px;
+  padding: 10px; /* Reduced padding */
   margin-top: 10px;
   border: none;
-  border-radius: 4px;
-  background: #2c3e50;
+  border-radius: 6px;
+  background: #3498db;
   color: #ffffff;
   font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.3s ease;
+  transition: background 0.3s ease, transform 0.3s ease;
 }
 
 .login-box button:hover {
-  background: #263544;
-  transform: scale(0.95);
+  background: #2980b9;
+  transform: translateY(-2px);
 }
 
 .login-box button:active {
-  transform: scale(1);
+  background: #1c5985;
+  transform: translateY(0);
 }
 
 .password-error {
@@ -71,20 +91,30 @@
   margin-top: 0.5em;
 }
 
-.login-box input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #BDC3C7;
-  border-radius: 4px;
-  box-sizing: border-box;
-  font-size: 14px;
-}
-
-
 @media (max-width: 768px) {
   .login-box {
-    padding: 30px;
+    padding: 15px; /* Reduced padding */
+  }
+
+  .login-box h1 {
+    font-size: 20px;
+  }
+
+  .login-box input {
+    font-size: 13px;
+    padding: 8px; /* Reduced padding */
+  }
+
+  .login-box button {
+    font-size: 14px;
+    padding: 8px; /* Reduced padding */
+  }
+}
+
+@media (max-width: 500px) {
+  .login-box {
+    padding: 10px; /* Reduced padding */
+    width: 80%;
   }
 
   .login-box h1 {
@@ -92,35 +122,12 @@
   }
 
   .login-box input {
-    width: 80%;
-    font-size: 13px;
-    padding: 8px;
+    font-size: 12px;
+    padding: 6px; /* Reduced padding */
   }
 
   .login-box button {
-    width: 80%;
-    font-size: 14px;
-    padding: 8px;
-  }
-}
-
-@media (max-width: 500px) {
-  .login-box {
-    padding: 15px;
-    width: 60%;
-  }
-
-  .login-box h1 {
-    font-size: 15px;
-  }
-
-  .login-box input {
-    font-size: 11px;
-    padding: 8px;
-  }
-
-  .login-box button {
-    font-size: 14px;
-    padding: 8px;
+    font-size: 12px;
+    padding: 6px; /* Reduced padding */
   }
 }

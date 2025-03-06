@@ -36,7 +36,7 @@ const ProductSchema = new mongoose.Schema({
   },
   s_stock: {
     type: Number,
-    default: 0, // Provide a default value
+    default: 0,
   },
   m_stock: {
     type: Number,
@@ -68,12 +68,18 @@ const ProductSchema = new mongoose.Schema({
   },
 });
 
+// Virtual for total stock (used for clothing category)
 ProductSchema.virtual("totalStock").get(function () {
   return this.s_stock + this.m_stock + this.l_stock + this.xl_stock;
 });
 
+// Middleware to handle stock calculation
 ProductSchema.pre("save", function (next) {
-  this.stock = this.totalStock;
+  if (this.category === "clothes") {
+    // For clothing, calculate stock as the sum of sizes
+    this.stock = this.totalStock;
+  }
+  // For other categories (e.g., gadgets), keep the stock value as provided
   next();
 });
 

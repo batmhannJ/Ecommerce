@@ -67,7 +67,7 @@
 .account-settings__button {
   width: 100%; /* Full width for button */
   padding: 12px; /* Consistent padding */
-  background-color: #bac195; /* Use primary color */
+  background-color: #5b7fa7; /* Use primary color */
   color: white; /* Button text color */
   border: none; /* No border */
   border-radius: 5px; /* Rounded corners */
@@ -81,7 +81,7 @@
 }
 
 .account-settings__button:hover {
-  background-color: #747b50; /* Use hover color */
+  background-color: #93B7D9; /* Use hover color */
 }
 
 .account-settings__button.loading {

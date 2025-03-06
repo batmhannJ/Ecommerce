@@ -5,6 +5,9 @@ import dashboard from '../../assets/dashboard.png';
 import list_product_icon from '../../assets/list_product_icon.png';
 import order_product_icon from '../../assets/order_product_icon.png';
 import user_management_icon from '../../assets/user_management_icon.png'; // Add this line
+import seller from '../../assets/seller.png'; // Add this line
+import transaction from '../../assets/transaction.png'; // Add this line
+import request from '../../assets/request.png'; // Add this line
 
 export const Sidebar = () => {
   return (
@@ -35,19 +38,19 @@ export const Sidebar = () => {
       </Link>
       <Link to='/admin/sellerlist' style={{ textDecoration: 'none' }}>
         <div className="sidebar-item">
-          <img src={user_management_icon} alt="User Management Icon" />
+          <img src={seller} alt="Seller" />
           <p>Seller List</p>
         </div>
       </Link>
       <Link to='/admin/transactionmanagement' style={{ textDecoration: 'none' }}>
         <div className="sidebar-item">
-          <img src={user_management_icon} alt="User Management Icon" />
+          <img src={transaction} alt="Transaction" />
           <p>Transactions</p>
         </div>
       </Link>
       <Link to='/admin/sellerrequest' style={{ textDecoration: 'none' }}>
         <div className="sidebar-item">
-          <img src={user_management_icon} alt="User Management Icon" />
+          <img src={request} alt="Request" />
           <p>Requests</p>
         </div>
       </Link>

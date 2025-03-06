@@ -46,6 +46,23 @@
   margin-right: auto;
 }
 
+.place-order-right button{
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 5px;
+  background: #ff5a5a;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.place-order-right button:hover{
+  transform: scale(0.95);
+}
+
 .place-order .cartitems-total button {
   margin-top: 20px;
   border-radius: 4px;

@@ -25,8 +25,8 @@ const getUserIdFromToken = () => {
 };
 
 const MAIN_OFFICE_COORDINATES = {
-  latitude: 14.628488, // Sunnymede IT Center latitude
-  longitude: 121.03342,
+  latitude: 15.4866, // ASKI Building latitude
+  longitude: 120.9730, // ASKI Building longitude
 };
 
 export const PlaceOrder = () => {
@@ -183,7 +183,7 @@ export const PlaceOrder = () => {
       const distanceMiles = distanceKm * 0.621371;
 
       const isSameRegion =
-        data.state === "Metro Manila" || data.region === "NCR";
+        data.state === "Nueva Ecija" || data.region === "Region III";
 
       let baseFee = isSameRegion ? 20 : 40; // Lower base fee within NCR
       let feePerMile = isSameRegion ? 2 : 3; // Lower fee per mile within NCR

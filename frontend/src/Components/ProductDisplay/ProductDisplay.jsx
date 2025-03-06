@@ -162,7 +162,7 @@ const ProductDisplay = (props) => {
           className={`productdisplay-tab-content ${activeTab === "details" ? "active" : ""}`}
         >
           <h1>{product.name}</h1>
-          <h4>{product.description}</h4>
+          <p>{product.description}</p>
   
           {/* If category is Gadgets or Food, show quantity selector + Add to Cart inside Details */}
           {(product.category === "gadgets" || product.category === "food") && (

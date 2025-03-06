@@ -1439,45 +1439,52 @@ app.post('/check-user-address', async (req, res) => {
     return res.status(500).json({ message: "Error checking user address" });
   }
 });
-
 app.post('/updateStock', async (req, res) => {
   console.log("Received body:", req.body); // Log the entire body
-  const { name, size } = req.body;
-  const quantity = Number(req.body.quantity); // Ensure quantity is a number
+  const { name, size, quantity } = req.body;
+  const qty = Number(quantity); // Ensure quantity is a number
 
   try {
-    // Define the field name for the selected size
-    let sizeField;
-    switch (size) {
-      case 'S':
-        sizeField = 's_stock';
-        break;
-      case 'M':
-        sizeField = 'm_stock';
-        break;
-      case 'L':
-        sizeField = 'l_stock';
-        break;
-      case 'XL':
-        sizeField = 'xl_stock';
-        break;
-      default:
-        return res.status(400).send("Invalid size selected.");
-    }
-
     // Find the product by name
-    const product = await Product.findOne({ name: name });
+    const product = await Product.findOne({ name });
     if (!product) {
       return res.status(404).send("Product not found");
     }
 
-    // Build the update query to decrement the specific size stock
-    const updateQuery = { $inc: { [sizeField]: -quantity, stock: -quantity } };
+    let updateQuery;
+
+    if (product.category === "gadgets" || product.category === "food") {
+      // For gadgets and food, decrement only the main stock
+      updateQuery = { $inc: { stock: -qty } };
+    } else {
+      // Define the field name for the selected size
+      let sizeField;
+      switch (size) {
+        case 'S':
+          sizeField = 's_stock';
+          break;
+        case 'M':
+          sizeField = 'm_stock';
+          break;
+        case 'L':
+          sizeField = 'l_stock';
+          break;
+        case 'XL':
+          sizeField = 'xl_stock';
+          break;
+        default:
+          return res.status(400).send("Invalid size selected.");
+      }
+
+      // Update both the specific size and total stock
+      updateQuery = { $inc: { [sizeField]: -qty, stock: -qty } };
+    }
+
     console.log("Update query:", updateQuery); // Log the update query
 
     // Perform the update
     const updatedProduct = await Product.findOneAndUpdate(
-      { name: name }, // Find by name
+      { name },
       updateQuery,
       { new: true }
     );
@@ -1487,6 +1494,7 @@ app.post('/updateStock', async (req, res) => {
     res.status(500).send("Error updating stock: " + error.message);
   }
 });
+
 
 app.patch('/api/update-address/:userId', async (req, res) => {
   const { userId } = req.params;

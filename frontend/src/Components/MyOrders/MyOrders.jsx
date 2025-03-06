@@ -69,7 +69,7 @@ useEffect(() => {
     setData(parsedUserData); // Set the `data` state
   } else {
     console.error("userData not found in localStorage.");
-    toast.error("User data not found. Please ensure you are logged in.");
+    //toast.error("User data not found. Please ensure you are logged in.");
   }
 }, []);
 
@@ -129,7 +129,7 @@ useEffect(() => {
       toast.success("Order successfully placed!");
     } catch (error) {
       console.error("Post-payment error:", error);
-      toast.error("Failed to process order. Please contact support.");
+      //toast.error("Failed to process order. Please contact support.");
     }
   };
 

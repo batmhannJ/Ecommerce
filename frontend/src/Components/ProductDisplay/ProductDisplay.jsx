@@ -165,7 +165,7 @@ const ProductDisplay = (props) => {
           <h4>{product.description}</h4>
   
           {/* If category is Gadgets or Food, show quantity selector + Add to Cart inside Details */}
-          {(product.category === "gadgets" || product.category === "foods") && (
+          {(product.category === "gadgets" || product.category === "food") && (
             <>
               <div className="productdisplay-right-prices">
                 <p>Price:</p>

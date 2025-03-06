@@ -185,11 +185,6 @@ export const AddProduct = () => {
       return;
     }
 
-    if (category === "food" && !grams) {
-      toast.error("Please specify the grams for food items.", { position: "top-left" });
-      return;
-    }
-
     if (parseFloat(new_price) >= parseFloat(old_price)) {
       toast.error("Offer price must be lower than the original price", {
         position: "top-left",
@@ -398,17 +393,17 @@ export const AddProduct = () => {
         )}
 
         {productDetails.category === "food" && (
-          <div className="addproduct-itemfield">
-            <p>Grams</p>
-            <input
-              type="text"
-              name="grams"
-              value={grams}
-              onChange={changeHandler}
-              placeholder="e.g. 500g, 1kg"
-            />
-          </div>
-        )}
+            <div className="addproduct-itemfield">
+              <p>Stock</p>
+              <input
+                type="number"
+                name="stock"
+                value={productDetails.stock}
+                onChange={changeHandler}
+                placeholder="Enter stock"
+              />
+            </div>
+          )}
       </div>
 
       <div className="addproduct-price">

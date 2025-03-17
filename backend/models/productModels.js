@@ -18,6 +18,18 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  thumbnail1: {
+    type: String,
+    default: "",
+  },
+  thumbnail2: {
+    type: String,
+    default: "",
+  },
+  thumbnail3: {
+    type: String,
+    default: "",
+  },
   description: {
     type: String,
     required: false,

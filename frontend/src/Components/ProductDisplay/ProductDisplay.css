@@ -300,3 +300,79 @@
     font-size: 14px;
   }
 }
+/* Add these styles to your ProductDisplay.css file */
+
+.productdisplay-thumbnail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-right: 15px;
+}
+
+.thumbnail-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.productdisplay-thumbnail {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.productdisplay-thumbnail.active {
+  border-color: #ff4141;
+}
+
+.thumbnail-label {
+  font-size: 11px;
+  margin-top: 3px;
+  color: #666;
+}
+
+.productdisplay-main-img {
+  width: 400px;
+  height: 400px;
+  object-fit: contain;
+}
+
+.productdisplay-left {
+  display: flex;
+  gap: 17px;
+}
+
+.productdisplay-image-gallery {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 10px;
+  overflow: hidden;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .productdisplay-left {
+    flex-direction: column-reverse;
+  }
+  
+  .productdisplay-thumbnail-list {
+    flex-direction: row;
+    justify-content: center;
+    margin-right: 0;
+    margin-top: 15px;
+  }
+  
+  .productdisplay-main-img {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+  }
+}

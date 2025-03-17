@@ -1,42 +1,38 @@
 import React from "react";
+import { FaStore, FaMotorcycle, FaHandshake } from "react-icons/fa";
 import "./About.css";
 
 const About = () => {
   return (
     <div className="about-container">
-      <h1>Read our inspiring story</h1>
+      {/* Header Section */}
+      <div className="about-header">
+        <h1>About Us</h1>
+        <p>Connecting small businesses with customers through seamless delivery.</p>
+      </div>
 
-      <div className="about-sections">
-        <section className="about-section">
-          <h2>Tradition and Innovation</h2>
-          <p>
-            Tienda is a global online marketplace where Indigenous people come
-            together to make, sell, and buy unique and authentic items. Our
-            mission is to preserve and promote Indigenous culture through their
-            products while fostering a community of support and positive change
-            for small businesses, artisans, and the environment. Here’s how
-            we’re making a difference together:
-          </p>
-        </section>
+      {/* Card Section */}
+      <div className="about-cards">
+        {/* Business Growth */}
+        <div className="about-card">
+          <FaStore className="about-icon" />
+          <h2>Empowering Small Businesses</h2>
+          <p>We give small businesses a platform to thrive and reach new customers.</p>
+        </div>
 
-        <section className="about-section">
-          <h2>Indigenous Empowerment</h2>
-          <p>
-            At Tienda, there are no warehouses – just a diverse community of
-            people sharing their heritage through the products they love. We
-            simplify the process, helping you connect directly with Indigenous
-            makers to find something truly extraordinary and meaningful.
-          </p>
-        </section>
+        {/* Delivery Service */}
+        <div className="about-card">
+          <FaMotorcycle className="about-icon" />
+          <h2>Fast & Reliable Delivery</h2>
+          <p>Our riders ensure quick and hassle-free deliveries to keep customers satisfied.</p>
+        </div>
 
-        <section className="about-section">
-          <h2>Trust and integrity</h2>
-          <p>
-            Your privacy and security are our top priorities. Our dedicated team
-            ensures your information is protected. If you ever need assistance,
-            we are always ready to support you.
-          </p>
-        </section>
+        {/* Community Connection */}
+        <div className="about-card">
+          <FaHandshake className="about-icon" />
+          <h2>Building a Strong Community</h2>
+          <p>We connect businesses, customers, and riders to create a strong support system.</p>
+        </div>
       </div>
     </div>
   );

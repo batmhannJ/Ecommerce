@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Partner.css";
-import Item from "../Item/Item";
 import ShopList from "../ShopList/ShopList";
-import coverImage from "../Assets/cover.png"; // Import the cover image
+import coverImage from "../Assets/partner.png";
 
 const Partner = () => {
   const [stores, setStores] = useState([]);
@@ -14,17 +13,15 @@ const Partner = () => {
   }, []);
 
   return (
-    <div id="popular" className="popular">
-      <div className="banner" style={{ backgroundImage: `url(${coverImage})` }}>
-        <div className="banner-content">
-          <h1>Discover Our Partner Stores</h1>
-          <p>Supporting local businesses with quality products</p>
-        </div>
-        </div>
-      <h1>PARTNER STORES</h1>
-      <hr />
+    <div className="partner-section">
+      <div className="partner-banner">
+        <img 
+          src={coverImage} 
+          alt="Partner Banner" 
+        />
+      </div>
       <div className="popular-item">
-        {stores.map((store, i) => (
+        {stores.map((store) => (
           <ShopList
             key={store._id}
             id={store._id}

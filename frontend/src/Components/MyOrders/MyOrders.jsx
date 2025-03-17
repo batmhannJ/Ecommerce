@@ -183,42 +183,54 @@ useEffect(() => {
     };
   }, [userId]);
 
+
   return (
     <div className="my-order-container">
       <h1>My Orders</h1>
       {loading ? (
-        <p>Loading...</p>
+        <div className="loading-spinner">
+          <div className="spinner"></div>
+          <p>Loading your orders...</p>
+        </div>
       ) : (
-        <table className="order-table">
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>Date</th>
-              <th>Item</th>
-              <th>Quantity</th>
-              <th>Amount</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.length > 0 ? (
-              orders.map((order) => (
-                <tr key={order._id}>
-                  <td>{order.transactionId}</td>
-                  <td>{order.date}</td>
-                  <td>{order.item}</td>
-                  <td>{order.quantity}</td>
-                  <td>{order.amount}</td>
-                  <td>{order.status}</td>
-                </tr>
-              ))
-            ) : (
+        <div className="order-table-wrapper">
+          <table className="order-table">
+            <thead>
               <tr>
-                <td colSpan="6">No orders found</td>
+                <th>Order ID</th>
+                <th>Date</th>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Amount</th>
+                <th>Status</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {orders.length > 0 ? (
+                orders.map((order) => (
+                  <tr key={order._id}>
+                    <td>{order.transactionId}</td>
+                    <td>{order.date}</td>
+                    <td>{order.item}</td>
+                    <td>{order.quantity}</td>
+                    <td>${order.amount}</td>
+                    <td>
+                      <span className={`status-badge status-${order.status.toLowerCase()}`}>
+                        {order.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="no-orders">
+                    <p>No orders found. Start shopping now!</p>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

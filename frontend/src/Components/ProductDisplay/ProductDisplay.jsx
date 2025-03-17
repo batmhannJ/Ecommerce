@@ -16,6 +16,7 @@ const ProductDisplay = (props) => {
   const [quantity, setQuantity] = useState(1); // State for quantity
   const [activeTab, setActiveTab] = useState("details");
   const isGadget = product.category === "Gadgets"; // Check if category is Gadgets
+  const [selectedImage, setSelectedImage] = React.useState(product.image);
 
   useEffect(() => {
     // Reset adjustedPrice, stock, and quantity when product changes
@@ -132,14 +133,37 @@ const ProductDisplay = (props) => {
   
   return (
     <div className="productdisplay">
-      <div className="productdisplay-left">
-        <img
-          className="productdisplay-main-img"
-          src={product.image}
-          alt="Main Image"
-        />
+    <div className="productdisplay-left">
+        <div className="productdisplay-thumbnail-list">
+          {[product.image, ...(product.images || []),
+            '/images/phone-front.jpg',
+            '/images/phone-back.jpg',
+            '/images/phone-side.jpg',
+            '/images/phone-top.jpg',
+            '/images/phone-bottom.jpg'
+          ].map((img, index) => (
+            <img
+              key={index}
+              className={`productdisplay-thumbnail ${selectedImage === img ? 'active' : ''}`}
+              src={img}
+              alt={`Thumbnail ${index + 1}`}
+              onClick={() => setSelectedImage(img)}
+            />
+          ))}
+        </div>
+
+        <div className="productdisplay-image-gallery">
+          <img
+            className="productdisplay-main-img"
+            src={selectedImage}
+            alt="Main Image"
+          />
+        </div>
       </div>
+
+      {/* PRODUCT INFO */}
       <div className="productdisplay-right-container">
+        {/* TABS */}
         <div className="productdisplay-tabs">
           <div
             className={`productdisplay-tab ${activeTab === "details" ? "active" : ""}`}
@@ -156,49 +180,51 @@ const ProductDisplay = (props) => {
             </div>
           )}
         </div>
-  
+
         {/* DETAILS TAB */}
         <div
           className={`productdisplay-tab-content ${activeTab === "details" ? "active" : ""}`}
         >
-          <h1>{product.name}</h1>
-          <p>{product.description}</p>
-  
-          {/* If category is Gadgets or Food, show quantity selector + Add to Cart inside Details */}
+          <h1 className="product-name">{product.name}</h1>
+          <p className="product-description">{product.description}</p>
+
+          {/* If Gadgets or Food, show quantity selector + Add to Cart */}
           {(product.category === "gadgets" || product.category === "food") && (
             <>
-              <div className="productdisplay-right-prices">
-                <p>Price:</p>
-                <div className="productdisplay-right-price-new">₱{adjustedPrice}</div>
+              <div className="product-price">
+                <p>Price: <span>₱{adjustedPrice}</span></p>
               </div>
-              <div className="productdisplay-stock">
-                <p>No. of Stock: {currentStock ?? 0}</p>
+
+              <div className="product-stock">
+                <p>No. of Stock: <span>{currentStock}</span></p>
               </div>
-  
+
+              {/* Quantity */}
               <div className="quantity-controls">
-                <p>Quantity: </p>
-                <button className="quantity-button" onClick={() => handleQuantityChange(-1)}> - </button>
-                <span className="quantity-value">{quantity}</span>
-                <button className="quantity-button" onClick={() => handleQuantityChange(1)}> + </button>
+                <button onClick={() => handleQuantityChange(-1)}>-</button>
+                <span>{quantity}</span>
+                <button onClick={() => handleQuantityChange(1)}>+</button>
               </div>
-  
-              <button
-                onClick={handleAddToCart}
-                disabled={currentStock === 0}
-                className="productdisplay-button"
-              >
-                {currentStock === 0 ? "OUT OF STOCK" : "ADD TO CART"}
-              </button>
+
+              {/* Add to Cart Button */}
+              <div className="add-to-cart-fixed">
+                <button
+                  onClick={handleAddToCart}
+                  disabled={currentStock === 0}
+                >
+                  {currentStock === 0 ? "OUT OF STOCK" : "ADD TO CART"}
+                </button>
+              </div>
             </>
           )}
         </div>
-  
-        {/* SIZES TAB (Only for Clothes) */}
+
+        {/* SIZES TAB */}
         {product.category === "clothes" && (
           <div
             className={`productdisplay-tab-content ${activeTab === "sizes" ? "active" : ""}`}
           >
-            <div className="productdisplay-right-prices">
+             <div className="productdisplay-right-prices">
               <p>Price:</p>
               <div className="productdisplay-right-price-new">₱{adjustedPrice}</div>
             </div>
@@ -207,7 +233,7 @@ const ProductDisplay = (props) => {
             </div>
   
             <h2>Select Size</h2>
-            <div className="productdisplay-right-sizes">
+            <div className="size-options">
               {["S", "M", "L", "XL"].map((size) => (
                 <div
                   key={size}
@@ -218,21 +244,23 @@ const ProductDisplay = (props) => {
                 </div>
               ))}
             </div>
-  
+
+            {/* Quantity */}
             <div className="quantity-controls">
-              <p>Quantity: </p>
-              <button className="quantity-button" onClick={() => handleQuantityChange(-1)}> - </button>
-              <span className="quantity-value">{quantity}</span>
-              <button className="quantity-button" onClick={() => handleQuantityChange(1)}> + </button>
+              <button onClick={() => handleQuantityChange(-1)}>-</button>
+              <span>{quantity}</span>
+              <button onClick={() => handleQuantityChange(1)}>+</button>
             </div>
-  
-            <button
-              onClick={handleAddToCart}
-              disabled={currentStock === 0 || !selectedSize}
-              className="productdisplay-button"
-            >
-              {currentStock === 0 ? "OUT OF STOCK" : "ADD TO CART"}
-            </button>
+
+            {/* Add to Cart */}
+            <div className="add-to-cart-fixed">
+              <button
+                onClick={handleAddToCart}
+                disabled={currentStock === 0 || !selectedSize}
+              >
+                {currentStock === 0 ? "OUT OF STOCK" : "ADD TO CART"}
+              </button>
+            </div>
           </div>
         )}
       </div>

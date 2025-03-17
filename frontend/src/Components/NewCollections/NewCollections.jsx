@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './NewCollections.css';
-import Item from '../Item/Item';
+import Items from '../Items/Items';
 
 const NewCollections = () => {
   const [new_collection, setNew_Collection] = useState([]);
@@ -17,7 +17,7 @@ const NewCollections = () => {
       <hr />
       <div className="collections">
         {new_collection.map((item, i) => (
-          <Item key={i} id={item.id} name={item.name} image={item.image} new_price={item.new_price} />
+          <Items key={i} id={item.id} name={item.name} image={item.image} new_price={item.new_price} />
         ))}
       </div>
     </div>

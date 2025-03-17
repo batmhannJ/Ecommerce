@@ -4,14 +4,14 @@ import "./ShopList.css";
 
 const ShopList = ({ id, image, shopName, businessLocation }) => {
   return (
-    <div className="product-card">
-      {/* Link to the new store page */}
-      <Link to={`/store/${id}`} className="product-image-wrapper">
-        <img src={image} alt={shopName} className="product-image" />
+    <div className="shop-card">
+      <Link to={`/store/${id}`} className="shop-image-container">
+        <div className="shop-image-overlay"></div>
+        <img src={image} alt={shopName} className="shop-image" />
       </Link>
-      <div className="product-info">
-        <p className="product-shop-name">{shopName}</p>
-        <p className="product-location">{businessLocation}</p>
+      <div className="shop-details">
+        <h3 className="shop-name">{shopName}</h3>
+        <p className="shop-location">{businessLocation}</p>
       </div>
     </div>
   );

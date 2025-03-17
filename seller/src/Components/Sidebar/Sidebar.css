@@ -4,12 +4,14 @@
   padding-top: 30px;
   padding-bottom: 20px;
   gap: 20px;
-  width: 100%;
-  max-width: 250px;
+  width: 250px; /* Fixed width */
+  min-width: 250px; /* Prevent shrinking */
+  max-width: 250px; /* Prevent expanding */
   height: 100vh;
   background: #ffffff;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 .sidebar:hover {
@@ -25,22 +27,24 @@
   background: #f9f9f9;
   gap: 15px;
   cursor: pointer;
-  transition: background 0.3s ease, transform 0.3s ease;
+  transition: background 0.3s ease;
+  /* No transform on hover to maintain consistent width */
 }
 
 .sidebar-item:hover {
   background: #e6e6e6;
-  transform: translateY(-2px);
+  /* No transform that would change width */
 }
 
 .sidebar-item:active {
   background: #dcdcdc;
-  transform: translateY(0);
+  /* No transform that would change width */
 }
 
 .sidebar-item img {
   width: 24px;
   height: 24px;
+  flex-shrink: 0; /* Prevent icon from shrinking */
 }
 
 .sidebar-item p {
@@ -48,11 +52,15 @@
   color: #505050;
   margin: 0;
   font-weight: 500;
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Add ellipsis for long text */
 }
 
 .sidebar-item.active {
   background: #e6f7ff;
   color: #1890ff;
+  /* No additional properties that would change width */
 }
 
 .sidebar-item.active p {
@@ -82,6 +90,7 @@
   .sidebar-item {
     margin: 0 10px;
     padding: 10px 10px;
+    width: auto; /* Allow natural width */
   }
 
   .sidebar-item p {
@@ -100,8 +109,8 @@
     padding: 10px;
     flex-direction: row;
     justify-content: center;
-    margin-left: 70px; /* Reduced margin for smaller screens */
-    gap: 10px; /* Slightly larger gap for readability */
+    margin-left: 70px;
+    gap: 10px;
   }
 
   .sidebar-item {
@@ -111,27 +120,27 @@
 
   .sidebar-item img {
     width: 32px;
-    height: 32px; /* Smaller icons */
+    height: 32px;
   }
 }
 
-/* For screens smaller than 480px (very small screens like phones in portrait) */
+/* For screens smaller than 480px */
 @media (max-width: 480px) {
   .sidebar {
     padding: 8px;
     flex-direction: row;
     justify-content: center;
-    margin-left: 70px; /* Further reduced margin */
-    gap: 5px; /* Smaller gap */
+    margin-left: 70px;
+    gap: 5px;
   }
 
   .sidebar-item {
     margin: 0 5px;
-    padding: 6px 6px; /* Smaller padding */
+    padding: 6px 6px;
   }
 
   .sidebar-item img {
-    width: 28px; /* Even smaller icons */
+    width: 28px;
     height: 28px;
   }
 }

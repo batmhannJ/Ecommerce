@@ -34,9 +34,6 @@ const Footer = () => {
             <li>
             anytime, anywhere.
             </li>
-            <li>
-            and deliver products
-            </li>
           </ul>
           </div>
         <div className="footer-column">

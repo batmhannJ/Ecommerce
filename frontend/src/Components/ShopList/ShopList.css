@@ -1,163 +1,128 @@
-.item {
-  width: 280px; /* Adjust as needed */
-  height: auto; /* Allows flexibility for height */
-  box-sizing: border-box; /* Includes padding and border in width */
-  overflow: hidden; /* Hides any overflow content */
-  border: 1px solid #ddd; /* Light border around the item */
-  border-radius: 8px; /* Rounded corners for the container */
-  transition: box-shadow 0.3s ease, transform 0.3s ease; /* Smooth transition for shadow and transform */
-  padding-top: 10px; /* Adds space between the image and top border */
-  padding-left: 10px;
-  padding-right: 10px;
+/* Glassmorphism Shop List CSS */
+.shop-card {
+  width: 350px; /* Increased width */
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.5s ease;
+  margin: 12px; /* Reduced gap */
+  position: relative;
 }
 
-.item img {
-  width: 100%; /* Ensures images fill their container */
-  height: 200px; /* Fixed height for uniformity */
-  object-fit: cover; /* Ensures images cover the area without stretching */
-  margin-bottom: 10px; /* Adds space between the image and the text below */
+.shop-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
-.item p {
-  margin: 6px 0;
-  font-size: 14px; /* Consistent font size for text */
+.shop-image-container {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 230px; /* Slightly increased */
+  overflow: hidden;
 }
 
-.item_prices {
-  display: flex;
-  gap: 20px;
+.shop-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s cubic-bezier(0.21, 1, 0.36, 1);
 }
 
-.item_price_new {
-  color: #374151;
-  font-size: 16px; /* Adjusted for readability */
+.shop-card:hover .shop-image {
+  transform: scale(1.2);
+}
+
+.shop-image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.3)
+  );
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.shop-card:hover .shop-image-overlay {
+  opacity: 1;
+}
+
+.shop-details {
+  padding: 16px; /* Reduced padding to decrease gap */
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(5px);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.shop-name {
+  font-size: 18px;
   font-weight: 600;
+  color: #334155;
+  margin: 0 0 6px 0; /* Reduced bottom margin */
+  transition: color 0.3s ease;
 }
 
-.item_price_old {
-  color: #8c8c8c;
-  font-size: 16px; /* Adjusted for readability */
-  font-weight: 500;
-  text-decoration: line-through;
+.shop-card:hover .shop-name {
+  color: #6366f1;
 }
 
-.item:hover {
-  transform: scale(1.05); /* Slightly enlarges the item on hover */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Adds shadow effect */
+.shop-location {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+  display: inline-block;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Shine effect */
+.shop-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+  transition: all 0.75s ease;
+}
+
+.shop-card:hover::after {
+  left: 125%;
 }
 
 /* Responsive adjustments */
-@media (max-width: 1280px) {
-  .item {
-    width: 220px;
+@media (max-width: 768px) {
+  .shop-card {
+    width: 310px; /* Increased width slightly */
   }
 
-  .item_price_new,
-  .item_price_old {
-    font-size: 14px;
-  }
-
-  .item p {
-    font-size: 12px;
+  .shop-image-container {
+    height: 200px;
   }
 }
 
-@media (max-width: 1024px) {
-  .item {
-    width: 170px;
-  }
-
-  .item_price_new,
-  .item_price_old {
-    font-size: 13px;
-  }
-
-  .item p {
-    font-size: 11px;
+@media (max-width: 480px) {
+  .shop-card {
+    width: 100%;
+    max-width: 350px;
   }
 }
-
-@media (max-width: 800px) {
-  .item {
-    width: 120px;
-  }
-
-  .item_price_new,
-  .item_price_old {
-    font-size: 12px;
-  }
-
-  .item p {
-    font-size: 10px;
-  }
-}
-
-@media (max-width: 500px) {
-  .item {
-    width: 160px;
-  }
-
-  .item_price_new,
-  .item_price_old {
-    font-size: 12px;
-  }
-
-  .item p {
-    font-size: 10px;
-  }
-}
-
-/* CSS */
-.product-card {
-  width: 320px;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.product-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-}
-
-.product-image-wrapper {
-  display: block;
-  width: 100%;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.product-image {
-  width: 100%;
-  height: 240px;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.product-card:hover .product-image {
-  transform: scale(1.05);
-}
-
-.product-info {
-  padding-top: 12px;
-  text-align: center;
-}
-
-.product-shop-name {
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 4px;
-}
-
-.product-location {
-  font-size: 14px;
-  color: #666;
-}
-

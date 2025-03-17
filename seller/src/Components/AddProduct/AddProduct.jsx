@@ -9,6 +9,7 @@ export const AddProduct = () => {
   const [color, setColor] = useState("");
   const [ram, setRam] = useState("");
   const [rom, setRom] = useState("");
+  const [perspectiveImages, setPerspectiveImages] = useState([null, null, null, null, null]);
   const [grams, setGrams] = useState(""); // For food category
   const [productDetails, setProductDetails] = useState({
     name: "",

@@ -1,167 +1,276 @@
+/* List Product Styling - Matched with Add Product Blue Theme */
+
+:root {
+  --primary: #5b7fa7; /* Main blue */
+  --primary-light: #7b9cc0;
+  --primary-dark: #486891;
+  --secondary: #4caf50; /* Green for success elements */
+  --text-dark: #333333;
+  --text-medium: #666666;
+  --text-light: #999999;
+  --background: #f7f7f7;
+  --white: #ffffff;
+  --border-light: #eeeeee;
+  --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  --danger: #dc3545; /* Red for delete button */
+}
+
+/* Main container - matching add-product styling */
 .list-product {
-  margin: 20px;
-  padding: 20px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  height: 650px; /* Increased height */
-  overflow-y: auto; /* Enable vertical scrolling */
-  width: 100%; /* Use full width on smaller screens */
-  max-width: 1400px; /* Adjusted maximum width */
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1100px;
+  padding: 30px;
+  margin: 30px auto;
+  border-radius: 16px;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+  height: 650px;
+  overflow-y: auto;
 }
 
+/* Section heading - matched with add-product */
 .list-product h3 {
-  font-size: 24px;
-  color: #333;
-  text-align: center; /* Center text */
-  margin-bottom: 20px;
+  margin: 0 0 30px 0;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--primary);
+  position: relative;
+  padding-bottom: 12px;
+  text-align: center;
 }
 
+.list-product h3:after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  height: 4px;
+  width: 60px;
+  background: var(--primary);
+  border-radius: 10px;
+}
+
+/* Buttons styling - matching add-product button style */
 .edit-button, .delete-button {
-  padding: 5px 10px;
+  padding: 10px 16px;
+  border-radius: 12px;
   border: none;
-  border-radius: 5px;
-  font-size: 14px;
-  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  margin-right: 10px; /* Adds space between the buttons */
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  margin-right: 10px;
 }
 
 .edit-button {
-  background-color: #28a745; /* Green */
-  color: white;
+  background: var(--secondary);
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
 }
 
 .delete-button {
-  background-color: #dc3545; /* Red */
-  color: white;
+  background: var(--danger);
+  box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
 }
 
 .edit-button:hover {
-  background-color: #28a745; /* Darker Green */
-  transform: scale(1.05);
+  background: #3d9140;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
 }
 
 .delete-button:hover {
-  background-color: #dc3545; /* Darker Red */
-  transform: scale(1.05);
+  background: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(220, 53, 69, 0.4);
 }
 
 .edit-button:active, .delete-button:active {
-  transform: scale(0.95);
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
+/* Product list grid - maintained functionality with updated styling */
 .listproduct-format-main {
   display: grid;
   grid-template-columns: 100px 2fr 1fr 1fr 1fr 1fr 1fr;
   gap: 15px;
   width: 100%;
   height: 100px;
-  color: #333;
-  font-size: 16px;
+  color: var(--text-dark);
+  font-size: 15px;
   font-weight: 600;
   margin-bottom: 10px;
   margin-top: 10px;
+  align-items: center;
 }
 
 .listproduct-format {
   align-items: center;
 }
 
+/* Product image styling - matched with add-product thumbnail style */
 .listproduct-product-icon {
   width: 100px;
   height: 100px;
   object-fit: cover;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background-color: #f7f7f7;
+  border-radius: 15px;
+  border: 2px dashed var(--primary-light);
+  padding: 5px;
+  background-color: #f0f5fa;
+  transition: all 0.3s ease;
 }
 
 .listproduct-product-icon:hover {
-  transform: scale(1.05);
-  transition: 0.3s ease;
+  border-color: var(--primary);
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(91, 127, 167, 0.2);
 }
 
 .listproduct-remove-icon {
   cursor: pointer;
   width: 24px;
   height: 24px;
+  transition: all 0.3s ease;
 }
 
+.listproduct-remove-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Product list container */
 .listproduct-allproducts {
   max-height: 400px;
   overflow-y: auto;
   width: 100%;
   margin-top: 20px;
+  border-radius: 12px;
+  background-color: #f0f5fa;
+  padding: 15px;
+  border: 1px dashed rgba(91, 127, 167, 0.3);
 }
 
+/* Divider styling */
 hr {
   border: none;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--border-light);
+  margin: 20px 0;
 }
 
+/* Edit form styling - matched with add-product styling */
 .edit-form {
-  background-color: #f9f9f9;
-  padding: 20px;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  position: relative;
+  box-sizing: border-box;
   width: 100%;
-  max-width: 500px; /* Adjusted for consistency */
-  margin: 20px auto; /* Centered */
+  max-width: 500px;
+  padding: 30px;
+  margin: 30px auto;
+  border-radius: 16px;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+  border: 1px dashed rgba(91, 127, 167, 0.3);
+  background-color: #f0f5fa;
 }
 
 .edit-form h2 {
-  margin-top: 0;
-  font-size: 20px;
-  color: #333;
-  text-align: center; /* Center text */
+  margin: 0 0 30px 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary);
+  position: relative;
+  padding-bottom: 12px;
+  text-align: center;
+}
+
+.edit-form h2:after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  height: 3px;
+  width: 50px;
+  background: var(--primary);
+  border-radius: 10px;
 }
 
 .edit-form input, 
 .edit-form select {
-  width: calc(100% - 16px);
-  padding: 10px;
-  border: 2px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  color: #333;
+  width: 100%;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  background-color: var(--white);
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--text-dark);
+  transition: all 0.3s ease;
+  margin-bottom: 15px;
 }
 
+.edit-form input:focus, 
+.edit-form select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(91, 127, 167, 0.15);
+  outline: none;
+}
 
-/* Responsive design for smaller screens */
-@media (max-width: 1040px) {
-  .listproduct-format-main {
-    grid-template-columns: 100px 2fr 1fr 1fr 1fr 1fr 1fr;
-    font-size: 14px;
-  }
-  
-  .listproduct-product-icon {
-    width: 80px;
-    height: 80px;
+.edit-form button {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--primary);
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+  box-shadow: 0 4px 10px rgba(91, 127, 167, 0.3);
+}
+
+.edit-form button:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(91, 127, 167, 0.4);
+}
+
+/* Responsive styles - maintaining functionality with updated styling */
+@media (max-width: 1024px) {
+  .list-product {
+    padding: 25px;
   }
 }
 
 @media (max-width: 768px) {
   .list-product {
-    margin: 10px;
-    padding: 10px;
+    padding: 20px;
+    margin: 15px;
+    border-radius: 12px;
   }
-
+  
+  .list-product h3 {
+    font-size: 22px;
+  }
+  
   .listproduct-format-main {
     display: flex;
-    flex-direction: row; /* Align items horizontally */
+    flex-direction: row;
     gap: 15px;
     width: 100%;
-    overflow-x: auto; /* Allow horizontal scrolling */
-    white-space: nowrap; /* Prevent wrapping */
+    overflow-x: auto;
+    white-space: nowrap;
   }
 
   .listproduct-format {
-    flex: 0 0 auto; /* Prevent items from shrinking */
-    width: 200px; /* Adjust item width as necessary */
+    flex: 0 0 auto;
+    width: 200px;
   }
 
   .listproduct-product-icon {
@@ -169,37 +278,37 @@ hr {
     height: 80px;
   }
 
-  .listproduct-remove-icon {
-    width: 18px;
-  }
-
   .edit-form {
-    padding: 15px;
-  }
-
-  .edit-form input, 
-  .edit-form select {
-    font-size: 12px;
-    padding: 8px;
-  }
-
-  .edit-form button {
-    padding: 8px 16px;
-    font-size: 12px;
+    padding: 20px;
   }
 }
 
 @media (max-width: 480px) {
+  .list-product {
+    padding: 15px;
+    margin: 10px;
+  }
+  
   .list-product h3 {
-    font-size: 20px; /* Smaller font size for headings */
+    font-size: 20px;
   }
-
+  
   .edit-form h2 {
-    font-size: 18px; /* Smaller font size for edit form heading */
+    font-size: 18px;
   }
-
+  
   .edit-form input, 
   .edit-form select {
-    font-size: 12px; /* Smaller font size for inputs */
+    padding: 12px 15px;
+  }
+  
+  .listproduct-product-icon {
+    height: 70px;
+    width: 70px;
+  }
+  
+  .edit-button, .delete-button {
+    padding: 8px 12px;
+    font-size: 13px;
   }
 }

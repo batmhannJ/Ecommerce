@@ -5,6 +5,9 @@ import upload_area from "../../assets/upload_area.png";
 
 export const AddProduct = () => {
   const [image, setImage] = useState(null);
+  const [thumbnail1, setThumbnail1] = useState(null);
+  const [thumbnail2, setThumbnail2] = useState(null);
+  const [thumbnail3, setThumbnail3] = useState(null);
   const [gadgetType, setGadgetType] = useState(""); // Phone o Laptop
   const [color, setColor] = useState("");
   const [ram, setRam] = useState("");
@@ -14,6 +17,9 @@ export const AddProduct = () => {
   const [productDetails, setProductDetails] = useState({
     name: "",
     image: "",
+    thumbnail1: "",
+    thumbnail2: "",
+    thumbnail3: "",
     category: "crafts",
     new_price: "",
     old_price: "",
@@ -77,6 +83,23 @@ export const AddProduct = () => {
 
   const imageHandler = (e) => {
     setImage(e.target.files[0]);
+  };
+
+  const thumbnailHandler = (e, thumbnailNumber) => {
+    const file = e.target.files[0];
+    switch (thumbnailNumber) {
+      case 1:
+        setThumbnail1(file);
+        break;
+      case 2:
+        setThumbnail2(file);
+        break;
+      case 3:
+        setThumbnail3(file);
+        break;
+      default:
+        break;
+    }
   };
 
   const changeHandler = (e) => {
@@ -145,6 +168,29 @@ export const AddProduct = () => {
     }
   };
 
+  const uploadImage = async (file) => {
+    if (!file) return null;
+    
+    let formData = new FormData();
+    formData.append("product", file);
+    
+    try {
+      const response = await fetch("http://localhost:4000/upload", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+        },
+        body: formData,
+      });
+      
+      const data = await response.json();
+      return data.success ? data.image_url : null;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      return null;
+    }
+  };
+
   const Add_Product = async () => {
     const {
       name,
@@ -193,59 +239,72 @@ export const AddProduct = () => {
       return;
     }
 
-    let responseData;
-    let product = { ...productDetails, grams };
+    // Upload main image and thumbnails
+    toast.info("Uploading images...", { position: "top-left" });
+    
+    const mainImageUrl = await uploadImage(image);
+    if (!mainImageUrl) {
+      toast.error("Failed to upload main image", { position: "top-left" });
+      return;
+    }
+    
+    const thumbnail1Url = await uploadImage(thumbnail1);
+    const thumbnail2Url = await uploadImage(thumbnail2);
+    const thumbnail3Url = await uploadImage(thumbnail3);
+    
+    let product = { 
+      ...productDetails, 
+      grams,
+      image: mainImageUrl,
+      thumbnail1: thumbnail1Url || "",
+      thumbnail2: thumbnail2Url || "",
+      thumbnail3: thumbnail3Url || ""
+    };
 
-    let formData = new FormData();
-    formData.append("product", image);
-
-    await fetch("http://localhost:4000/upload", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-      },
-      body: formData,
-    })
-      .then((resp) => resp.json())
-      .then((data) => {
-        responseData = data;
-      });
-
-    if (responseData.success) {
-      product.image = responseData.image_url;
-      await fetch("http://localhost:4000/addproduct", {
+    // Add product to database
+    try {
+      const response = await fetch("http://localhost:4000/addproduct", {
         method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
         body: JSON.stringify(product),
-      })
-        .then((resp) => resp.json())
-        .then((data) => {
-          if (data.success) {
-            toast.success("Product Added", { position: "top-left" });
-            setProductDetails({
-              name: "",
-              image: "",
-              category: "crafts",
-              new_price: "",
-              old_price: "",
-              s_stock: 0,
-              m_stock: 0,
-              l_stock: 0,
-              xl_stock: 0,
-              stock: 0,
-              description: "",
-              tags: "",
-              sellerId,
-            });
-            setImage(null);
-            setGrams("");
-          } else {
-            toast.error("Failed", { position: "top-left" });
-          }
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        toast.success("Product Added", { position: "top-left" });
+        setProductDetails({
+          name: "",
+          image: "",
+          thumbnail1: "",
+          thumbnail2: "",
+          thumbnail3: "",
+          category: "crafts",
+          new_price: "",
+          old_price: "",
+          s_stock: 0,
+          m_stock: 0,
+          l_stock: 0,
+          xl_stock: 0,
+          stock: 0,
+          description: "",
+          tags: "",
+          sellerId,
         });
+        setImage(null);
+        setThumbnail1(null);
+        setThumbnail2(null);
+        setThumbnail3(null);
+        setGrams("");
+      } else {
+        toast.error("Failed to add product", { position: "top-left" });
+      }
+    } catch (error) {
+      console.error("Error adding product:", error);
+      toast.error("Failed to add product", { position: "top-left" });
     }
   };
 
@@ -429,21 +488,86 @@ export const AddProduct = () => {
         </div>
       </div>
 
-      <div className="addproduct-itemfield">
-        <label htmlFor="file-input">
-          <img
-            src={image ? URL.createObjectURL(image) : upload_area}
-            className="addproduct-thumbnail-img"
-            alt=""
+      <div className="addproduct-images">
+        <div className="addproduct-itemfield">
+          <p>Main Product Image</p>
+          <label htmlFor="file-input">
+            <img
+              src={image ? URL.createObjectURL(image) : upload_area}
+              className="addproduct-thumbnail-img"
+              alt="Main product"
+            />
+          </label>
+          <input
+            onChange={imageHandler}
+            type="file"
+            name="image"
+            id="file-input"
+            hidden
           />
-        </label>
-        <input
-          onChange={imageHandler}
-          type="file"
-          name="image"
-          id="file-input"
-          hidden
-        />
+        </div>
+
+        <div className="addproduct-thumbnails">
+          <p>Additional Product Views (Thumbnails)</p>
+          <div className="thumbnail-containers">
+            {/* Thumbnail 1 */}
+            <div className="thumbnail-container">
+              <label htmlFor="thumbnail1-input">
+                <img
+                  src={thumbnail1 ? URL.createObjectURL(thumbnail1) : upload_area}
+                  className="addproduct-thumbnail-img"
+                  alt="Thumbnail 1"
+                />
+                <span>Thumbnail 1</span>
+              </label>
+              <input
+                onChange={(e) => thumbnailHandler(e, 1)}
+                type="file"
+                name="thumbnail1"
+                id="thumbnail1-input"
+                hidden
+              />
+            </div>
+
+            {/* Thumbnail 2 */}
+            <div className="thumbnail-container">
+              <label htmlFor="thumbnail2-input">
+                <img
+                  src={thumbnail2 ? URL.createObjectURL(thumbnail2) : upload_area}
+                  className="addproduct-thumbnail-img"
+                  alt="Thumbnail 2"
+                />
+                <span>Thumbnail 2</span>
+              </label>
+              <input
+                onChange={(e) => thumbnailHandler(e, 2)}
+                type="file"
+                name="thumbnail2"
+                id="thumbnail2-input"
+                hidden
+              />
+            </div>
+
+            {/* Thumbnail 3 */}
+            <div className="thumbnail-container">
+              <label htmlFor="thumbnail3-input">
+                <img
+                  src={thumbnail3 ? URL.createObjectURL(thumbnail3) : upload_area}
+                  className="addproduct-thumbnail-img"
+                  alt="Thumbnail 3"
+                />
+                <span>Thumbnail 3</span>
+              </label>
+              <input
+                onChange={(e) => thumbnailHandler(e, 3)}
+                type="file"
+                name="thumbnail3"
+                id="thumbnail3-input"
+                hidden
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       <button onClick={Add_Product} className="addproduct-btn">

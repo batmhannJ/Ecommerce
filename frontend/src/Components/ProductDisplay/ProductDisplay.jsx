@@ -17,16 +17,25 @@ const ProductDisplay = (props) => {
   const [activeTab, setActiveTab] = useState("details");
   const isGadget = product.category === "Gadgets"; // Check if category is Gadgets
   const [selectedImage, setSelectedImage] = React.useState(product.image);
+  const baseUrl = 'http://localhost:4000/images/'; // Adjust this according to your backend image path
 
   useEffect(() => {
+    console.log("Product data:", product);
+    console.log("Thumbnails:", {
+      main: product.image,
+      thumb1: product.thumbnail1,
+      thumb2: product.thumbnail2,
+      thumb3: product.thumbnail3
+    });
     // Reset adjustedPrice, stock, and quantity when product changes
     setAdjustedPrice(product.new_price);
     setAdjustedPriceOld(product.old_price);
     setSelectedSize(""); // Optionally reset size
     setCurrentStock(product.stock); // Reset to default total stock
     setQuantity(1); // Reset quantity
+    setSelectedImage(product.image); // Reset selected image to main image
   }, [product]);
-
+  
   const handleSizeChange = async (size) => {
     setSelectedSize(size);
 
@@ -134,23 +143,26 @@ const ProductDisplay = (props) => {
   return (
     <div className="productdisplay">
     <div className="productdisplay-left">
-        <div className="productdisplay-thumbnail-list">
-          {[product.image, ...(product.images || []),
-            '/images/phone-front.jpg',
-            '/images/phone-back.jpg',
-            '/images/phone-side.jpg',
-            '/images/phone-top.jpg',
-            '/images/phone-bottom.jpg'
-          ].map((img, index) => (
-            <img
-              key={index}
-              className={`productdisplay-thumbnail ${selectedImage === img ? 'active' : ''}`}
-              src={img}
-              alt={`Thumbnail ${index + 1}`}
-              onClick={() => setSelectedImage(img)}
-            />
+      <div className="productdisplay-thumbnail-list">
+        {[
+          { img: product.image, label: "Main" },
+          { img: `${baseUrl}${product.thumbnail1}`, label: "View 1" },
+          { img: `${baseUrl}${product.thumbnail2}`, label: "View 2" },
+          { img: `${baseUrl}${product.thumbnail3}`, label: "View 3" }
+        ]
+          .filter(item => item.img) // Only include images that exist
+          .map((item, index) => (
+            <div key={index} className="thumbnail-wrapper">
+              <img
+                className={`productdisplay-thumbnail ${selectedImage === item.img ? 'active' : ''}`}
+                src={item.img}
+                alt={item.label}
+                onClick={() => setSelectedImage(item.img)}
+              />
+              <span className="thumbnail-label">{item.label}</span>
+            </div>
           ))}
-        </div>
+      </div>
 
         <div className="productdisplay-image-gallery">
           <img

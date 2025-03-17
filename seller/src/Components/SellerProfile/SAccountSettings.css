@@ -1,53 +1,72 @@
 :root {
-  --primary-color: #BAC195;
-  --hover-color: #747b50;
-  --error-color: #FF0000;
-  --input-border-color: #c9c9c9;
-  --input-text-color: #5c5c5c;
-  --background-opacity: 0.9;
+  --primary-color: #4A6FA5;
+  --secondary-color: #6B8FBE;
+  --accent-color: #304C70;
+  --text-color: #333333;
+  --light-text: #6E7A8A;
+  --error-color: #E53935;
+  --success-color: #43A047;
+  --background-color: #F8F9FA;
+  --card-bg: #FFFFFF;
+  --border-color: #E0E4E8;
+  --input-bg: #FFFFFF;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  --transition: all 0.3s ease;
 }
 
-.admin-layout {
-  display: flex;
-  flex-direction: row; /* Align Navbar and Sidebar horizontally */
-  width: 100%;
-}
-
-.sidebar {
-  width: 250px; /* Adjust the width of the sidebar as needed */
- /* Example background color for sidebar */
-}
-
-.navbar {
-  width: 100%;
+/* Dark mode variables */
+.dark-mode {
+  --primary-color: #5B7EA9;
+  --secondary-color: #7C9BC5;
+  --accent-color: #3E5C85;
+  --text-color: #E0E0E0;
+  --light-text: #A0A7B2;
+  --background-color: #1E2023;
+  --card-bg: #2D3035;
+  --border-color: #3D4148;
+  --input-bg: #383B42;
 }
 
 .account-settings {
   display: flex;
   width: 100%;
+  background-color: var(--background-color);
+  min-height: calc(100vh - 70px);
+  padding: 30px 0;
+  transition: var(--transition);
+}
+
+.admin-layout {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-sizing: border-box;
-  margin-bottom: 40px; /* Added space below */
+  flex-direction: row;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .account-settings-container {
   flex: 1;
-  padding: 20px;
-
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 30px;
+  transition: var(--transition);
 }
 
 .account-settings__heading {
-  margin-bottom: 20px;
-  font-size: 20px;
-  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+  transition: var(--transition);
 }
 
 .account-settings__form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
 }
 
 .account-settings__form-group {
@@ -55,117 +74,154 @@
   flex-direction: column;
 }
 
+/* Make some fields span the full width */
+.account-settings__form-group:nth-child(5),
+.account-settings__form-group:nth-child(6),
+.account-settings__form-group:nth-child(7) {
+  grid-column: span 2;
+}
+
 .account-settings__form-group label {
-  font-size: 1.0rem;
+  font-size: 14px;
   font-weight: 500;
   margin-bottom: 8px;
+  color: var(--light-text);
+  transition: var(--transition);
+}
+
+.account-settings__form-group label span {
+  color: var(--primary-color);
+  margin-left: 4px;
 }
 
 .account-settings__form-group input {
-  height: 50px;
-  padding: 10px;
-  border: 1px solid var(--input-border-color);
-  border-radius: 5px;
-  font-size: 16px;
-  color: var(--input-text-color);
+  height: 48px;
+  padding: 0 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 15px;
+  color: var(--text-color);
+  background-color: var(--input-bg);
+  transition: var(--transition);
 }
 
 .account-settings__form-group input:focus {
+  outline: none;
   border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.1);
 }
 
 .account-settings__error {
   color: var(--error-color);
-  font-size: 0.9rem;
-  margin-top: 5px;
-}
-
-.account-settings__button {
-  width: 100%;
-  height: 50px;
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  font-size: 18px;
-  font-weight: 200;
-  cursor: pointer;
-  border-radius: 5px;
-  margin-top: 20px;
-  transition: background 0.3s, transform 0.2s;
-}
-
-.account-settings__button:hover {
-  background: var(--hover-color);
-}
-
-.account-settings__button:active {
-  transform: scale(0.95);
+  font-size: 13px;
+  margin-top: 6px;
+  transition: var(--transition);
 }
 
 .account-settings__success {
-  color: var(--primary-color);
-  margin-bottom: 20px;
+  color: var(--success-color);
+  background-color: rgba(67, 160, 71, 0.1);
+  padding: 12px;
+  border-radius: 8px;
   text-align: center;
+  margin-bottom: 24px;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.account-settings__button {
+  grid-column: span 2;
+  height: 48px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 8px;
+  margin-top: 12px;
+  transition: var(--transition);
+}
+
+.account-settings__button:hover {
+  background: var(--accent-color);
+}
+
+.account-settings__button:active {
+  transform: scale(0.98);
+}
+
+/* ID Picture upload area */
+.addproduct-thumbnail-img {
+  height: 150px;
+  width: 150px;
+  border: 2px dashed var(--border-color);
+  border-radius: 12px;
+  object-fit: cover;
+  cursor: pointer;
+  transition: var(--transition);
+  display: block;
+  margin: 0 auto;
+}
+
+.addproduct-thumbnail-img:hover {
+  border-color: var(--primary-color);
+}
+
+/* Eye icon positioning */
+.eye-icon {
+  color: var(--light-text);
+  transition: var(--transition);
+}
+
+.eye-icon:hover {
+  color: var(--primary-color);
 }
 
 @media (max-width: 992px) {
   .account-settings-container {
-    padding: 20px 30px;
+    padding: 25px;
   }
-
-  .account-settings__heading {
-    font-size: 24px;
+  
+  .account-settings__form {
+    grid-template-columns: 1fr;
   }
-
-  .account-settings__form-group input {
-    height: 45px;
+  
+  .account-settings__form-group:nth-child(5),
+  .account-settings__form-group:nth-child(6),
+  .account-settings__form-group:nth-child(7) {
+    grid-column: span 1;
   }
-
+  
   .account-settings__button {
-    height: 45px;
-    font-size: 16px;
+    grid-column: span 1;
   }
 }
 
 @media (max-width: 768px) {
   .account-settings {
-    padding: 0 20px;
+    padding: 20px 15px;
   }
-
+  
   .account-settings-container {
-    width: 95%;
     padding: 20px;
   }
-
+  
   .account-settings__heading {
-    font-size: 22px;
+    font-size: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
   }
-
+  
+  .account-settings__form {
+    gap: 16px;
+  }
+  
   .account-settings__form-group input {
-    height: 40px;
+    height: 44px;
   }
-
+  
   .account-settings__button {
-    height: 40px;
-    font-size: 14px;
+    height: 44px;
   }
-}
-
-/* Thumbnail image styling */
-.addproduct-thumbnail-img {
-  height: 120px;
-  width: 120px;
-  border: 1px solid #c3c3c3;
-  object-fit: contain;
-  margin: 10px 0;
-  cursor: pointer;
-  transition: transform 0.3s ease;
-}
-
-.addproduct-thumbnail-img:hover {
-  transform: scale(1.02);
-}
-
-.addproduct-thumbnail-img:active {
-  transform: scale(1);
 }

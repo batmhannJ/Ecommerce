@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import './Navbar.css';
 import { Link } from 'react-router-dom';
 import navlogo from '../../assets/bizgo.png';
-import navProfile from '../../assets/nav-profile.png';
+import navProfile from '../../assets/nav-pro.png';
 
 export const Navbar = () => {
   const [profileMenuVisible, setProfileMenuVisible] = useState(false);
@@ -38,26 +38,41 @@ export const Navbar = () => {
 
   return (
     <div className='navbar'>
-
+      <div className="navbar-brand">
         <img src={navlogo} alt="Logo" className="nav-logo" />
-
-        <p>SELLER PANEL</p>
-
+        <div className="brand-divider"></div>
+        <div className="panel-badge">SELLER PANEL</div>
+      </div>
+      
       <div className="nav-profile-container">
-        <img
-          src={navProfile}
-          alt="Profile"
-          className='nav-profile'
-          onClick={toggleProfileMenu}
-        />
-        {profileMenuVisible && (
-          <div ref={profileMenuRef} className="profile-menu">
-            <Link to="/saccountsettings" onClick={closeProfileMenu}>
-              <button>Profile</button>
-            </Link>
-            <button onClick={handleLogout}>Logout</button>
-          </div>
-        )}
+        <div className="profile-section">
+          <img
+            src={navProfile}
+            alt="Profile"
+            className='nav-profile'
+            onClick={toggleProfileMenu}
+          />
+          {profileMenuVisible && (
+            <div ref={profileMenuRef} className="profile-menu">
+              <div className="menu-header">
+                <span className="menu-welcome">Welcome</span>
+                <span className="user-status">Admin</span>
+              </div>
+              <div className="menu-items">
+                <Link to="/saccountsettings" onClick={closeProfileMenu}>
+                  <button>
+                    <span className="menu-icon profile-icon"></span>
+                    <span>Profile</span>
+                  </button>
+                </Link>
+                <button onClick={handleLogout}>
+                  <span className="menu-icon logout-icon"></span>
+                  <span>Logout</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

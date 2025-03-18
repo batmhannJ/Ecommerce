@@ -1,0 +1,76 @@
+/* Rider.css */
+.bizgo-hero {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 500px;
+    background-color: #f8f9fa; /* Light gray background */
+    padding: 60px 20px;
+    border-bottom: 1px solid #e0e0e0; /* Subtle border */
+}
+
+.bizgo-hero-content {
+    max-width: 800px;
+    text-align: center;
+    color: #2c3e50; /* Dark blue-gray text */
+}
+
+.bizgo-hero-content h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #1a1a1a; /* Darker for emphasis */
+}
+
+.bizgo-hero-content h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 24px;
+    color: #555555; /* Subdued color for subheading */
+}
+
+.bizgo-hero-content p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    color: #666666; /* Light gray for readability */
+}
+
+.highlight {
+    color: #ff6b6b; /* Coral accent color */
+    font-weight: bold;
+}
+
+.bizgo-cta-button {
+    background-color: #4a90e2; /* Soft blue for the button */
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.bizgo-cta-button:hover {
+    background-color: #357abd; /* Darker shade on hover */
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .bizgo-hero-content h1 {
+        font-size: 2.5rem;
+    }
+    
+    .bizgo-hero-content h2 {
+        font-size: 1.5rem;
+    }
+    
+    .bizgo-hero-content p {
+        font-size: 1rem;
+    }
+}

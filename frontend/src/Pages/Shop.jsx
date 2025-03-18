@@ -4,6 +4,7 @@ import Popular from '../Components/Popular/Popular';
 import Offers from '../Components/Offers/Offers';
 import NewCollections from '../Components/NewCollections/NewCollections';
 import NewsLetter from '../Components/NewsLetter/NewsLetter';
+import Rider from '../Components/Rider/Rider';
 import About from '../Components/About/About';
 import { useUser } from '../Context/UserContext';
 
@@ -48,7 +49,10 @@ const Shop = () => {
   return (
     <div>
       <Hero/>
+      <Offers/>
+      <About/>
       <NewCollections/>
+      <Rider/>
     </div>
   );
 };

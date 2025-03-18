@@ -25,6 +25,8 @@ import AccountSettings from "./Components/UserProfile/AccountSettings";
 import Offices from "./Components/Offices/Offices"; 
 import Partner from "./Components/Partner/Partner";
 import StoreProducts from "./Components/StoreProducts/StoreProducts";
+import Shops from "./Components/Shop/Shop";
+import Category from "./Components/StoreProducts/Category";
 
 
 import {
@@ -113,6 +115,8 @@ function App() {
         <Route path="/offices" element={<Offices />} /> 
         <Route path="/terms" element={<Terms />} /> 
         <Route path="/about" element={<About />} /> 
+        <Route path="/shops" element={<Shops />} /> 
+        <Route path="/category" element={<Category />} /> 
         <Route path="/" element={<SearchBar />} />
         <Route path="/search-results" element={<SearchResults />} />
         <Route path="/partner" element={<Partner />} />

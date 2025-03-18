@@ -48,6 +48,8 @@ const Shop = () => {
   return (
     <div>
       <Hero/>
+      <Offers />
+      <About />
       <NewCollections/>
     </div>
   );

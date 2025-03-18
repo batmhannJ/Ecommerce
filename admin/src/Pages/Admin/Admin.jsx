@@ -8,8 +8,11 @@ import UserManagement from '../../Components/UserManagement/UserManagement';
 import TransactionManagement from '../../Components/TransactionManagement/TransactionManagement';
 import Dashboard from '../../Components/Dashboard/Dashboard';
 import SellerRequest from '../../Components/SellerRequest/SellerRequest';
+import RiderRequest from '../../Components/RiderRequest/RiderRequest';
 import AccountSettings from '../../Components/AdminProfile/AccountSettings'; // Adjust path as necessary
 import SellerList from '../../Components/SellerList/SellerList';
+import RiderList from '../../Components/RiderList/RiderList';
+
 
 const Admin = () => {
   return (
@@ -23,8 +26,10 @@ const Admin = () => {
           <Route path="usermanagement" element={<UserManagement />} />
           <Route path="transactionmanagement" element={<TransactionManagement />} />
           <Route path="sellerrequest" element={<SellerRequest />} />
+          <Route path="riderrequest" element={<RiderRequest />} />
           <Route path="accountsettings" element={<AccountSettings />} />
           <Route path="sellerlist" element={<SellerList />} />
+          <Route path="riderlist" element={<RiderList />} />
         </Routes>
       </div>
     </div>

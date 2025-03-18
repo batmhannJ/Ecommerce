@@ -3,8 +3,18 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const { body } = require('express-validator');
-const { signup } = require('../controllers/riderController');
+const { signup, getPendingRiders,
+} = require('../controllers/riderController');
+const Rider = require('../models/riderModel');
+const bcrypt = require("bcrypt"); // Add this line
 
+const jwt = require("jsonwebtoken"); // Import jsonwebtoken here
+const generateAuthToken = (seller) => {
+  const token = jwt.sign({ id: seller._id }, "admin_token", {
+    expiresIn: "1h",
+  }); // Replace 'your_jwt_secret' with your secret key
+  return token;
+};
 // Set up multer for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -54,5 +64,80 @@ const signupValidation = [
 
 // Rider signup route
 router.post('/signup', uploadFields, signupValidation, signup);
+router.get("/pending", getPendingRiders);
+
+router.patch("/:id/approve", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the seller by ID and update 'isApproved' to true
+    const updatedSeller = await Rider.findByIdAndUpdate(
+      id,
+      { isApproved: true },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedSeller) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Rider not found." });
+    }
+
+    res.status(200).json({ success: true, rider: updatedSeller });
+  } catch (error) {
+    console.error("Error approving rider:", error);
+    res.status(500).json({ success: false, message: "Server error." });
+  }
+});
+
+
+router.get("/rider", async (req, res) => {
+  try {
+    const users = await Rider.find({ isApproved: true });
+    res.json(users);
+  } catch (error) {
+    console.error("Error fetching approved sellers:", error);
+    res.status(500).json({ error: "Failed to fetch approved sellers" });
+  }
+});
+
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const seller = await Rider.findOne({ email });
+
+    if (!seller) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Seller not found" });
+    }
+
+    // Check password
+    const isMatch = await bcrypt.compare(password, seller.password);
+    if (!isMatch) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid credentials" });
+    }
+
+    // Include the isApproved status in the response
+    const token = generateAuthToken(seller); // Assume you have a function to generate a JWT
+    res.status(200).json({
+      success: true,
+      token,
+      seller: {
+        _id: seller._id,
+        name: seller.name,
+        email: seller.email,
+        isApproved: seller.isApproved,
+      },
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 
 module.exports = router;

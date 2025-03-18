@@ -59,6 +59,7 @@ const allowedOrigins = [
   'http://localhost:46631',
   'http://localhost:47106',
   'http://localhost:4000',
+  'http://localhost:5175',
 ];
 
 app.use(
@@ -1746,3 +1747,4 @@ app.use("/api/seller", sellerRouter);
 app.use("/api", sellerRouter);
 app.use("/api", userRoutes);
 app.use('/api/rider', riderRoutes);
+app.use("/api", riderRoutes);

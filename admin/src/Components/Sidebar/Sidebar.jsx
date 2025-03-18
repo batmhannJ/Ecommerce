@@ -42,6 +42,12 @@ export const Sidebar = () => {
           <p>Seller List</p>
         </div>
       </Link>
+      <Link to='/admin/riderlist' style={{ textDecoration: 'none' }}>
+        <div className="sidebar-item">
+          <img src={seller} alt="Seller" />
+          <p>Rider List</p>
+        </div>
+      </Link>
       <Link to='/admin/transactionmanagement' style={{ textDecoration: 'none' }}>
         <div className="sidebar-item">
           <img src={transaction} alt="Transaction" />
@@ -51,7 +57,13 @@ export const Sidebar = () => {
       <Link to='/admin/sellerrequest' style={{ textDecoration: 'none' }}>
         <div className="sidebar-item">
           <img src={request} alt="Request" />
-          <p>Requests</p>
+          <p>Seller Requests</p>
+        </div>
+      </Link>
+      <Link to='/admin/riderrequest' style={{ textDecoration: 'none' }}>
+        <div className="sidebar-item">
+          <img src={request} alt="Request" />
+          <p>Rider Requests</p>
         </div>
       </Link>
     </div>

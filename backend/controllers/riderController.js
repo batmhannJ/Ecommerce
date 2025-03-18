@@ -144,7 +144,7 @@ const login = async (req, res) => {
 const getPendingRiders = async (req, res) => {
   try {
     const pendingRiders = await Rider.find({ isApproved: false });
-    res.status(200).json(pendingSellers);
+    res.status(200).json(pendingRiders);
   } catch (error) {
     console.error("Error fetching pending riders:", error);
     res.status(500).json({ success: false, message: "Server error." });

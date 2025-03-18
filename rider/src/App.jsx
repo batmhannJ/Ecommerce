@@ -2,7 +2,7 @@ import React from 'react';
 import { Navbar } from './Components/Navbar/Navbar';
 import Seller from './Pages/Seller/Seller';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import SLoginSignup from './Components/SLoginSignUp/SLoginSignup';
+import SLoginSignup from './Components/LoginSignUp/SLoginSignup';
 
 
 const App = () => {

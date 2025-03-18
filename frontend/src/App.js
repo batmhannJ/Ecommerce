@@ -10,6 +10,7 @@ import ShopCategory from "./Pages/ShopCategory";
 import Cart from "./Pages/Cart";
 import LoginSignup from "./Pages/LoginSignup";
 import SLoginSignup from "./Pages/SLoginSignup";
+import RLoginSignup from "./Pages/RLoginSignup";
 import Footer from "./Components/Footer/Footer";
 import PlaceOrder from "./Components/PlaceOrder/PlaceOrder";
 import Crafts_Banner from "./Components/Assets/Clothes_Banner.png";
@@ -27,6 +28,7 @@ import Partner from "./Components/Partner/Partner";
 import StoreProducts from "./Components/StoreProducts/StoreProducts";
 import Shops from "./Components/Shop/Shop";
 import Category from "./Components/StoreProducts/Category";
+import Rider from "./Components/Rider/Rider";
 
 
 import {
@@ -106,6 +108,7 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/login" element={<LoginSignup />} />
         <Route path="/business-signup" element={<SLoginSignup />} />
+        <Route path="/login-signup" element={<RLoginSignup />} />
         <Route path="/order" element={<PlaceOrder />} />
         <Route path="/verify" element={<Verify />} />
         <Route path="/myorders" element={<MyOrders />} />
@@ -117,6 +120,7 @@ function App() {
         <Route path="/about" element={<About />} /> 
         <Route path="/shops" element={<Shops />} /> 
         <Route path="/category" element={<Category />} /> 
+        <Route path="/rider" element={<Rider />} /> 
         <Route path="/" element={<SearchBar />} />
         <Route path="/search-results" element={<SearchResults />} />
         <Route path="/partner" element={<Partner />} />

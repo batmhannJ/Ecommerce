@@ -1,0 +1,146 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  padding-top: 30px;
+  padding-bottom: 20px;
+  gap: 20px;
+  width: 250px; /* Fixed width */
+  min-width: 250px; /* Prevent shrinking */
+  max-width: 250px; /* Prevent expanding */
+  height: 100vh;
+  background: #ffffff;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+.sidebar:hover {
+  border-radius: 4px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  margin: 0 20px;
+  padding: 10px 15px;
+  border-radius: 6px;
+  background: #f9f9f9;
+  gap: 15px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  /* No transform on hover to maintain consistent width */
+}
+
+.sidebar-item:hover {
+  background: #e6e6e6;
+  /* No transform that would change width */
+}
+
+.sidebar-item:active {
+  background: #dcdcdc;
+  /* No transform that would change width */
+}
+
+.sidebar-item img {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0; /* Prevent icon from shrinking */
+}
+
+.sidebar-item p {
+  font-size: 16px;
+  color: #505050;
+  margin: 0;
+  font-weight: 500;
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Add ellipsis for long text */
+}
+
+.sidebar-item.active {
+  background: #e6f7ff;
+  color: #1890ff;
+  /* No additional properties that would change width */
+}
+
+.sidebar-item.active p {
+  color: #1890ff;
+}
+
+.sidebar-item.active img {
+  filter: invert(39%) sepia(92%) saturate(7486%) hue-rotate(181deg) brightness(99%) contrast(97%);
+}
+
+/* For screens smaller than 800px */
+@media (max-width: 800px) {
+  .sidebar {
+    padding: 10px 0;
+    padding-left: 50px;
+    padding-right: 50px;
+    flex-direction: row;
+    width: 100%;
+    max-width: none;
+    height: auto;
+    justify-content: center;
+    box-shadow: none;
+    margin-left: 60px;
+    gap: 1px;
+  }
+
+  .sidebar-item {
+    margin: 0 10px;
+    padding: 10px 10px;
+    width: auto; /* Allow natural width */
+  }
+
+  .sidebar-item p {
+    display: none;
+  }
+
+  .sidebar-item img {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+/* For screens smaller than 600px */
+@media (max-width: 600px) {
+  .sidebar {
+    padding: 10px;
+    flex-direction: row;
+    justify-content: center;
+    margin-left: 70px;
+    gap: 10px;
+  }
+
+  .sidebar-item {
+    margin: 0 8px;
+    padding: 8px 8px;
+  }
+
+  .sidebar-item img {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* For screens smaller than 480px */
+@media (max-width: 480px) {
+  .sidebar {
+    padding: 8px;
+    flex-direction: row;
+    justify-content: center;
+    margin-left: 70px;
+    gap: 5px;
+  }
+
+  .sidebar-item {
+    margin: 0 5px;
+    padding: 6px 6px;
+  }
+
+  .sidebar-item img {
+    width: 28px;
+    height: 28px;
+  }
+}

@@ -19,6 +19,7 @@ const userRoutes = require("./routes/userRoute");
 const transactionRoutes = require("./routes/transactionRoute");
 const productRoute = require("./routes/productRoute");
 const cartRoute = require("./routes/cartRoute");
+const riderRoutes = require('./routes/riderRoute');
 const { signup } = require("./controllers/sellerController");
 const { getUsers } = require("./controllers/userController");
 const { searchAdmin } = require("./controllers/adminController");
@@ -58,6 +59,7 @@ const allowedOrigins = [
   'http://localhost:46631',
   'http://localhost:47106',
   'http://localhost:4000',
+  'http://localhost:5175',
 ];
 
 app.use(
@@ -182,7 +184,7 @@ const CartItems = require("./models/orderedItemsModel");
 
 const Product = require("./models/productModels");
 
-const fetchUser = require("./middleware/auth");
+const { authMiddleware: fetchUser } = require("./middleware/auth");
 
 const Users = require("./models/userModels");
 const Seller = require("./models/sellerModels");
@@ -1744,3 +1746,5 @@ app.use("/api/", superAdminRoutes);
 app.use("/api/seller", sellerRouter);
 app.use("/api", sellerRouter);
 app.use("/api", userRoutes);
+app.use('/api/rider', riderRoutes);
+app.use("/api", riderRoutes);

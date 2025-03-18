@@ -1,0 +1,62 @@
+:root {
+    --primary-color: #BAC195;
+    --hover-color: #747b50;
+    --active-color: #f0f0f0;
+    --icon-color: gray;
+    --text-color: #333;
+  }
+  
+  .usersidebar {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Increased gap for better spacing */
+    padding: 10px;
+    box-sizing: border-box;
+    background-color: #ffffff; /* Added background color */
+  }
+  
+  .usersidebar .s1,
+  .usersidebar .s2 {
+    display: flex;
+    align-items: center; /* Ensure items are centered vertically */
+    gap: 15px; /* Increased gap for better spacing */
+    padding: 15px 20px; /* Adjusted padding for better spacing */
+    border-radius: 8px;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .usersidebar .s1 {
+    color: var(--text-color);
+  }
+  
+  .usersidebar .s1:hover {
+    background-color: var(--active-color);
+    cursor: pointer;
+  }
+  
+  .usersidebar .s2 {
+    background-color: var(--active-color);
+    font-weight: bold;
+    color: var(--primary-color);
+  }
+  
+  .usersidebar svg {
+    width: 24px;
+    height: 24px;
+    color: var(--icon-color);
+    vertical-align: middle; /* Ensure vertical alignment */
+}
+
+  
+  .usersidebar .active svg,
+  .usersidebar .s1:hover svg {
+    color: var(--primary-color); /* Change icon color on active and hover states */
+  }
+  
+  .stylenone {
+    text-decoration: none;
+    color: inherit;
+  }
+  

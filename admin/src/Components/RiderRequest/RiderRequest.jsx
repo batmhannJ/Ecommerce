@@ -1,30 +1,30 @@
-// src/Components/SellerRequest/SellerRequest.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import SellerSearchBar from "../SearchBar/SellerSearchBar";
 import { toast } from "react-toastify";
 import "./RiderRequest.css";
-//import "./ViewUserModal.css";
+import ImageModal from "../ImageModal/ImageModal";
 
 function RiderRequest() {
-  const [rider, setSellers] = useState([]);
+  const [rider, setRiders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [approving, setApproving] = useState(false);
   const [error, setError] = useState(null);
-  const [originalSellers, setOriginalSellers] = useState([]); // To keep original seller data
+  const [originalRiders, setOriginalRiders] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
-  const adminToken = localStorage.getItem("admin_token"); // Ensure the key matches when storing
+  const adminToken = localStorage.getItem("admin_token");
 
   useEffect(() => {
     if (!adminToken) {
       toast.error("Admin not authenticated. Please log in.");
-      // Optionally, redirect to admin login page
       return;
     }
-    fetchPendingSellers();
+    fetchPendingRiders();
   }, [adminToken]);
 
-  const fetchPendingSellers = async () => {
+  const fetchPendingRiders = async () => {
     setLoading(true);
     try {
       const response = await axios.get(
@@ -35,26 +35,26 @@ function RiderRequest() {
           },
         }
       );
-      const fetchedSellers = Array.isArray(response.data) ? response.data : [];
-      setSellers(fetchedSellers);
-      setOriginalSellers(fetchedSellers); // Save the original list for filtering
+      const fetchedRiders = Array.isArray(response.data) ? response.data : [];
+      setRiders(fetchedRiders);
+      setOriginalRiders(fetchedRiders);
     } catch (error) {
-      console.error("Error fetching pending sellers:", error);
-      setError("Failed to fetch pending sellers.");
-      toast.error("Failed to fetch pending sellers.");
+      console.error("Error fetching pending riders:", error);
+      setError("Failed to fetch pending riders.");
+      toast.error("Failed to fetch pending riders.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleApproveSeller = async (id) => {
+  const handleApproveRider = async (id) => {
     if (!window.confirm("Are you sure you want to approve this rider?"))
       return;
 
     setApproving(true);
     try {
       const response = await axios.patch(
-        `http://localhost:4000/api/rider/${id}/approve`, // Ensure this route matches your backend
+        `http://localhost:4000/api/rider/${id}/approve`,
         {},
         {
           headers: {
@@ -67,10 +67,9 @@ function RiderRequest() {
         toast.success(
           `Rider ${response.data.rider.name} approved successfully.`
         );
-        // Remove the approved seller from the list
-        setSellers(rider.filter((rider) => rider._id !== id));
-        setOriginalSellers(
-          originalSellers.filter((rider) => rider._id !== id)
+        setRiders(rider.filter((r) => r._id !== id));
+        setOriginalRiders(
+          originalRiders.filter((r) => r._id !== id)
         );
       } else {
         toast.error("Failed to approve rider.");
@@ -83,7 +82,7 @@ function RiderRequest() {
     }
   };
 
-  const handleDeleteSeller = async (id) => {
+  const handleDeleteRider = async (id) => {
     if (!window.confirm("Are you sure you want to delete this rider?")) return;
 
     try {
@@ -97,8 +96,8 @@ function RiderRequest() {
       );
 
       if (response.data.success) {
-        toast.success("Seller deleted successfully.");
-        fetchPendingSellers();
+        toast.success("Rider deleted successfully.");
+        fetchPendingRiders();
       } else {
         toast.error("Failed to delete rider.");
       }
@@ -108,17 +107,26 @@ function RiderRequest() {
     }
   };
 
-  const handleSearch = (filteredSellers) => {
-    setSellers(filteredSellers);
+  const handleSearch = (filteredRiders) => {
+    setRiders(filteredRiders);
+  };
+
+  const handleImageClick = (imageUrl) => {
+    setSelectedImage(imageUrl);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
   };
 
   return (
     <div className="seller-management-container">
       <h1>Manage Rider Requests</h1>
-      <SellerSearchBar sellers={originalSellers} onSearch={handleSearch} />{" "}
-      {/* Pass sellers and search handler */}
+      <SellerSearchBar sellers={originalRiders} onSearch={handleSearch} />
+      
       {loading ? (
-        <p>Loading pending rider...</p>
+        <p>Loading pending riders...</p>
       ) : rider.length === 0 ? (
         <p>No pending rider requests.</p>
       ) : (
@@ -137,39 +145,67 @@ function RiderRequest() {
             </tr>
           </thead>
           <tbody>
-            {rider.map((rider, index) => (
-              <tr key={rider._id}>
+            {rider.map((r, index) => (
+              <tr key={r._id}>
                 <td>{index + 1}</td>
-                <td>{rider.name}</td>
-                <td>{rider.email}</td>
-                <td>{rider.address}</td>
-                <td>{rider.plateNumber}</td>
-                <td>{rider.vehicleType}</td>
-                <td><img
-                    src={`http://localhost:4000/upload/images/${rider.vehicleRegistration}`} // Adjust this path to match your server's setup
+                <td>{r.name}</td>
+                <td>{r.email}</td>
+                <td>{r.address}</td>
+                <td>{r.plateNumber}</td>
+                <td>{r.vehicleType}</td>
+                <td>
+                  <img
+                    src={`http://localhost:4000/upload/images/${r.idPicture}`}
                     alt="ID Picture"
-                    style={{ width: "100px", height: "auto" }} // You can adjust the size as needed
+                    style={{ 
+                      width: "100px", 
+                      height: "auto",
+                      cursor: "pointer",
+                      transition: "transform 0.2s ease",
+                      transformOrigin: "center center"
+                    }}
+                    className="zoomable-image"
+                    onClick={() =>
+                      handleImageClick(
+                        `http://localhost:4000/upload/images/${r.idPicture}`
+                      )
+                    }
+                    onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                   />
                 </td>
                 <td>
                   <img
-                    src={`http://localhost:4000/upload/images/${rider.idPicture}`} // Adjust this path to match your server's setup
-                    alt="ID Picture"
-                    style={{ width: "100px", height: "auto" }} // You can adjust the size as needed
+                    src={`http://localhost:4000/upload/images/${r.vehicleRegistration}`}
+                    alt="Vehicle Registration"
+                    style={{ 
+                      width: "100px", 
+                      height: "auto",
+                      cursor: "pointer",
+                      transition: "transform 0.2s ease",
+                      transformOrigin: "center center"
+                    }}
+                    className="zoomable-image"
+                    onClick={() =>
+                      handleImageClick(
+                        `http://localhost:4000/upload/images/${r.vehicleRegistration}`
+                      )
+                    }
+                    onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                   />
                 </td>
-                {/* Ensure 'idProfile' exists in Seller model */}
                 <td>
                   <button
                     className="action-button approve"
-                    onClick={() => handleApproveSeller(rider._id)}
+                    onClick={() => handleApproveRider(r._id)}
                     disabled={approving}
                   >
                     Accept
                   </button>
                   <button
                     className="action-button delete"
-                    onClick={() => handleDeleteSeller(seller._id)}
+                    onClick={() => handleDeleteRider(r._id)}
                   >
                     Reject
                   </button>
@@ -178,6 +214,13 @@ function RiderRequest() {
             ))}
           </tbody>
         </table>
+      )}
+
+      {modalOpen && (
+        <ImageModal
+          imageUrl={selectedImage}
+          onClose={closeModal}
+        />
       )}
     </div>
   );

@@ -91,4 +91,60 @@
       padding: 6px 10px;
     }
   }
+
+  /* Add this to your existing RiderRequest.css file */
+
+.zoomable-image {
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  border-radius: 4px;
+}
+
+.zoomable-image:hover {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* For the smooth loading of the table */
+.seller-table {
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhance the buttons for a more polished look */
+.action-button {
+  transition: all 0.2s ease;
+  margin: 0 5px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+}
+
+.action-button.approve {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.action-button.approve:hover {
+  background-color: #45a049;
+}
+
+.action-button.delete {
+  background-color: #f44336;
+  color: white;
+}
+
+.action-button.delete:hover {
+  background-color: #d32f2f;
+}
   

@@ -9,7 +9,7 @@ const App = () => {
   const isAuthenticated = !!localStorage.getItem('admin_token');
   return (
     <Routes>
-      <Route path="/login" element={!isAuthenticated ? <SLoginSignup /> : <Navigate to="/seller/addproduct" />} />
+      <Route path="/login" element={!isAuthenticated ? <SLoginSignup /> : <Navigate to="/rider/dashboard" />} />
       <Route
         path="/*"
         element={

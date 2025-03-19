@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Transaction = require("../models/transactionModel");
 const Product = require("../models/productModels"); // Import the Product model
+const mongoose = require("mongoose");  // Add this line
 
 router.get("/totalAmount", async (req, res) => {
   try {
@@ -297,16 +298,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET specific transaction route
-router.get("/:id", async (req, res) => {
-  try {
-    const transaction = await Transaction.findById(req.params.id);
-    if (!transaction) return res.status(404).send("Transaction not found");
-    res.status(200).send(transaction);
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
 
 // DELETE specific transaction by ID route
 router.delete("/:id", async (req, res) => {
@@ -367,6 +358,197 @@ router.get("/userTransactions/:userId", async (req, res) => {
   } catch (error) {
     console.error("Error fetching user transactions:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.get('/pendingOrders', async (req, res) => {
+  try {
+    console.log('Attempting to fetch pending orders');
+    // Check if mongoose is connected
+    console.log('MongoDB connection state:', mongoose.connection.readyState);
+    
+    const orders = await Transaction.find({ 
+      status: 'Cart Processing',
+    });
+    console.log('Retrieved pending orders:', orders ? orders.length : 'none');
+    res.json(orders);
+  } catch (error) {
+    console.error('Error in pendingOrders:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// The other two endpoints should look similar
+router.get('/to-deliver', async (req, res) => {
+  try {
+    const orders = await Transaction.find({ 
+      status: 'Out for Delivery', // or whatever status you use
+    });
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.get('/delivered', async (req, res) => {
+  try {
+    const orders = await Transaction.find({ 
+      status: 'Delivered', // or whatever status you use
+    });
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.get('/delivered/today/count', async (req, res) => {
+  try {
+    // Get today's date range
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    // Find delivered orders from today only
+    const count = await Transaction.countDocuments({
+      status: 'Delivered',
+      deliveredAt: {
+        $gte: today,
+        $lt: tomorrow
+      }
+    });
+    
+    res.json({ 
+      count: count,
+      date: today.toISOString().split('T')[0]
+    });
+  } catch (error) {
+    console.error('Error counting today\'s delivered orders:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+  
+  // Update order status
+  router.put('/:orderId/status', async (req, res) => {
+    try {
+      const { status } = req.body;
+      
+      const updates = { 
+        status 
+      };
+      
+      // If status is DELIVERED, add delivery timestamp
+      if (status === 'DELIVERED') {
+        updates.deliveredAt = new Date();
+      }
+      
+      const order = await Transaction.findByIdAndUpdate(
+        req.params.orderId,
+        updates,
+        { new: true }
+      );
+      
+      if (!order) {
+        return res.status(404).json({ message: 'Order not found' });
+      }
+      
+      res.json(order);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // In your routes file (e.g., routes/transactions.js or similar)
+
+// Stats endpoint for order statistics
+router.get('/stats', async (req, res) => {
+  try {
+    const period = req.query.period || 'today';
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let statsData = [];
+    
+    if (period === 'today') {
+      // Create hourly data for today
+      const transactions = await Transaction.find({
+        date: { $gte: today }
+      });
+      
+      // Initialize hourly buckets (0-23 hours)
+      statsData = Array.from({length: 24}, (_, i) => ({
+        hour: i,
+        count: 0
+      }));
+      
+      // Count transactions per hour
+      transactions.forEach(transaction => {
+        const hour = new Date(transaction.date).getHours();
+        statsData[hour].count += 1;
+      });
+      
+    } else if (period === 'week') {
+      // Get start of the week (Sunday)
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - today.getDay());
+      
+      const transactions = await Transaction.find({
+        date: { $gte: startOfWeek }
+      });
+      
+      // Initialize daily buckets (0-6 for Sunday-Saturday)
+      statsData = Array.from({length: 7}, (_, i) => ({
+        dayOfWeek: i,
+        count: 0
+      }));
+      
+      // Count transactions per day of week
+      transactions.forEach(transaction => {
+        const dayOfWeek = new Date(transaction.date).getDay();
+        statsData[dayOfWeek].count += 1;
+      });
+      
+    } else if (period === 'month') {
+      // Get start of the month
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      
+      const transactions = await Transaction.find({
+        date: { $gte: startOfMonth }
+      });
+      
+      // Group by week of month (1-4/5)
+      statsData = Array.from({length: 5}, (_, i) => ({
+        weekOfMonth: i + 1,
+        count: 0
+      }));
+      
+      // Count transactions per week of month
+      transactions.forEach(transaction => {
+        const date = new Date(transaction.date);
+        // Calculate week of month (1-indexed)
+        const weekOfMonth = Math.ceil((date.getDate()) / 7);
+        if (weekOfMonth <= 5) {
+          statsData[weekOfMonth - 1].count += 1;
+        }
+      });
+    }
+    
+    res.json(statsData);
+  } catch (error) {
+    console.error('Error fetching transaction stats:', error);
+    res.status(500).json({ error: 'Failed to fetch statistics data' });
+  }
+});
+
+  
+// GET specific transaction route
+router.get("/:id", async (req, res) => {
+  try {
+    const transaction = await Transaction.findById(req.params.id);
+    if (!transaction) return res.status(404).send("Transaction not found");
+    res.status(200).send(transaction);
+  } catch (error) {
+    res.status(500).send(error);
   }
 });
 

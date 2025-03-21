@@ -6,18 +6,11 @@ import "./Sidebar.css";
 const Shop = ({ products }) => {
   const { category } = useParams();
   
-  // States for filters and UI
-  const [priceRange, setPriceRange] = useState([0, 100000]);
-  const [selectedBrands, setSelectedBrands] = useState([]);
-  const [selectedRatings, setSelectedRatings] = useState([]);
+  // States for UI and sorting only (removed filter states)
   const [sortBy, setSortBy] = useState("popular");
-  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [activeSubcategory, setActiveSubcategory] = useState(null);
   
-  // Extract all available brands and subcategories
-  const allBrands = [...new Set(products.map(item => item.brand))].sort();
-  
-  // Filter products by category and subcategory
+  // Filter products by category and subcategory only
   let filteredProducts = products;
   if (category) {
     filteredProducts = products.filter((item) => item.category === category);
@@ -27,26 +20,6 @@ const Shop = ({ products }) => {
     filteredProducts = filteredProducts.filter(
       (item) => item.subcategory === activeSubcategory
     );
-  }
-  
-  // Apply price filter
-  filteredProducts = filteredProducts.filter(
-    item => item.new_price >= priceRange[0] && item.new_price <= priceRange[1]
-  );
-  
-  // Apply brand filter
-  if (selectedBrands.length > 0) {
-    filteredProducts = filteredProducts.filter(
-      item => selectedBrands.includes(item.brand)
-    );
-  }
-  
-  // Apply ratings filter (assuming products have a rating property)
-  if (selectedRatings.length > 0) {
-    filteredProducts = filteredProducts.filter(item => {
-      const rating = Math.floor(item.rating || 0);
-      return selectedRatings.includes(rating);
-    });
   }
   
   // Apply sorting
@@ -69,146 +42,10 @@ const Shop = ({ products }) => {
     subcategories[item.subcategory].push(item);
   });
 
-  // Handle price range changes
-  const handlePriceChange = (index, value) => {
-    const newPriceRange = [...priceRange];
-    newPriceRange[index] = Number(value);
-    setPriceRange(newPriceRange);
-  };
-
-  // Handle brand selection
-  const handleBrandChange = (brand) => {
-    if (selectedBrands.includes(brand)) {
-      setSelectedBrands(selectedBrands.filter(b => b !== brand));
-    } else {
-      setSelectedBrands([...selectedBrands, brand]);
-    }
-  };
-
-  // Handle rating selection
-  const handleRatingChange = (rating) => {
-    if (selectedRatings.includes(rating)) {
-      setSelectedRatings(selectedRatings.filter(r => r !== rating));
-    } else {
-      setSelectedRatings([...selectedRatings, rating]);
-    }
-  };
-
-  // Toggle mobile filter visibility
-  const toggleMobileFilter = () => {
-    setIsMobileFilterOpen(!isMobileFilterOpen);
-  };
-
-  // Reset all filters
-  const resetFilters = () => {
-    setPriceRange([0, 100000]);
-    setSelectedBrands([]);
-    setSelectedRatings([]);
-    setActiveSubcategory(null);
-  };
-
   return (
     <div className="shop-container">
-      {/* Mobile Filter Toggle Button */}
-      <button 
-        className="mobile-filter-toggle" 
-        onClick={toggleMobileFilter}
-      >
-        {isMobileFilterOpen ? "Hide Filters" : "Show Filters"}
-      </button>
-      
-      {/* Sidebar with filters */}
-      <aside className={`shop-sidebar ${isMobileFilterOpen ? 'open' : ''}`}>
-        <div className="sidebar">
-          <div className="sidebar-header">
-            <h2>Filters</h2>
-            <button onClick={resetFilters} className="reset-filters">Reset All</button>
-          </div>
-          
-          {/* Price Range Filter */}
-          <div className="sidebar-section">
-            <h3>Price Range</h3>
-            <div className="price-inputs">
-              <div className="price-input">
-                <span>$</span>
-                <input 
-                  type="number" 
-                  value={priceRange[0]} 
-                  onChange={(e) => handlePriceChange(0, e.target.value)}
-                  min="0"
-                />
-              </div>
-              <span>to</span>
-              <div className="price-input">
-                <span>$</span>
-                <input 
-                  type="number" 
-                  value={priceRange[1]} 
-                  onChange={(e) => handlePriceChange(1, e.target.value)}
-                  min="0"
-                />
-              </div>
-            </div>
-          </div>
-          
-          {/* Brand Filter */}
-          <div className="sidebar-section">
-            <h3>Brands</h3>
-            <div className="brand-filters">
-              {allBrands.map(brand => (
-                <div key={brand} className="brand-checkbox">
-                  <input 
-                    type="checkbox" 
-                    id={`brand-${brand}`}
-                    checked={selectedBrands.includes(brand)}
-                    onChange={() => handleBrandChange(brand)}
-                  />
-                  <label htmlFor={`brand-${brand}`}>{brand}</label>
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          {/* Rating Filter */}
-          <div className="sidebar-section">
-            <h3>Customer Reviews</h3>
-            <div className="rating-filters">
-              {[4, 3, 2, 1].map(rating => (
-                <div key={rating} className="rating-option">
-                  <input 
-                    type="checkbox" 
-                    id={`rating-${rating}`}
-                    checked={selectedRatings.includes(rating)}
-                    onChange={() => handleRatingChange(rating)}
-                  />
-                  <label htmlFor={`rating-${rating}`}>
-                    {Array(rating).fill("★").join("")}
-                    {Array(5-rating).fill("☆").join("")} & Up
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          {/* Shipping Options */}
-          <div className="sidebar-section">
-            <h3>Shipping & Delivery</h3>
-            <div className="service-options">
-              <div className="service-option">
-                <input type="checkbox" id="free-shipping" />
-                <label htmlFor="free-shipping">Free Shipping</label>
-              </div>
-              <div className="service-option">
-                <input type="checkbox" id="same-day" />
-                <label htmlFor="same-day">Same-day Delivery</label>
-              </div>
-            </div>
-          </div>
-        </div>
-      </aside>
-      
       {/* Main content area */}
-      <main className="shop-main">
+      <main className="shop-main full-width">
         {/* Page header with title and sorting */}
         <header className="shop-header">
           <div className="shop-title">
@@ -285,8 +122,7 @@ const Shop = ({ products }) => {
           ) : (
             <div className="no-products">
               <h3>No products found</h3>
-              <p>Please try adjusting your filters or search terms.</p>
-              <button onClick={resetFilters} className="reset-button">Reset All Filters</button>
+              <p>Please try selecting a different category or subcategory.</p>
             </div>
           )}
         </section>

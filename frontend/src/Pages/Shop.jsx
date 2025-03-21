@@ -50,8 +50,8 @@ const Shop = () => {
     <div>
       <Hero/>
       <Offers/>
-      <About/>
       <NewCollections/>
+      <About/>
       <Rider/>
     </div>
   );

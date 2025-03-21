@@ -1,83 +1,164 @@
-/* General Page Styling */
-.about-container {
-  background: linear-gradient(to bottom, #FFF9E3, #BFD8FF);
-  min-height: 100vh;
+/* Location Selector Component Styling */
+.location-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  padding: 50px 20px;
-  text-align: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #f0f0f0;
+}
+
+.location-card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 900px;
+  overflow: hidden;
+  padding: 30px;
 }
 
 /* Header Section */
-.about-header h1 {
-  font-size: 2.8rem;
-  font-weight: bold;
-  color: #2D4F6C;
-  margin-bottom: 10px;
+.location-header {
+  text-align: center;
+  margin-bottom: 25px;
 }
 
-.about-header p {
-  font-size: 1.2rem;
-  color: #4B6B8E;
-  max-width: 600px;
-  margin: 0 auto 30px;
-}
-
-/* Card Section */
-.about-cards {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 30px;
-}
-
-/* Individual Cards */
-.about-card {
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 15px;
-  padding: 30px;
-  max-width: 300px;
-  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.about-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
-}
-
-/* Icons */
-.about-icon {
-  font-size: 3rem;
-  color: #2D4F6C;
+.location-icon {
+  font-size: 2.5rem;
+  color: #FF9500;
   margin-bottom: 15px;
 }
 
-/* Text */
-.about-card h2 {
-  font-size: 1.5rem;
+.location-header h1 {
+  font-size: 1.8rem;
   font-weight: bold;
-  color: #2D4F6C;
+  color: #333;
   margin-bottom: 10px;
 }
 
-.about-card p {
+.location-header p {
   font-size: 1rem;
-  color: #555;
-  line-height: 1.5;
+  color: #666;
+}
+
+/* Search Box */
+.search-container {
+  margin-bottom: 20px;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 30px;
+  padding: 5px 15px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+}
+
+.search-icon {
+  color: #999;
+  margin-right: 10px;
+}
+
+.search-input {
+  flex-grow: 1;
+  border: none;
+  padding: 12px 10px;
+  font-size: 1rem;
+  background-color: transparent;
+  outline: none;
+}
+
+.current-location-btn {
+  background-color: #FF9500;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.current-location-btn:hover {
+  background-color: #e08600;
+}
+
+.instruction-text {
+  font-size: 0.85rem;
+  color: #FF0000;
+  text-align: center;
+  margin-top: 5px;
+}
+
+/* Map Container */
+.map-container {
+  width: 100%;
+  height: 350px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+}
+
+.map-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: #e9ecef;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #666;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Confirm Button */
+.confirm-button {
+  background-color: #FF9500;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.confirm-button:hover {
+  background-color: #e08600;
+}
+
+.confirm-button.disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Confirmation Message */
+.confirmation-message {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #e6f7e6;
+  border-radius: 5px;
+  text-align: center;
+  color: #28a745;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .about-cards {
-    flex-direction: column;
-    align-items: center;
+  .location-card {
+    padding: 20px;
   }
-
-  .about-card {
-    width: 90%;
-    max-width: 350px;
+  
+  .map-container {
+    height: 250px;
   }
 }

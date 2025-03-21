@@ -50,7 +50,7 @@ const RiderLogin = () => {
 
       localStorage.setItem('admin_token', responseData.data.token);
       toast.success('Login successful! Redirecting to the dashboard...');
-      navigate('/addproduct');
+      navigate('/riderdashboard');
       window.location.reload();
     } catch (error) {
       console.error('Login error:', error);

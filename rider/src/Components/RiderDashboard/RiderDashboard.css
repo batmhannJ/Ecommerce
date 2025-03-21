@@ -1,0 +1,794 @@
+/* Core layout styles with space efficiency improvements */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #f5f5f5;
+    font-size: 14px;
+  }
+  
+  .rider-dashboard {
+    padding: 12px;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+  }
+  
+  /* Compact header */
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .dashboard-header h1 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.5rem;
+    flex: 0 0 auto;
+    margin-right: 15px;
+  }
+  
+  .search-container {
+    flex: 1;
+    margin-right: 15px;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 1px solid #e0e0e0;
+    font-size: 13px;
+  }
+  
+  /* Compact rider controls */
+  .rider-controls {
+    display: flex;
+    align-items: center;
+  }
+  
+  .notification-icon {
+    position: relative;
+    margin-right: 15px;
+    cursor: pointer;
+  }
+  
+  .material-icons {
+    font-size: 20px;
+    color: #7f8c8d;
+  }
+  
+  .notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #e74c3c;
+    color: white;
+    font-size: 10px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .rider-info {
+    display: flex;
+    align-items: center;
+  }
+  
+  .rider-details {
+    margin-right: 10px;
+    text-align: right;
+  }
+  
+  .rider-name {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #2c3e50;
+    display: block;
+  }
+  
+  .rider-id {
+    font-size: 0.75rem;
+    color: #7f8c8d;
+    display: block;
+  }
+  
+  .rider-rating {
+    display: flex;
+    align-items: center;
+    color: #f39c12;
+    font-size: 0.8rem;
+  }
+  
+  .rider-rating .material-icons {
+    font-size: 14px;
+    color: #f39c12;
+    margin-right: 2px;
+  }
+  
+  .rider-status {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .rider-status.active {
+    background-color: #2ecc71;
+    color: white;
+  }
+  
+  .rider-status.offline {
+    background-color: #95a5a6;
+    color: white;
+  }
+  
+  /* Notification panel */
+  .notifications-panel {
+    position: absolute;
+    right: 12px;
+    top: 60px;
+    width: 280px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+  }
+  
+  .notifications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .notifications-header h3 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1rem;
+  }
+  
+  .btn-text {
+    background: none;
+    border: none;
+    color: #3498db;
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 0;
+  }
+  
+  .notifications-list {
+    max-height: 250px;
+    overflow-y: auto;
+  }
+  
+  .notification-item {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f5f5f5;
+    cursor: pointer;
+  }
+  
+  .notification-item:hover {
+    background-color: #f9f9f9;
+  }
+  
+  .notification-item.unread {
+    background-color: #e3f2fd;
+  }
+  
+  .notification-content p {
+    margin: 0 0 3px 0;
+    font-size: 0.85rem;
+  }
+  
+  .notification-time {
+    font-size: 0.7rem;
+    color: #95a5a6;
+  }
+  
+  .no-notifications {
+    padding: 12px;
+    text-align: center;
+    color: #7f8c8d;
+    font-size: 0.85rem;
+  }
+  
+  /* Dashboard top row - more compact layout */
+  .dashboard-top-row {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    grid-gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .dashboard-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 10px;
+  }
+  
+  .summary-box {
+    padding: 12px 10px;
+    border-radius: 8px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .summary-box h3 {
+    margin: 0 0 5px 0;
+    font-size: 0.85rem;
+  }
+  
+  .summary-box .count {
+    font-size: 1.8rem;
+    font-weight: bold;
+  }
+  
+  .summary-box.pending {
+    background-color: #f39c12;
+  }
+  
+  .summary-box.delivering {
+    background-color: #3498db;
+  }
+  
+  .summary-box.delivered {
+    background-color: #2ecc71;
+  }
+  
+  /* Earnings summary - more compact */
+  .earnings-summary {
+    background-color: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .earnings-summary h2 {
+    margin-top: 0;
+    color: #2c3e50;
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+  
+  .earnings-tabs {
+    display: flex;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .earnings-tab {
+    padding: 6px 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: #7f8c8d;
+    position: relative;
+  }
+  
+  .earnings-tab.active {
+    color: #3498db;
+    font-weight: bold;
+  }
+  
+  .earnings-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #3498db;
+  }
+  
+  .earnings-amount {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 10px;
+  }
+  
+  .currency {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-right: 3px;
+  }
+  
+  .amount {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #2c3e50;
+  }
+  
+  .earnings-details {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .earnings-detail {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    flex: 1;
+  }
+  
+  .earnings-detail span:first-child {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+    margin-bottom: 3px;
+  }
+  
+  .earnings-detail span:last-child {
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #2c3e50;
+  }
+  
+  /* Orders filter bar */
+  .orders-filter {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    background-color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .filter-label {
+    font-size: 0.85rem;
+    margin-right: 8px;
+    color: #7f8c8d;
+  }
+  
+  .filter-select {
+    padding: 5px 8px;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+    font-size: 0.85rem;
+    margin-right: 15px;
+  }
+  
+  .btn-map {
+    padding: 5px 10px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+  
+  /* Map container */
+  .map-container {
+    margin-bottom: 15px;
+  }
+  
+  .delivery-map {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #7f8c8d;
+  }
+  
+  /* Orders sections */
+  .orders-sections {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 15px;
+  }
+  
+  .orders-section {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  .orders-section h2 {
+    margin: 0;
+    padding: 12px 15px;
+    background-color: #f9f9f9;
+    color: #2c3e50;
+    font-size: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .orders-container {
+    max-height: 600px;
+    overflow-y: auto;
+    padding: 0 5px;
+  }
+  
+  /* Order cards */
+  .order-card {
+    margin: 10px 5px;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    color: white;
+  }
+  
+  .order-header h3 {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+  
+  .pending-card .order-header {
+    background-color: #f39c12;
+  }
+  
+  .delivering-card .order-header {
+    background-color: #3498db;
+  }
+  
+  .delivered-card .order-header {
+    background-color: #2ecc71;
+  }
+  
+  .status {
+    font-size: 0.75rem;
+    padding: 3px 6px;
+    border-radius: 10px;
+    font-weight: bold;
+  }
+  
+  .status.pending {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  .status.delivering {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  .status.delivered {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  .order-details {
+    padding: 10px;
+    background-color: white;
+  }
+  
+  .order-detail-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+  }
+  
+  .order-detail-col {
+    flex: 1 ;
+  }
+  
+  .order-detail-col p, 
+  .order-detail-row p {
+    margin: 0 0 5px 0;
+  }
+  
+  /* Delivery progress */
+  .delivery-progress {
+    padding: 10px;
+    background-color: #f9f9f9;
+  }
+  
+  .progress-bar {
+    height: 8px;
+    background-color: #ecf0f1;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 5px;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    background-color: #3498db;
+  }
+  
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: #7f8c8d;
+  }
+  
+  /* Item list */
+  .item-list {
+    padding: 10px;
+    background-color: white;
+    border-top: 1px solid #f0f0f0;
+  }
+  
+  .item-list h4 {
+    margin: 0 0 5px 0;
+    font-size: 0.85rem;
+    color: #2c3e50;
+  }
+  
+  .item-list ul {
+    margin: 0;
+    padding: 0 0 0 20px;
+    font-size: 0.8rem;
+    color: #7f8c8d;
+  }
+  
+  .item-list li {
+    margin-bottom: 3px;
+  }
+  
+  /* Action buttons */
+  .action-buttons {
+    display: flex;
+    padding: 8px;
+    background-color: #f9f9f9;
+    gap: 5px;
+  }
+  
+  .action-buttons button {
+    flex: 1;
+    padding: 6px 0;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  
+  .btn-pickup {
+    background-color: #f39c12;
+    color: white;
+  }
+  
+  .btn-navigate {
+    background-color: #95a5a6;
+    color: white;
+  }
+  
+  .btn-deliver {
+    background-color: #2ecc71;
+    color: white;
+  }
+  
+  .btn-problem {
+    background-color: #e74c3c;
+    color: white;
+  }
+  
+  .btn-contact {
+    background-color: #3498db;
+    color: white;
+  }
+  
+  /* No orders message */
+  .no-orders {
+    padding: 20px;
+    text-align: center;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+  }
+  
+  /* Loading container */
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 1.2rem;
+    color: #7f8c8d;
+  }
+  
+  /* Problem modal */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background-color: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    padding: 20px;
+  }
+  
+  .modal-content h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    color: #2c3e50;
+  }
+  
+  .issue-select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+    font-size: 0.9rem;
+  }
+  
+  .issue-details {
+    width: 100%;
+    height: 100px;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    resize: none;
+  }
+  
+  .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  
+  .btn-submit {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  
+  .btn-cancel {
+    background-color: #95a5a6;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  
+  /* Responsive layout */
+  @media (max-width: 1200px) {
+    .orders-sections {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .dashboard-top-row {
+      grid-template-columns: 1fr;
+    }
+    
+    .dashboard-summary {
+      margin-bottom: 15px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .orders-sections {
+      grid-template-columns: 1fr;
+    }
+    
+    .dashboard-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .dashboard-header h1 {
+      margin-bottom: 10px;
+    }
+    
+    .search-container {
+      width: 100%;
+      margin: 10px 0;
+    }
+    
+    .rider-controls {
+      width: 100%;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+  }
+  
+  /* Fix for rider info display */
+  @media (min-width: 768px) {
+    .rider-info {
+      flex-direction: row;
+    }
+  }
+
+  /* Add these styles to your RiderDashboard.css file */
+
+.orders-graph-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  flex: 1;
+  min-width: 320px;
+  margin-left: 24px;
+}
+
+.orders-tabs {
+  display: flex;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.orders-tab {
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+}
+
+.orders-tab.active {
+  color: #5e72e4;
+  border-bottom: 2px solid #5e72e4;
+}
+
+.orders-graph {
+  height: 200px;
+  margin-bottom: 16px;
+}
+
+.orders-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.orders-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.orders-stat span:first-child {
+  font-size: 12px;
+  color: #666;
+}
+
+.orders-stat span:last-child {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}

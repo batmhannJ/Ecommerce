@@ -295,33 +295,34 @@ const ShopContextProvider = (props) => {
   
   const increaseItemQuantity = async (productId, selectedSize) => {
     const userId = localStorage.getItem("userId");
-  
+
     if (!userId) {
       console.error("No user ID found. Cannot increase item quantity.");
       return;
     }
-  
+
     const key = `${productId}_${selectedSize || "N/A"}`; // Handle undefined size
     console.log("Increasing quantity for item with key:", key);
     console.log("Cart Items:", cartItems);
-  
+
     const itemIndex = cartItems.findIndex((item) => {
       return (
         item.productId === Number(productId) &&
         item.selectedSize.toUpperCase() === selectedSize.toUpperCase()
       );
     });
-  
+
     if (itemIndex !== -1) {
       const currentItem = cartItems[itemIndex];
-  
+
       try {
         const response = await axios.get(`http://localhost:4000/api/products/${productId}`);
         const productData = response.data;
-  
-        if (productData && productData[`${selectedSize.toLowerCase()}_stock`] !== undefined) {
-          const availableStock = productData[`${selectedSize.toLowerCase()}_stock`];
-  
+
+        // ✅ Skip stock checking if selectedSize is "N/A"
+        if (selectedSize === "N/A" || (productData && productData[`${selectedSize.toLowerCase()}_stock`] !== undefined)) {
+          const availableStock = selectedSize === "N/A" ? Infinity : productData[`${selectedSize.toLowerCase()}_stock`];
+
           if (currentItem.quantity < availableStock) {
             setCartItems((prevItems) => {
               return prevItems.map((cartItem, index) => {
@@ -331,13 +332,10 @@ const ShopContextProvider = (props) => {
                 return cartItem;
               });
             });
-  
-            // After state update, get the updated quantity from state
-            const updatedItem = cartItems[itemIndex]; // It might be updated already
-            const updatedQuantity = updatedItem.quantity;
-  
+
             // Update the quantity in the database
             try {
+              const updatedQuantity = currentItem.quantity + 1; // Get updated quantity
               const updateResponse = await axios.patch(
                 `http://localhost:4000/api/cart/${userId}/${productId}?selectedSize=${selectedSize}`,
                 { quantity: updatedQuantity }
@@ -358,59 +356,54 @@ const ShopContextProvider = (props) => {
     } else {
       console.error("Item not found in cart:", key);
     }
-  };
-  
-
+};
+// When updating quantity, make it synchronous
 const decreaseItemQuantity = async (productId, selectedSize) => {
   const userId = localStorage.getItem('userId');
-
-  // Check if userId exists
+  
   if (!userId) {
     console.error('No user ID found. Cannot decrease item quantity.');
     return;
   }
-
-  const key = `${productId}_${selectedSize || 'N/A'}`; // Handle undefined size
-  console.log("Decreasing quantity for item with key:", key);
-  console.log("Cart Items:", cartItems);
-
-  // Find the index of the item to update based on productId and selectedSize
+  
+  const key = `${productId}_${selectedSize || 'N/A'}`;
   const itemIndex = cartItems.findIndex(item => {
     return item.productId === Number(productId) && item.selectedSize.toUpperCase() === selectedSize.toUpperCase();
   });
-
-  // If the item is found, decrease the quantity
+  
   if (itemIndex !== -1) {
     const currentQuantity = cartItems[itemIndex].quantity;
-
-    // Only decrease the quantity if it's greater than 1, otherwise remove the item
+    
     if (currentQuantity > 1) {
-      // Update the local state to decrease the quantity
-      setCartItems(prevItems => {
-        return prevItems.map((cartItem, index) => {
-          if (index === itemIndex) {
-            return { ...cartItem, quantity: cartItem.quantity - 1 }; // Decrease the quantity
-          }
-          return cartItem;
-        });
-      });
-
-      // Update the database
+      // First update the database, then update the state
+      const newQuantity = currentQuantity - 1;
       try {
-        const updatedQuantity = currentQuantity - 1; // New quantity to update in the database
-        const response = await axios.patch(`http://localhost:4000/api/cart/${userId}/${productId}?selectedSize=${selectedSize}`, { quantity: updatedQuantity });
-        console.log("Cart updated in database successfully:", response.data);
+        await axios.patch(
+          `http://localhost:4000/api/cart/${userId}/${productId}?selectedSize=${selectedSize}`,
+          { quantity: newQuantity }
+        );
+        
+        // After successful API call, update local state
+        setCartItems(prevItems => {
+          return prevItems.map((cartItem, index) => {
+            if (index === itemIndex) {
+              return { ...cartItem, quantity: newQuantity };
+            }
+            return cartItem;
+          });
+        });
       } catch (error) {
         console.error("Error updating cart in database:", error.response ? error.response.data : error.message);
       }
     } else {
-      // Remove the item if the quantity reaches 1 and user wants to decrease it
-      setCartItems(prevItems => prevItems.filter((_, index) => index !== itemIndex));
-
-      // Remove item from the database
+      // Remove item if quantity is 1
       try {
-        const response = await axios.delete(`http://localhost:4000/api/cart/${userId}/${productId}?selectedSize=${selectedSize}`);
-        console.log("Item removed from cart in database successfully:", response.data);
+        await axios.delete(
+          `http://localhost:4000/api/cart/${userId}/${productId}?selectedSize=${selectedSize}`
+        );
+        
+        // After successful deletion, update local state
+        setCartItems(prevItems => prevItems.filter((_, index) => index !== itemIndex));
       } catch (error) {
         console.error("Error removing item from cart in database:", error.response ? error.response.data : error.message);
       }
@@ -419,9 +412,6 @@ const decreaseItemQuantity = async (productId, selectedSize) => {
     console.error('Item not found in cart:', key);
   }
 };
-
-
-  
   const getTotalCartAmount = () => {
     let totalAmount = 0;
     for (const item in cartItems) {

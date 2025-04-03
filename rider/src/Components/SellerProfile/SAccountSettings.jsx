@@ -33,7 +33,7 @@ const SAccountSettings = () => {
   };
   
   const getUserIdFromToken = () => {
-    const authToken = localStorage.getItem("admin_token");
+    const authToken = localStorage.getItem("rider_token");
     if (authToken) {
       try {
         const payload = JSON.parse(atob(authToken.split(".")[1]));
@@ -47,33 +47,41 @@ const SAccountSettings = () => {
     return null;
   };
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const authToken = localStorage.getItem("admin_token");
-      const userId = getUserIdFromToken();
-
-      if (!authToken || !userId) {
-        console.error("No token or user ID found");
+  // 1. First, let's update the endpoint in your useEffect function:
+useEffect(() => {
+  const fetchRiderData = async () => {
+    const riderToken = localStorage.getItem("rider_token");
+    
+    if (!riderToken) {
+      console.error("No token found");
+      return;
+    }
+    
+    try {
+      const payload = JSON.parse(atob(riderToken.split(".")[1]));
+      const riderId = payload.id;
+      
+      if (!riderId) {
+        console.error("No rider ID found in token");
         return;
       }
+      
+      const response = await axios.get(`http://localhost:4000/api/rider/${riderId}`, {
+        headers: {
+          Authorization: `Bearer ${riderToken}`,
+        },
+      });
+      
+      // Process the response data
+      console.log("Rider data:", response.data);
+      // Update state with rider data
+    } catch (error) {
+      console.error("Error fetching rider data:", error);
+    }
+  };
 
-      try {
-        const response = await axios.get(`http://localhost:4000/api/seller/approved/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
-        console.log("Fetched user data:", response.data);
-
-        const { name, phone, email, shopName, businessLocation, idPicture } = response.data;
-        setFormData({ name, phone, email, shopName, businessLocation, idPicture, password: "" });
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
-
-    fetchUserData();
-  }, []);
+  fetchRiderData();
+}, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

@@ -7,6 +7,7 @@ const { signup, getPendingRiders,
 } = require('../controllers/riderController');
 const Rider = require('../models/riderModel');
 const bcrypt = require("bcrypt"); // Add this line
+const { authMiddleware } = require('../middleware/auth');
 
 const jwt = require("jsonwebtoken"); // Import jsonwebtoken here
 const generateAuthToken = (seller) => {
@@ -90,6 +91,27 @@ router.patch("/:id/approve", async (req, res) => {
   }
 });
 
+// In your riderRoute.js
+router.get("/:id", authMiddleware, async (req, res) => {
+  try {
+    // Check if the requested rider ID matches the authenticated rider's ID
+    if (req.params.id !== req.user.id) {
+      return res.status(403).json({ error: "Not authorized to access this profile" });
+    }
+    
+    const rider = await Rider.findById(req.params.id).select('-password');
+    
+    if (!rider) {
+      return res.status(404).json({ error: "Rider not found" });
+    }
+    
+    res.json(rider);
+  } catch (error) {
+    console.error("Error fetching rider:", error);
+    res.status(500).json({ error: "Failed to fetch rider" });
+  }
+});
+
 
 router.get("/rider", async (req, res) => {
   try {
@@ -139,7 +161,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-/*router.get('/profile', async (req, res) => {
+  router.get('/profile', async (req, res) => {
     try {
       const rider = await Rider.findById(req.user.id).select('-password');
       
@@ -207,40 +229,7 @@ router.post("/login", async (req, res) => {
       res.status(500).json({ message: 'Server error' });
     }
   });
-  
-  // Get active deliveries
-  router.get('/active-deliveries', async (req, res) => {
-    try {
-      const activeDeliveries = await Delivery.find({
-        riderId: req.user.id,
-        status: { $in: ['assigned', 'in_progress', 'picked_up'] }
-      }).sort({ createdAt: -1 });
-      
-      res.json({ deliveries: activeDeliveries });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server error' });
-    }
-  });
-  
-  // Get recent deliveries
-  router.get('/recent-deliveries', async (req, res) => {
-    try {
-      const recentDeliveries = await Delivery.find({
-        riderId: req.user.id,
-        status: 'completed'
-      })
-      .sort({ completedAt: -1 })
-      .limit(5);
-      
-      res.json({ deliveries: recentDeliveries });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server error' });
-    }
-  });
-  
-  // Get notifications
+
   router.get('/notifications', async (req, res) => {
     try {
       const notifications = await Notification.find({
@@ -275,53 +264,4 @@ router.post("/login", async (req, res) => {
     }
   });
   
-  // Start delivery
-  router.post('/start-delivery/:id', async (req, res) => {
-    try {
-      const delivery = await Delivery.findById(req.params.id);
-      
-      if (!delivery) {
-        return res.status(404).json({ message: 'Delivery not found' });
-      }
-      
-      if (delivery.riderId.toString() !== req.user.id) {
-        return res.status(401).json({ message: 'Not authorized to update this delivery' });
-      }
-      
-      delivery.status = 'in_progress';
-      delivery.startedAt = new Date();
-      await delivery.save();
-      
-      res.json({ success: true, delivery });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server error' });
-    }
-  });
-  
-  // Complete delivery
-  router.post('/complete-delivery/:id', async (req, res) => {
-    try {
-      const delivery = await Delivery.findById(req.params.id);
-      
-      if (!delivery) {
-        return res.status(404).json({ message: 'Delivery not found' });
-      }
-      
-      if (delivery.riderId.toString() !== req.user.id) {
-        return res.status(401).json({ message: 'Not authorized to update this delivery' });
-      }
-      
-      delivery.status = 'completed';
-      delivery.completedAt = new Date();
-      await delivery.save();
-      
-      res.json({ success: true, delivery });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server error' });
-    }
-  });*/
-
-
 module.exports = router;

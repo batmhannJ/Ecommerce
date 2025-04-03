@@ -6,10 +6,12 @@ const jwt = require("jsonwebtoken");
 const path = require("path");
 const cors = require("cors");
 const multer = require("multer");
-
+const socketIo = require("socket.io"); 
 const nodemailer = require("nodemailer");
 const otpGenerator = require("otp-generator");
 const helmet = require("helmet");
+const server = require("http").createServer(app);
+
 // import routes
 const superAdminRoutes = require("./routes/superAdminRoute");
 const adminRoutes = require("./routes/adminRoute");
@@ -135,7 +137,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path} - Preflight Check`);
+  //console.log(`${req.method} ${req.path} - Preflight Check`);
 
   res.header('Access-Control-Allow-Origin', '*'); 
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS'); 
@@ -886,6 +888,38 @@ app.patch("/api/transactions/:transactionId", async (req, res) => {
       .send({ message: "Error updating transaction status", error });
   }
 });
+const io = socketIo(server, {
+    cors: {
+        origin: "*", // Lagyan ng tamang origin kung may frontend ka
+        methods: ["GET", "POST"]
+    }
+});
+io.on("connection", (socket) => {
+  console.log("New rider connected");
+
+  // When a rider accepts a pending order
+  socket.on("acceptOrder", async (data) => {
+    const { orderId, riderId } = data;
+    
+    // Broadcast to all OTHER riders that this order is now accepted
+    socket.broadcast.emit("orderAccepted", orderId);
+    
+    // You would typically update your database here or in the API call
+    // from the frontend
+    
+    // Emit back to the accepting rider to confirm
+    socket.emit("orderUpdated", {
+      _id: orderId,
+      status: "Cart Processing",
+      riderId: riderId
+    });
+  });
+  
+  socket.on("disconnect", () => {
+    console.log("Rider disconnected");
+  });
+});
+
 app.post('/editproduct', upload.single('image'), async (req, res) => {
   const { _id, name, old_price, new_price, category, s_stock, m_stock, l_stock, xl_stock, stock } = req.body;
 

@@ -105,7 +105,7 @@ useEffect(() => {
         amount: getTotalCartAmount() + deliveryFee,
         deliveryFee: deliveryFee,
         address: `${userData.street} ${userData.city} ${userData.state} ${userData.zipcode} ${userData.country}`,
-        status: "Cart Processing",
+        status: "Pending",
         userId: userId,
       });
 

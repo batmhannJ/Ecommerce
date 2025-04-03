@@ -263,6 +263,11 @@ router.post("/api/transactions", async (req, res) => {
       userId,
     });
 
+    const savedOrder = await transaction.save();
+    
+    // Broadcast the new pending order to all connected riders
+    io.emit("newPendingOrder", savedOrder);
+
     await transaction.save();
     console.log("Saved Transaction:", transaction);
 

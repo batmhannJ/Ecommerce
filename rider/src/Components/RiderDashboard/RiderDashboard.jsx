@@ -3,19 +3,19 @@ import './RiderDashboard.css';
 import { toast } from "react-toastify";
 import { io } from "socket.io-client"; // Import Socket.IO client
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import axios from "axios";
 
 function RiderDashboard() {
   const [pendingPickups, setPendingPickups] = useState([]);
   const [toBeDelivered, setToBeDelivered] = useState([]);
   const [deliveredItems, setDeliveredItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [riderInfo, setRiderInfo] = useState({ 
-    name: 'Rider Name', 
-    id: 'R12345',
-    status: 'Active',
-    rating: 4.8
-  });
-  const [currentLocation, setCurrentLocation] = useState(null);
+  const [riderInfo, setRiderInfo] = useState({
+    name: '',
+    id: '',
+    status: '',
+    rating: 0
+  });  const [currentLocation, setCurrentLocation] = useState(null);
   const [sortBy, setSortBy] = useState('date');
   const [dateFilter, setDateFilter] = useState('today');
   const [searchTerm, setSearchTerm] = useState('');
@@ -23,50 +23,201 @@ function RiderDashboard() {
   const [orderStats, setOrderStats] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [dailyOrderCount, setDailyOrderCount] = useState(0);
+  const [pendingNewOrders, setPendingNewOrders] = useState([]);
+
   const [notifications, setNotifications] = useState([
     { id: 1, message: "New order has been assigned to you", time: "10 mins ago", read: false },
     { id: 2, message: "Your weekly performance report is available", time: "2 hours ago", read: false },
   ]);
   const [showNotifications, setShowNotifications] = useState(false);
-  const socket = io("http://localhost:4000"); // Connect to Socket.IO server
+  
+  // Create a socket.io reference using useRef to prevent multiple connections
+  const [socket, setSocket] = useState(null);
+
+  const getRiderIdFromToken = () => {
+    const riderToken = localStorage.getItem("rider_token");
+    if (riderToken) {
+      try {
+        const payload = JSON.parse(atob(riderToken.split(".")[1]));
+        return payload.id; // Ensure this matches the property name in your JWT payload
+      } catch (error) {
+        console.error("Error decoding token:", error);
+        return null;
+      }
+    }
+    return null;
+  };
 
   useEffect(() => {
+    const fetchRiderData = async () => {
+      const riderToken = localStorage.getItem("rider_token");
+      const riderId = getRiderIdFromToken();
+      
+      if (!riderToken || !riderId) {
+        console.error("No token or rider ID found");
+        // Redirect to login or show error
+        return;
+      }
+      
+      try {
+        const response = await axios.get(`http://localhost:4000/api/riders/${riderId}`, {
+          headers: {
+            Authorization: `Bearer ${riderToken}`,
+          },
+        });
+        
+        setRiderInfo({
+          name: response.data.name,
+          id: response.data._id, // Make sure this matches your backend response structure
+          status: response.data.status || 'Active',
+          rating: response.data.rating || 4.0
+        });
+      } catch (error) {
+        console.error("Error fetching rider data:", error);
+        toast.error("Failed to load rider information");
+      }
+    };
+  
+    fetchRiderData();
+  }, []);
+
+  useEffect(() => {
+    // Initialize socket connection
+    const socketConnection = io("http://localhost:4000");
+    setSocket(socketConnection);
+    
+    // Clean up on component unmount
+    return () => {
+      socketConnection.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return; // Only proceed if socket is initialized
+
     fetchData();
     fetchOrderStats();
     getCurrentLocation();
-    
+
+    // Listen for new pending orders
+    socket.on("newPendingOrder", (newOrder) => {
+      console.log("New order received:", newOrder);
+      setPendingNewOrders(prevOrders => {
+        // Check if this order already exists in our state
+        const exists = prevOrders.some(order => 
+          (order._id === newOrder._id) || (order.transactionId === newOrder.transactionId)
+        );
+        
+        if (!exists) {
+          toast.info("New order available!");
+          // Add to notifications
+          const newNotification = {
+            id: Date.now(),
+            message: "New order is available for pickup",
+            time: "Just now",
+            read: false
+          };
+          setNotifications(prev => [newNotification, ...prev]);
+          return [...prevOrders, newOrder];
+        }
+        return prevOrders;
+      });
+    });
+
+    // Listen for orders that have been accepted by other riders
+    socket.on("orderAccepted", (orderId) => {
+      console.log("Order accepted by another rider:", orderId);
+      // Remove the accepted order from pending new orders
+      setPendingNewOrders(prevOrders => 
+        prevOrders.filter(order => 
+          (order._id !== orderId) && (order.transactionId !== orderId)
+        )
+      );
+    });
+
     // Listen for updates from the server via Socket.IO
     socket.on("orderUpdated", (updatedOrder) => {
+      console.log("Order updated:", updatedOrder);
       // Update the appropriate list based on status
       if (updatedOrder.status === "Cart Processing") {
-        setPendingPickups(prevOrders => 
-          prevOrders.map(order => 
-            order._id === updatedOrder._id ? { ...order, status: updatedOrder.status } : order
+        // Update pending pickups list
+        setPendingPickups(prevOrders => {
+          const exists = prevOrders.some(order => 
+            (order._id === updatedOrder._id) || (order.transactionId === updatedOrder.transactionId)
+          );
+          
+          if (!exists) {
+            return [...prevOrders, updatedOrder];
+          }
+          
+          return prevOrders.map(order => 
+            (order._id === updatedOrder._id || order.transactionId === updatedOrder.transactionId) 
+              ? { ...order, status: updatedOrder.status } 
+              : order
+          );
+        });
+        
+        // Remove from pending new orders
+        setPendingNewOrders(prevOrders => 
+          prevOrders.filter(order => 
+            (order._id !== updatedOrder._id) && (order.transactionId !== updatedOrder.transactionId)
           )
         );
       } else if (updatedOrder.status === "Out for Delivery") {
-        setToBeDelivered(prevOrders => 
-          prevOrders.map(order => 
-            order._id === updatedOrder._id ? { ...order, status: updatedOrder.status } : order
+        // Remove from pending pickups
+        setPendingPickups(prevOrders => 
+          prevOrders.filter(order => 
+            (order._id !== updatedOrder._id) && (order.transactionId !== updatedOrder.transactionId)
           )
         );
+        
+        // Add to to-be-delivered
+        setToBeDelivered(prevOrders => {
+          const exists = prevOrders.some(order => 
+            (order._id === updatedOrder._id) || (order.transactionId === updatedOrder.transactionId)
+          );
+          
+          if (!exists) {
+            return [...prevOrders, updatedOrder];
+          }
+          
+          return prevOrders.map(order => 
+            (order._id === updatedOrder._id || order.transactionId === updatedOrder.transactionId) 
+              ? { ...order, status: updatedOrder.status } 
+              : order
+          );
+        });
       } else if (updatedOrder.status === "Delivered") {
-        setDeliveredItems(prevOrders => 
-          prevOrders.map(order => 
-            order._id === updatedOrder._id ? { ...order, status: updatedOrder.status } : order
+        // Remove from to-be-delivered
+        setToBeDelivered(prevOrders => 
+          prevOrders.filter(order => 
+            (order._id !== updatedOrder._id) && (order.transactionId !== updatedOrder.transactionId)
           )
         );
+        
+        // Add to delivered items
+        setDeliveredItems(prevOrders => {
+          const exists = prevOrders.some(order => 
+            (order._id === updatedOrder._id) || (order.transactionId === updatedOrder.transactionId)
+          );
+          
+          if (!exists) {
+            return [...prevOrders, updatedOrder];
+          }
+          
+          return prevOrders.map(order => 
+            (order._id === updatedOrder._id || order.transactionId === updatedOrder.transactionId) 
+              ? { ...order, status: updatedOrder.status } 
+              : order
+          );
+        });
       }
       
       // After updating an order, refresh order stats
       fetchOrderStats();
     });
     
-    // Cleanup on component unmount
-    return () => {
-      socket.disconnect(); // Disconnect the socket
-    };
-  }, [dateFilter]);
+  }, [socket, dateFilter]);
 
   const getCurrentLocation = () => {
     if (navigator.geolocation) {
@@ -116,24 +267,29 @@ function RiderDashboard() {
       const data = await response.json();
       
       // Filter and categorize orders based on their status
-      const pendingOrders = data.filter(order => order.status === "Cart Processing");
-      const deliveringOrders = data.filter(order => order.status === "Out for Delivery");
-      const completedOrders = data.filter(order => order.status === "Delivered");
+      const pendingNewOrdersData = data.filter(order => order.status === "Pending");
+      const pendingPickupsData = data.filter(order => order.status === "Cart Processing");
+      const deliveringOrdersData = data.filter(order => order.status === "Out for Delivery");
+      const completedOrdersData = data.filter(order => order.status === "Delivered");
       
-      // Sort orders based on current sortBy state (can be modified as needed)
-      const sortedPending = sortOrders(pendingOrders);
-      const sortedDelivering = sortOrders(deliveringOrders);
-      const sortedCompleted = sortOrders(completedOrders);
-      
-      setPendingPickups(sortedPending);
-      setToBeDelivered(sortedDelivering);
+      // Sort orders based on current sortBy state
+      const sortedPendingNewOrders = sortOrders(pendingNewOrdersData);
+      const sortedPendingPickups = sortOrders(pendingPickupsData);
+      const sortedDelivering = sortOrders(deliveringOrdersData);
+      const sortedCompleted = sortOrders(completedOrdersData);
+
+      // Update state with the sorted data
+      setPendingNewOrders(sortedPendingNewOrders);
+      setPendingPickups(sortedPendingPickups);
+      setToBeDelivered(sortedDelivering); 
       setDeliveredItems(sortedCompleted);
       
       // Calculate total orders for today
-      const todayOrders = countDailyOrders([...sortedPending, ...sortedDelivering, ...sortedCompleted]);
+      const todayOrders = countDailyOrders([...sortedPendingPickups, ...sortedDelivering, ...sortedCompleted]);
       setDailyOrderCount(todayOrders);
       
-      console.log('Pending orders:', sortedPending);
+      console.log('Pending new orders:', sortedPendingNewOrders);
+      console.log('Pending pickups:', sortedPendingPickups);
       console.log('To be delivered:', sortedDelivering);
       console.log('Delivered items:', sortedCompleted);
       console.log('Today\'s total orders:', todayOrders);
@@ -203,9 +359,11 @@ function RiderDashboard() {
   };
 
   const updateOrderStatus = async (order, newStatus) => {
+    if (!socket) return;
+    
     try {
       if (window.confirm(`Are you sure you want to change the status to "${newStatus}"?`)) {
-        const response = await fetch(`http://localhost:4000/api/transactions/${order.transactionId}`, {
+        const response = await fetch(`http://localhost:4000/api/transactions/${order.transactionId || order._id}`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
@@ -218,14 +376,86 @@ function RiderDashboard() {
         if (!response.ok) {
           throw new Error("Failed to update status");
         }
+        
+        const updatedOrder = await response.json();
+        
+        // Handle UI updates based on the new status
+        if (newStatus === "Out for Delivery") {
+          // Remove from pending pickups
+          setPendingPickups(prevOrders => 
+            prevOrders.filter(o => 
+              (o._id !== order._id) && (o.transactionId !== order.transactionId)
+            )
+          );
+          
+          // Add to to-be-delivered
+          setToBeDelivered(prevOrders => [...prevOrders, {...order, status: newStatus}]);
+        } else if (newStatus === "Delivered") {
+          // Remove from to-be-delivered
+          setToBeDelivered(prevOrders => 
+            prevOrders.filter(o => 
+              (o._id !== order._id) && (o.transactionId !== order.transactionId)
+            )
+          );
+          
+          // Add to delivered items
+          setDeliveredItems(prevOrders => [...prevOrders, {...order, status: newStatus}]);
+        }
   
         toast.success("Order status updated successfully!");
-        fetchData(); // Refresh data after update
         fetchOrderStats(); // Update order stats
       }
     } catch (error) {
       console.error('Error updating order status:', error);
       toast.error("Error updating order status");
+    }
+  };
+
+  const handleAcceptOrder = async (order) => {
+    if (!socket) return;
+    
+    try {
+      if (window.confirm("Are you sure you want to accept this order?")) {
+        // First, emit an event to notify other riders this order is being accepted
+        socket.emit("acceptOrder", {
+          orderId: order._id || order.transactionId,
+          riderId: riderInfo.id
+        });
+        
+        // Then update the status in your database
+        const response = await fetch(`http://localhost:4000/api/transactions/${order.transactionId || order._id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ 
+            status: "Cart Processing",
+            riderId: riderInfo.id
+          }),
+        });
+  
+        if (!response.ok) {
+          throw new Error("Failed to update status");
+        }
+  
+        toast.success("Order accepted successfully!");
+        
+        // Remove from pending new orders
+        setPendingNewOrders(prevOrders => 
+          prevOrders.filter(o => 
+            (o._id !== order._id) && (o.transactionId !== order.transactionId)
+          )
+        );
+        
+        // Add the updated order to the cart processing list
+        const updatedOrder = {...order, status: "Cart Processing", riderId: riderInfo.id};
+        setPendingPickups(prev => [...prev, updatedOrder]);
+        
+        fetchOrderStats(); // Update order stats
+      }
+    } catch (error) {
+      console.error('Error accepting order:', error);
+      toast.error("Error accepting order");
     }
   };
 
@@ -374,7 +604,47 @@ function RiderDashboard() {
             <h3>Delivered</h3>
             <span className="count">{deliveredItems.length}</span>
           </div>
+          {/* New Orders Pending Acceptance - Appears below summary boxes */}
+        {pendingNewOrders.length > 0 && (
+          <div className="new-orders-alert">
+            <h3>New Orders Available</h3>
+            <div className="new-orders-container">
+              {pendingNewOrders.map((order) => (
+                <div key={order._id || order.transactionId} className="new-order-card">
+                  <div className="order-header">
+                    <h3>Order #{(order._id || order.transactionId)?.substring(0, 8)}</h3>
+                    <span className="status new">New Order</span>
+                  </div>
+                  <div className="order-details">
+                    <div className="order-detail-row">
+                      <div className="order-detail-col">
+                        <p><strong>Customer:</strong> {order.userId?.name || order.name || 'N/A'}</p>
+                        <p><strong>Phone:</strong> {order.userId?.phone || order.contact || 'N/A'}</p>
+                        <p><strong>Date:</strong> {new Date(order.createdAt || order.date).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                    <div className="order-detail-row">
+                      <div className="order-detail-col">
+                        <p><strong>Address:</strong> {order.shippingAddress || order.address || 'N/A'}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="action-buttons">
+                    <button className="btn-pickup" onClick={() => handleAcceptOrder(order)}>
+                      Accept Order
+                    </button>
+                    <button className="btn-contact">
+                      Contact Seller
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         </div>
+
+        
 
         {/* Orders Line Graph - Now using real backend data */}
         <div className="orders-graph-container">

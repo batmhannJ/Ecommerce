@@ -1,20 +1,34 @@
 import React, { useContext, useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ShopContext } from "../../Context/ShopContext";
-import SearchBar from "../SearchBar/SearchBar";
 import "./Navbar.css";
 import cart_icon from "../Assets/cart_icon.png";
 import menu_icon from "../Assets/menu_icon.png";
 import profile_icon from "../Assets/profile_icon.png";
 import navbar_icon from "../Assets/bizgo.png";
-//import SearchTags from "../SearchTags/SearchTags";
-import { Truck, X } from "lucide-react";
-import { User, Package, LifeBuoy } from "lucide-react"; // Import icons
+import { 
+  Truck, 
+  X, 
+  Home, 
+  Store, 
+  Cpu, 
+  Shirt, 
+  Utensils, 
+  User, 
+  Package, 
+  LifeBuoy, 
+  Settings, 
+  LogOut 
+} from "lucide-react";
 
 const Navbar = () => {
   const [menu, setMenu] = useState("shop");
   const [profileMenuVisible, setProfileMenuVisible] = useState(false);
-  const [isBannerVisible, setIsBannerVisible] = useState(true); // State for banner visibility
+  const [isBannerVisible, setIsBannerVisible] = useState(true);
+  const [userData, setUserData] = useState({
+    name: "",
+    email: ""
+  });
   const { getTotalCartItems } = useContext(ShopContext);
   const menuRef = useRef();
   const profileMenuRef = useRef();
@@ -47,6 +61,58 @@ const Navbar = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
+  }, []);
+
+  // Function to get user ID from token
+  const getUserIdFromToken = () => {
+    const authToken = localStorage.getItem("auth-token");
+    if (authToken) {
+      const payload = JSON.parse(atob(authToken.split(".")[1]));
+      return payload.user.id;
+    }
+    return null;
+  };
+
+  // Fetch user data on component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const authToken = localStorage.getItem("auth-token");
+      const userId = getUserIdFromToken();
+
+      if (!authToken || !userId) {
+        console.error("No token or user ID found");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `http://localhost:4000/api/users/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        setUserData({
+          name: data.name || "User",
+          email: data.email || "user@example.com"
+        });
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    // Only fetch if logged in
+    const isLoggedIn = !!localStorage.getItem("auth-token");
+    if (isLoggedIn) {
+      fetchUserData();
+    }
   }, []);
 
   const isLoggedIn = !!localStorage.getItem("auth-token");
@@ -85,30 +151,35 @@ const Navbar = () => {
         <ul ref={menuRef} className="nav-menu">
           <li onClick={() => setMenu("shop")}>
             <Link style={{ textDecoration: "none" }} to="/">
+              <Home size={20} className="nav-menu-icon" />
               Home
             </Link>
             {menu === "shop" ? <hr /> : null}
           </li>
           <li onClick={() => setMenu("store")}>
             <Link style={{ textDecoration: "none" }} to="/store">
+              <Store size={20} className="nav-menu-icon" />
               Shops
             </Link>
             {menu === "store" ? <hr /> : null}
           </li>
           <li onClick={() => setMenu("crafts")}>
             <Link style={{ textDecoration: "none" }} to="/gadgets">
+              <Cpu size={20} className="nav-menu-icon" />
               Gadgets
             </Link>
             {menu === "crafts" ? <hr /> : null}
           </li>
           <li onClick={() => setMenu("clothes")}>
             <Link style={{ textDecoration: "none" }} to="/clothes">
+              <Shirt size={20} className="nav-menu-icon" />
               Clothes
             </Link>
             {menu === "clothes" ? <hr /> : null}
           </li>
           <li onClick={() => setMenu("food")}>
             <Link style={{ textDecoration: "none" }} to="/food">
+              <Utensils size={20} className="nav-menu-icon" />
               Food
             </Link>
             {menu === "food" ? <hr /> : null}
@@ -148,21 +219,33 @@ const Navbar = () => {
                   profileMenuVisible ? "profile-menu-visible" : ""
                 }`}
               >
+                <div className="profile-menu-header">
+                  <img src={profile_icon} alt="Profile" className="profile-menu-avatar" />
+                  <div className="profile-menu-user-info">
+                    <p className="profile-menu-username">{userData.name}</p>
+                    <p className="profile-menu-email">{userData.email}</p>
+                  </div>
+                </div>
+                <div className="profile-menu-divider"></div>
                 <Link to="/user/accountsettings" onClick={closeProfileMenu}>
-    <button>
-      <User size={18} className="menu-icon" /> Profile
-    </button>
-  </Link>
-  <Link to="/myorders" onClick={closeProfileMenu}>
-    <button>
-      <Package size={18} className="menu-icon" /> Orders
-    </button>
-  </Link>
-  <Link to="/help-center" onClick={closeProfileMenu}>
-    <button>
-      <LifeBuoy size={18} className="menu-icon" /> Help Center
-    </button>
-  </Link>
+                  <button>
+                    <User size={18} className="menu-icon" /> Profile
+                  </button>
+                </Link>
+                <Link to="/myorders" onClick={closeProfileMenu}>
+                  <button>
+                    <Package size={18} className="menu-icon" /> Orders
+                  </button>
+                </Link>
+                <div className="profile-menu-divider"></div>
+                <button 
+                  onClick={() => {
+                    localStorage.removeItem("auth-token");
+                    window.location.replace("/");
+                  }}
+                >
+                  <LogOut size={18} className="menu-icon" /> Logout
+                </button>
               </div>
             </div>
           )}

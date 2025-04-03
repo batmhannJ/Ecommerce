@@ -51,7 +51,6 @@ const Shop = () => {
       <Hero/>
       <Offers/>
       <NewCollections/>
-      <About/>
       <Rider/>
     </div>
   );

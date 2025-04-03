@@ -1,100 +1,112 @@
-/* Items.css - Foodpanda-Inspired Style */
+/* Modern Items.css - Sleek and Contemporary Design */
 
 .items {
   width: 240px;
   height: auto;
   background-color: #fff;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
   cursor: pointer;
   position: relative;
   border: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  margin-bottom: 25px;
 }
 
 .items:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
-  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  transform: translateY(-8px);
 }
 
 .items-link {
   text-decoration: none;
   color: inherit;
+  display: block;
 }
 
 .items-image-container {
   width: 100%;
-  height: 180px;
+  height: 200px;
   overflow: hidden;
   position: relative;
+  border-radius: 16px 16px 0 0;
 }
 
 .items-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s ease;
+  transition: transform 0.5s ease;
 }
 
 .items:hover .items-image {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 .add-to-cart {
   position: absolute;
-  right: 10px;
-  bottom: 10px;
-  background-color: #ff6600; /* Foodpanda pink */
+  right: 15px;
+  bottom: 84px;
+  background-color: #ff6600;
   border: none;
   color: #fff;
   font-size: 18px;
-  padding: 10px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   opacity: 0;
   z-index: 2;
-  box-shadow: 0 4px 8px rgba(215, 15, 100, 0.3);
+  box-shadow: 0 6px 16px rgba(255, 102, 0, 0.3);
+  transform: translateY(10px);
 }
 
 .items:hover .add-to-cart {
   opacity: 1;
-  transform: translateY(-5px);
+  transform: translateY(0);
 }
 
 .add-to-cart:hover {
-  background-color: #ff6600;
-  transform: scale(1.1) translateY(-5px);
+  background-color: #ff8533;
+  transform: scale(1.1);
+}
+
+.add-to-cart:active {
+  transform: scale(0.95);
 }
 
 .items-details {
-  padding: 15px;
+  padding: 20px;
   text-align: left;
-  border-top: 1px solid #f5f5f5;
+  position: relative;
+  background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+  border-radius: 0 0 16px 16px;
 }
 
 .items-name {
-  font-size: 16px;
-  color: #333;
-  font-weight: 500;
-  margin-bottom: 8px;
-  line-height: 1.3;
+  font-size: 17px;
+  color: #252525;
+  font-weight: 600;
+  margin-bottom: 12px;
+  line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  height: 42px;
+  height: 48px;
+  letter-spacing: -0.2px;
 }
 
 .items-price {
-  font-size: 18px;
-  color: #ff6600; /* Foodpanda pink */
-  font-weight: 600;
+  font-size: 20px;
+  color: #ff6600;
+  font-weight: 700;
   display: flex;
   align-items: center;
 }
@@ -102,36 +114,59 @@
 .new-price {
   display: flex;
   align-items: center;
+  position: relative;
+  padding-left: 0;
 }
 
-/*.new-price::before {
+.new-price::after {
   content: '';
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  background-color: #ff6600;
-  border-radius: 50%;
-  margin-right: 6px;
-}*/
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: rgba(255, 102, 0, 0.2);
+  border-radius: 2px;
+}
 
-/* Badge for promotions - similar to Foodpanda */
+/* Modern badge for new items */
 .items::before {
   content: 'New';
   position: absolute;
-  top: 10px;
-  left: 10px;
-  background-color: #ff6600;
+  top: 15px;
+  left: 15px;
+  background: linear-gradient(135deg, #ff6600 0%, #ff8533 100%);
   color: white;
-  padding: 4px 8px;
+  padding: 6px 12px;
   font-size: 12px;
-  font-weight: 600;
-  border-radius: 4px;
+  font-weight: 700;
+  border-radius: 8px;
   z-index: 1;
-  display: none; /* Hidden by default, enable with JS when needed */
+  display: none;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 8px rgba(255, 102, 0, 0.25);
 }
 
 .items.new::before {
   display: block;
+}
+
+/* Subtle hover effect for entire card */
+.items::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(255, 102, 0, 0.05) 0%, rgba(255, 255, 255, 0) 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.items:hover::after {
+  opacity: 1;
 }
 
 /* Mobile Responsive */
@@ -139,47 +174,87 @@
   .items {
     width: 220px;
   }
+  
+  .items-image-container {
+    height: 180px;
+  }
 }
 
 @media (max-width: 800px) {
   .items {
-    width: 180px;
+    width: 190px;
+    border-radius: 14px;
   }
   
   .items-image-container {
-    height: 150px;
+    height: 160px;
+    border-radius: 14px 14px 0 0;
+  }
+  
+  .items-details {
+    padding: 15px;
+    border-radius: 0 0 14px 14px;
   }
   
   .items-name {
-    font-size: 14px;
-    height: 36px;
+    font-size: 15px;
+    height: 42px;
+    margin-bottom: 10px;
+  }
+  
+  .items-price {
+    font-size: 18px;
   }
   
   .add-to-cart {
     opacity: 1;
     transform: none;
+    width: 45px;
+    height: 45px;
+    bottom: 74px;
+    right: 12px;
   }
 }
 
 @media (max-width: 500px) {
   .items {
-    width: 150px;
+    width: 160px;
+    border-radius: 12px;
+    margin-bottom: 20px;
   }
   
   .items-image-container {
-    height: 120px;
+    height: 140px;
+    border-radius: 12px 12px 0 0;
   }
   
   .items-details {
-    padding: 10px;
+    padding: 12px;
+    border-radius: 0 0 12px 12px;
   }
   
   .items-name {
-    font-size: 13px;
-    margin-bottom: 5px;
+    font-size: 14px;
+    height: 40px;
+    margin-bottom: 8px;
   }
   
   .items-price {
-    font-size: 14px;
+    font-size: 16px;
+  }
+  
+  .add-to-cart {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    bottom: 64px;
+    right: 10px;
+  }
+  
+  .items::before {
+    padding: 4px 10px;
+    font-size: 11px;
+    top: 10px;
+    left: 10px;
   }
 }

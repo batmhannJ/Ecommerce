@@ -84,17 +84,78 @@ h1 {
 }
 
 .status-badge {
-  display: inline-block;
-  padding: 8px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
   border-radius: 20px;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 12px;
   text-transform: uppercase;
+  border: 1px solid transparent;
 }
 
-.status-pending { background: #f1c40f; color: #fff; }
-.status-completed { background: #2ecc71; color: #fff; }
-.status-cancelled { background: #e74c3c; color: #fff; }
+.status-badge::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-cart-processing {
+  background: #F0F6FF;
+  color: #0E6FFF;
+  border-color: #0E6FFF;
+}
+.status-cart-processing::before {
+  background: #0E6FFF;
+}
+
+.status-pending { 
+  background: #FFF4E5; 
+  color: #FF9F06;
+  border-color: #FF9F06;
+}
+.status-pending::before {
+  background: #FF9F06;
+}
+
+.status-delivered { 
+  background: #E6F7F0; 
+  color: #00D277;
+  border-color: #00D277;
+}
+.status-delivered::before {
+  background: #00D277;
+}
+
+.status-processing { 
+  background: #F0F0F0; 
+  color: #6F6F6F;
+  border-color: #6F6F6F;
+}
+.status-processing::before {
+  background: #6F6F6F;
+}
+
+.status-cancelled { 
+  background: #FFE5E5; 
+  color: #FF4D4D;
+  border-color: #FF4D4D;
+}
+.status-cancelled::before {
+  background: #FF4D4D;
+}
+
+.status-completed { 
+  background: #E6F7F0; 
+  color: #00D277; 
+  border-color: #00D277;
+}
+.status-completed::before {
+  background: #00D277;
+}
 
 /* Responsive Adjustments */
 @media (max-width: 1024px) {
@@ -106,7 +167,7 @@ h1 {
 @media (max-width: 768px) {
   .my-order-container {
     padding: 20px;
-  max-width: 100%;
+    max-width: 100%;
   }
 
   .order-table th, .order-table td {

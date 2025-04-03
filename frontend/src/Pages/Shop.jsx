@@ -50,7 +50,6 @@ const Shop = () => {
     <div>
       <Hero/>
       <Offers/>
-      <About/>
       <NewCollections/>
       <Rider/>
     </div>

@@ -203,20 +203,28 @@
     gap: 10px;
   }
   
-  /* Clear Filters Button */
   .clear-filters {
-    margin-top: 10px;
-    color: #0066c0;
-    background: none;
+    padding: 0.6rem 1.25rem;
+    background-color: #5474B4; /* Blue color from the image */
+    color: white;
     border: none;
-    text-decoration: underline;
+    border-radius: var(--border-radius-md);
+    font-weight: 500;
+    font-size: 0.875rem;
     cursor: pointer;
-    font-size: 14px;
-    padding: 0;
+    transition: var(--transition-speed);
     text-align: center;
-    width: 100%;
+    box-shadow: var(--shadow-sm);
   }
   
+  .clear-filters:hover {
+    background-color: #4A6AA8; /* Slightly darker blue for hover */
+  }
+  
+  /* Remove the previous icon if you don't want it */
+  .clear-filters::before {
+    content: none;
+  }
   /* Responsive adjustments for sidebar */
   @media (max-width: 1024px) {
     .sidebar {

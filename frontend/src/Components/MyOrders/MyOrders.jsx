@@ -213,7 +213,7 @@ useEffect(() => {
                     <td>{order.date}</td>
                     <td>{order.item}</td>
                     <td>{order.quantity}</td>
-                    <td>${order.amount}</td>
+                    <td>₱{order.amount}</td>
                     <td>
                       <span className={`status-badge status-${order.status.toLowerCase()}`}>
                         {order.status}

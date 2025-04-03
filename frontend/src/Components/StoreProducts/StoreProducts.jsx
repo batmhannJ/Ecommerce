@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Item from "../Item/Item";
-import Sidebar from "../Shop/Sidebar";
 import CategoryHeader from "./Category"; // Import the new component
 import "./StoreProducts.css";
 
@@ -30,7 +29,7 @@ const StoreProducts = () => {
     fetch(`http://localhost:4000/store-products/${id}`)
       .then((response) => {
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+          throw new Error(`HTTP error! Status: ${response.status}`); 
         }
         return response.json();
       })
@@ -142,16 +141,6 @@ const StoreProducts = () => {
         {isMobileFilterOpen ? "Hide Filters" : "Show Filters"}
       </button>
       
-      {/* Sidebar with filters */}
-      <aside className={`shop-sidebar ${isMobileFilterOpen ? 'open' : ''}`}>
-        <Sidebar 
-          priceRange={priceRange}
-          setPriceRange={setPriceRange}
-          brands={allBrands}
-          selectedBrands={selectedBrands}
-          setSelectedBrands={setSelectedBrands}
-        />
-      </aside>
       
       {/* Main content area */}
       <main className="shop-main">

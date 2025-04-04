@@ -22,6 +22,7 @@ const transactionRoutes = require("./routes/transactionRoute");
 const productRoute = require("./routes/productRoute");
 const cartRoute = require("./routes/cartRoute");
 const riderRoutes = require('./routes/riderRoute');
+const shopRoutes = require('./routes/shopRoute');
 const { signup } = require("./controllers/sellerController");
 const { getUsers } = require("./controllers/userController");
 const { searchAdmin } = require("./controllers/adminController");
@@ -1268,6 +1269,33 @@ app.delete("/api/products/:id", async (req, res) => {
 });
 
 
+app.get('/api/page', async (req, res) => {
+    console.log("Shop route accessed");
+    console.log("SHOP ROUTEEEEEE");
+
+    try {
+        const { municipality } = req.query;
+
+        if (!municipality) {
+            return res.status(400).json({ error: "Municipality parameter is required" });
+        }
+
+        console.log("Searching for shops in:", municipality);
+        
+        // Use regex for partial match instead of exact match
+        const sellers = await Seller.find({
+            businessLocation: { $regex: municipality, $options: 'i' },  // Case-insensitive partial match
+            isApproved: true
+        }).select('shopName businessLocation image rating reviewCount minOrder freeDeliveryMinimum');
+
+        console.log(`Found ${sellers.length} approved shops matching "${municipality}"`);
+        
+        res.json(sellers);
+    } catch (error) {
+        console.error("Error fetching shops:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
 
 
 //======================== M O B I L E ==================================//
@@ -1782,3 +1810,5 @@ app.use("/api", sellerRouter);
 app.use("/api", userRoutes);
 app.use('/api/rider', riderRoutes);
 app.use("/api", riderRoutes);
+app.use('/api', shopRoutes);
+//app.use('/api/shops', shopRoutes);

@@ -14,7 +14,6 @@ const getUserIdFromToken = () => {
   return null;
 };
 
-
 const getTotalCartAmount = () => {
   const cartDetails = JSON.parse(localStorage.getItem("cartDetails"));
   if (!cartDetails) return 0;
@@ -31,48 +30,49 @@ const MyOrders = () => {
   const userId = getUserIdFromToken();
   const status = params.get("status");
   const message = params.get("message");
-// Define the `data` state to hold user details
-const [data, setData] = useState({
-  firstName: "",
-  lastName: "",
-  email: "",
-  street: "",
-  city: "",
-  state: "",
-  zipcode: "",
-  country: "",
-  phone: "",
-});
+  
+  // Define the `data` state to hold user details
+  const [data, setData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    street: "",
+    barangay: "",
+    city: "",
+    state: "",
+    zipcode: "",
+    country: "",
+    phone: "",
+  });
 
+  const handleTransactionStatus = (status) => {
+    switch (status) {
+      case "failed":
+        toast.warn("The transaction Failed.");
+        break;
+      case "success":
+        toast.success("The transaction has been processed successfully.");
+        break;
+      case "cancelled":
+        toast.info("The transaction has been cancelled.");
+        break;
+      default:
+    }
+  };
+  
+  useEffect(() => {
+    // Fetch user data from localStorage
+    const storedUserData = localStorage.getItem("userData");
+    console.log("Fetched userData from localStorage:", storedUserData); // Debug log
 
-const handleTransactionStatus = (status) => {
-  switch (status) {
-    case "failed":
-      toast.warn("The transaction Failed.");
-      break;
-    case "success":
-      toast.success("The transaction has been processed successfully.");
-      break;
-    case "cancelled":
-      toast.info("The transaction has been cancelled.");
-      break;
-    default:
-  }
-};
-useEffect(() => {
-  // Fetch user data from localStorage
-  const storedUserData = localStorage.getItem("userData");
-  console.log("Fetched userData from localStorage:", storedUserData); // Debug log
-
-  if (storedUserData) {
-    const parsedUserData = JSON.parse(storedUserData);
-    setData(parsedUserData); // Set the `data` state
-  } else {
-    console.error("userData not found in localStorage.");
-    //toast.error("User data not found. Please ensure you are logged in.");
-  }
-}, []);
-
+    if (storedUserData) {
+      const parsedUserData = JSON.parse(storedUserData);
+      setData(parsedUserData); // Set the `data` state
+    } else {
+      console.error("userData not found in localStorage.");
+      toast.error("User data not found. Please ensure you are logged in.");
+    }
+  }, []);
 
   useEffect(() => {
     handleTransactionStatus(status);
@@ -84,30 +84,71 @@ useEffect(() => {
   const handlePostPaymentActions = async () => {
     const referenceNumber = localStorage.getItem("referenceNumber");
     const cartDetails = JSON.parse(localStorage.getItem("cartDetails"));
-    const deliveryFee = parseFloat(localStorage.getItem("deliveryFee"));
+    const deliveryFee = parseFloat(localStorage.getItem("deliveryFee")) || 0;
     const storedUserData = localStorage.getItem("userData");
+    // Get rider ID from localStorage if available, or use default value
+    const riderId = localStorage.getItem("riderId") || "unassigned";
 
     console.log("Reference Number:", referenceNumber);
     console.log("Cart Details:", cartDetails);
     console.log("Delivery Fee:", deliveryFee);
     console.log("User Data:", storedUserData);
+    console.log("Rider ID:", riderId);
+    
+    if (!cartDetails || cartDetails.length === 0) {
+      console.error("Cart details are missing or empty");
+      toast.error("Cart details are missing. Cannot process order.");
+      return;
+    }
+    
+    if (!referenceNumber) {
+      console.error("Reference number is missing");
+      toast.error("Reference number is missing. Cannot process order.");
+      return;
+    }
+    
     const userData = storedUserData ? JSON.parse(storedUserData) : null;
+    
+    if (!userData) {
+      console.error("User data is missing");
+      toast.error("User data is missing. Cannot process order.");
+      return;
+    }
 
     try {
-      // Save transaction details to the backend
-      await axios.post("http://localhost:4000/api/transactions", {
+      // Format phone number with country code if needed
+      const formattedPhone = userData.phone.startsWith("+") ? 
+        userData.phone : 
+        `+63${userData.phone.startsWith("0") ? userData.phone.substring(1) : userData.phone}`;
+      
+      // Format complete address including barangay
+      const formattedAddress = `${userData.street}, ${userData.barangay}, ${userData.city}, ${userData.state}, ${userData.zipcode}, ${userData.country}`;
+      
+      // Calculate total amount
+      const totalAmount = getTotalCartAmount() + deliveryFee;
+      
+      const transactionData = {
         transactionId: referenceNumber,
         date: new Date(),
         name: `${userData.firstName} ${userData.lastName}`,
-        contact: userData.phone,
+        contact: formattedPhone,
+        email: userData.email,
         item: cartDetails.map((item) => item.name).join(", "),
         quantity: cartDetails.reduce((sum, item) => sum + item.quantity, 0),
-        amount: getTotalCartAmount() + deliveryFee,
+        amount: totalAmount,
         deliveryFee: deliveryFee,
-        address: `${userData.street} ${userData.city} ${userData.state} ${userData.zipcode} ${userData.country}`,
+        address: formattedAddress,
         status: "Pending",
         userId: userId,
-      });
+        riderId: riderId,  // ADD THIS REQUIRED FIELD
+      };
+      
+      console.log("Sending transaction data:", transactionData);
+      
+      // Save transaction details to the backend
+      const response = await axios.post("http://localhost:4000/api/transactions", transactionData);
+      
+      console.log("Transaction saved successfully:", response.data);
 
       // Update stock information
       await axios.post("http://localhost:4000/api/updateStock", {
@@ -126,14 +167,45 @@ useEffect(() => {
       localStorage.removeItem("cartDetails");
       localStorage.removeItem("referenceNumber");
       localStorage.removeItem("deliveryFee");
+      localStorage.removeItem("riderId"); // Remove riderId if it was set
       toast.success("Order successfully placed!");
+      
+      // Refresh orders list
+      fetchOrders();
+      
     } catch (error) {
       console.error("Post-payment error:", error);
-      //toast.error("Failed to process order. Please contact support.");
+      
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        console.error("Error response data:", error.response.data);
+        console.error("Error response status:", error.response.status);
+        
+        // Check if we have detailed validation errors
+        if (error.response.data && error.response.data.errors) {
+          const errorFields = Object.keys(error.response.data.errors).join(", ");
+          toast.error(`Missing required fields: ${errorFields}. Please contact support.`);
+        } else {
+          toast.error(`Failed to process order: ${error.response.data.message || 'Server error'}`);
+        }
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error("Error request:", error.request);
+        toast.error("Failed to connect to server. Please check your connection.");
+      } else {
+        // Something happened in setting up the request
+        toast.error(`Error: ${error.message}`);
+      }
     }
   };
 
   const fetchOrders = async () => {
+    if (!userId) {
+      console.error("User ID not available");
+      setLoading(false);
+      return;
+    }
+    
     try {
       const response = await axios.get(
         `http://localhost:4000/api/transactions/userTransactions/${userId}`
@@ -148,7 +220,7 @@ useEffect(() => {
       setOrders(sortedOrders);
     } catch (error) {
       console.error("Error fetching orders:", error);
-      //toast.error("No orders found.");
+      toast.error("Failed to fetch orders. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -171,6 +243,7 @@ useEffect(() => {
             : order
         )
       );
+      toast.info(`Order ${updatedOrder.transactionId} status updated to ${updatedOrder.status}`);
     });
 
     // Poll every 10 seconds to ensure real-time updates
@@ -183,6 +256,11 @@ useEffect(() => {
     };
   }, [userId]);
 
+  // Format date for display
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString();
+  };
 
   return (
     <div className="my-order-container">
@@ -210,10 +288,10 @@ useEffect(() => {
                 orders.map((order) => (
                   <tr key={order._id}>
                     <td>{order.transactionId}</td>
-                    <td>{order.date}</td>
+                    <td>{formatDate(order.date)}</td>
                     <td>{order.item}</td>
                     <td>{order.quantity}</td>
-                    <td>₱{order.amount}</td>
+                    <td>₱{order.amount.toFixed(2)}</td>
                     <td>
                       <span className={`status-badge status-${order.status.toLowerCase()}`}>
                         {order.status}

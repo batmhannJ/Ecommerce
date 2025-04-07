@@ -140,12 +140,12 @@ const Commission = () => {
                     <div className="w-full flex flex-col items-center space-y-1">
                       <div
                         className="w-full bg-blue-500 rounded-t"
-                        style={{ height: `${(month.seller / 1000) * 10}px` }}
+                        style={{ height: `${(month.seller / 1000) * 700}px` }}
                         title={`Seller: ₱${month.seller.toLocaleString()}`}
                       ></div>
                       <div
                         className="w-full bg-green-500 rounded-t"
-                        style={{ height: `${(month.rider / 1000) * 10}px` }}
+                        style={{ height: `${(month.rider / 1000) * 700}px` }}
                         title={`Rider: ₱${month.rider.toLocaleString()}`}
                       ></div>
                     </div>

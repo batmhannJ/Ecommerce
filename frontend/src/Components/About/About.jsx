@@ -1,11 +1,19 @@
+<<<<<<< HEAD
 import React, { useState, useEffect, useRef } from "react";
+=======
+import React, { useState, useEffect, useRef} from "react";
+import { useNavigate } from "react-router-dom";
+>>>>>>> 155078301a5bb4636f3d0cb5093178a839b94d0a
 import { FaMapMarkerAlt, FaSearch, FaTimes } from "react-icons/fa";
 import "./About.css";
 
 const LocationSelector = () => {
   const [address, setAddress] = useState("");
+<<<<<<< HEAD
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+=======
+>>>>>>> 155078301a5bb4636f3d0cb5093178a839b94d0a
   const [map, setMap] = useState(null);
   const [marker, setMarker] = useState(null);
   const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false);
@@ -14,7 +22,14 @@ const LocationSelector = () => {
     lat: 14.5995, // Default to Philippines (Manila)
     lng: 120.9842
   });
+<<<<<<< HEAD
   const [showPermissionDialog, setShowPermissionDialog] = useState(false);
+=======
+  const [municipality, setMunicipality] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const [userLocation, setUserLocation] = useState("");
+>>>>>>> 155078301a5bb4636f3d0cb5093178a839b94d0a
 
   // Check if Google Maps API is already loaded on component mount
   useEffect(() => {
@@ -26,6 +41,7 @@ const LocationSelector = () => {
     }
   }, []);
 
+<<<<<<< HEAD
   // Load Google Maps API function
   const loadGoogleMapsApi = () => {
     if (document.getElementById('google-maps-script')) return;
@@ -42,6 +58,73 @@ const LocationSelector = () => {
   };
 
   // Initialize map once Google Maps is loaded and modal is open
+=======
+  const initMap = () => {
+    if (!mapRef.current) return;
+
+    // Create a new map centered on Philippines
+    const newMap = new window.google.maps.Map(mapRef.current, {
+      center: { lat: currentLocation.lat, lng: currentLocation.lng },
+      zoom: 10,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: false
+    });
+
+    // Add a marker at the center position
+    const newMarker = new window.google.maps.Marker({
+      position: { lat: currentLocation.lat, lng: currentLocation.lng },
+      map: newMap,
+      draggable: true,
+      animation: window.google.maps.Animation.DROP
+    });
+
+    // Update address when marker is dragged
+    window.google.maps.event.addListener(newMarker, "dragend", function() {
+      const position = newMarker.getPosition();
+      setCurrentLocation({
+        lat: position.lat(),
+        lng: position.lng()
+      });
+      
+      // Get address from coordinates (reverse geocoding)
+      const geocoder = new window.google.maps.Geocoder();
+      geocoder.geocode({ location: position }, (results, status) => {
+        if (status === "OK" && results[0]) {
+          setAddress(results[0].formatted_address);
+          extractMunicipality(results[0]);
+        }
+      });
+    });
+
+    setMap(newMap);
+    setMarker(newMarker);
+  };
+
+  // Extract municipality from geocoding results
+  const extractMunicipality = (result) => {
+    if (!result) return;
+    
+    console.log("Geocoding Result:", result); // Debugging line
+  
+    const addressComponents = result.address_components;
+    let city = "";
+    
+    for (let component of addressComponents) {
+      // Look for locality (city) or administrative_area_level_2 (municipality)
+      if (component.types.includes("locality") || 
+          component.types.includes("administrative_area_level_2")) {
+        city = component.long_name;
+        break;
+      }
+    }
+    
+    console.log("Extracted Municipality:", city); // Debugging line
+    setMunicipality(city);
+  };
+  
+
+>>>>>>> 155078301a5bb4636f3d0cb5093178a839b94d0a
   useEffect(() => {
     if (showModal && googleMapsLoaded && mapRef.current) {
       initMap();
@@ -61,6 +144,7 @@ const LocationSelector = () => {
             lat: location.lat(),
             lng: location.lng()
           });
+          extractMunicipality(results[0]);
         }
       });
     }
@@ -140,6 +224,7 @@ const LocationSelector = () => {
   };
 
   const handleFindFood = () => {
+<<<<<<< HEAD
     if (!address) return;
     
     setIsLoading(true);
@@ -148,7 +233,28 @@ const LocationSelector = () => {
       setShowModal(true);
       setIsLoading(false);
     }, 500);
+=======
+    if (!municipality) {
+      alert("Please select a valid city or municipality.");
+      return;
+    }
+    
+    // Create a complete location object
+    const locationData = {
+      address: address,
+      municipality: municipality,
+      coordinates: currentLocation
+    };
+    
+    // Save to localStorage
+    localStorage.setItem("userLocation", JSON.stringify(locationData));
+    console.log("Saved to localStorage:", JSON.parse(localStorage.getItem("userLocation")));
+
+    // Navigate to shops page
+    navigate(`/shoppage?city=${encodeURIComponent(municipality)}`);
+>>>>>>> 155078301a5bb4636f3d0cb5093178a839b94d0a
   };
+  
 
   const openLocationDialog = () => {
     setShowPermissionDialog(true);
@@ -175,6 +281,7 @@ const LocationSelector = () => {
           
           setCurrentLocation(pos);
           
+<<<<<<< HEAD
           // Load Google Maps API if not already loaded
           if (!googleMapsLoaded) {
             loadGoogleMapsApi();
@@ -201,6 +308,16 @@ const LocationSelector = () => {
             // Google Maps already loaded, perform reverse geocoding
             reverseGeocode(pos);
           }
+=======
+          // Get address from coordinates
+          const geocoder = new window.google.maps.Geocoder();
+          geocoder.geocode({ location: pos }, (results, status) => {
+            if (status === "OK" && results[0]) {
+              setAddress(results[0].formatted_address);
+              extractMunicipality(results[0]);
+            }
+          });
+>>>>>>> 155078301a5bb4636f3d0cb5093178a839b94d0a
 
           // Option to remember user preference
           if (option === "always") {
@@ -240,12 +357,26 @@ const LocationSelector = () => {
 
   const confirmLocation = () => {
     setShowModal(false);
-    // Here you would typically save the address and coordinates to your app state or backend
-    console.log("Location confirmed:", {
+    
+    // Create a complete location object
+    const locationData = {
       address: address,
+      municipality: municipality,
       coordinates: currentLocation
+<<<<<<< HEAD
     });
     // Navigate to next page or perform action
+=======
+    };
+    
+    // Save to localStorage
+    localStorage.setItem("userLocation", JSON.stringify(locationData));
+    
+    // Set the user location for display
+    setUserLocation(address);
+    
+    console.log("Location confirmed:", locationData);
+>>>>>>> 155078301a5bb4636f3d0cb5093178a839b94d0a
   };
 
   // Initialize Places Autocomplete on main search input
@@ -356,7 +487,27 @@ const LocationSelector = () => {
             </div>
           </div>
         </div>
+<<<<<<< HEAD
       )}
+=======
+        
+        <button 
+          className="find-food-button"
+          onClick={handleFindFood}
+          disabled={!address || isLoading}
+        >
+          {isLoading ? (
+            <div className="loading-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          ) : (
+            "Find Shop"
+          )}
+        </button>
+      </div>
+>>>>>>> 155078301a5bb4636f3d0cb5093178a839b94d0a
 
       {/* Map Modal */}
       {showModal && (

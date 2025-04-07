@@ -29,7 +29,7 @@ import StoreProducts from "./Components/StoreProducts/StoreProducts";
 import Shops from "./Components/Shop/Shop";
 import Category from "./Components/StoreProducts/Category";
 import Rider from "./Components/Rider/Rider";
-
+import ShopPage from "./Components/ShopPage/ShopPage";
 
 import {
   regions,
@@ -108,7 +108,7 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/login" element={<LoginSignup />} />
         <Route path="/business-signup" element={<SLoginSignup />} />
-        <Route path="/login-signup" element={<RLoginSignup />} />
+        <Route path="/riders" element={<RLoginSignup />} />
         <Route path="/order" element={<PlaceOrder />} />
         <Route path="/verify" element={<Verify />} />
         <Route path="/myorders" element={<MyOrders />} />
@@ -125,6 +125,7 @@ function App() {
         <Route path="/search-results" element={<SearchResults />} />
         <Route path="/partner" element={<Partner />} />
         <Route path="/store/:id" element={<StoreProducts />} />
+        <Route path="/shoppage" element={<ShopPage />} />
       </Routes>
       <Footer />
     </BrowserRouter>

@@ -410,6 +410,44 @@ const generatePDF = async () => {
   doc.save("dashboard_metrics.pdf");
 };
 
+// Function to export data to XLSX
+// Function to export data to XLSX
+const generateXLSX = async () => {
+  try {
+    // Dynamically import the xlsx library
+    const XLSX = await import('xlsx');
+    
+    // Create a new workbook
+    const wb = XLSX.utils.book_new();
+    
+    // Rest of your code remains the same...
+    
+    // Prepare the summary data
+    const summaryData = [
+      ['BizGo Sales Report'],
+      [`As of: ${new Date().toLocaleDateString()}`],
+      [''],
+      ['Total Revenue', `₱${totalRevenue}`],
+      ['Average Order Value', `₱${salesData.avgOrderValue.toFixed(2)}`],
+      ['Most Purchased Product', salesData.mostProducedProduct || 'N/A'],
+      ['']
+    ];
+    
+    // Create summary worksheet
+    const summaryWS = XLSX.utils.aoa_to_sheet(summaryData);
+    XLSX.utils.book_append_sheet(wb, summaryWS, 'Summary');
+    
+    // Rest of your code...
+    
+    // Save the Excel file
+    XLSX.writeFile(wb, 'bizgo_sales_data.xlsx');
+    
+    console.log('Excel file generated successfully');
+  } catch (error) {
+    console.error('Error generating Excel file:', error);
+  }
+};
+
 
 
   return (
@@ -441,37 +479,11 @@ const generatePDF = async () => {
             </div>
         </div>
         <div className="export-button-container">
-              {/* Export Button */}
+              {/* Export Buttons */}
               <button className="action-button view" onClick={generatePDF}>Export to PDF</button>
+              <button className="action-button view" onClick={generateXLSX}>Export to XLSX</button>
             </div>
                 <div className='chart-container'>
-
-                {/*<h2>Sales Growth Visualization (3D Ribbon Plot)</h2>
-                  <Plot
-                    data={
-                      ribbonData.length > 0
-                        ? ribbonData.map((item) => ({
-                            x: item.x,
-                            y: item.y,
-                            z: item.z,
-                            type: "surface",
-                            colorscale: item.colorscale,
-                            showscale: false,
-                          }))
-                        : []
-                    }
-                    layout={{
-                      title: "Ribbon Plot",
-                      autosize: true,
-                      width: 700,
-                      height: 500,
-                      scene: {
-                        xaxis: { title: "Sample #" },
-                        yaxis: { title: "Wavelength" },
-                        zaxis: { title: "OD" },
-                      },
-                    }}
-                  />
             {/* Sales Growth Rate Graph */}
             <div className='chart1'>
                 <h3>Sales Growth Rate</h3>
@@ -491,13 +503,6 @@ const generatePDF = async () => {
             <Bar data={salesByProduct} />
         </div>
         </div>
-
-
-        {/* Top Purchases Product Graph 
-        <div className='chart'>
-            <h3>Top Purchases Product</h3>
-            <Bar data={topPurchasesProduct} />
-        </div>*/}
     </div>
   );
 };

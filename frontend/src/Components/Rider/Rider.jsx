@@ -1,15 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Rider.css';
-import rider from "../Assets/banner.png";
 
 const RiderV2 = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('benefits');
-
-  const handleJoinTeamClick = () => {
-    navigate('/login-signup');
-  };
 
   const navigateToRidersPage = () => {
     navigate('/riders');

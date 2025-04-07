@@ -1,0 +1,138 @@
+.shops-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .shops-page-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .back-button {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 14px;
+    cursor: pointer;
+    margin-right: 15px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+  
+  .back-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  .shops-page-header h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+  }
+  
+  .current-location-banner {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .location-icon {
+    color: #ff5a5f;
+    margin-right: 12px;
+    font-size: 20px;
+  }
+  
+  .location-details {
+    flex: 1;
+  }
+  
+  .location-address {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .location-municipality {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: #666;
+  }
+  
+  .shops-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 50px 0;
+    text-align: center;
+  }
+  
+  .loading-spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top: 4px solid #ff5a5f;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .error-container, .no-shops-container {
+    text-align: center;
+    padding: 40px 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .retry-button, .change-location-button {
+    background-color: #ff5a5f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background-color 0.2s;
+  }
+  
+  .retry-button:hover, .change-location-button:hover {
+    background-color: #ff4448;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .shops-grid {
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .shops-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .shops-page {
+      padding: 15px;
+    }
+  }

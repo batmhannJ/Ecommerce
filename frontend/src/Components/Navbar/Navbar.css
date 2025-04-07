@@ -2,6 +2,7 @@
   position: sticky;
   top: 0;
   z-index: 1000;
+  width: 100%;
 }
 
 .navbar {
@@ -12,6 +13,8 @@
   align-items: center;
   background-color: #fff;
   flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .nav-logo {
@@ -44,6 +47,8 @@
   color: #626262;
   font-size: 18px;
   font-weight: 500;
+  margin: 0;
+  padding: 0;
 }
 
 .nav-menu li {
@@ -182,6 +187,7 @@
   transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
   overflow: hidden;
   border: 1px solid #e6e6e6;
+  z-index: 1100;
 }
 
 .profile-menu-visible {
@@ -209,6 +215,7 @@
 
 .profile-menu-user-info {
   flex-grow: 1;
+  overflow: hidden;
 }
 
 .profile-menu-username {
@@ -216,12 +223,18 @@
   font-weight: bold;
   margin: 0;
   color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .profile-menu-email {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.8);
   margin: 5px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .profile-menu-divider {
@@ -277,6 +290,8 @@
   cursor: pointer;
   width: 30px;
   height: 30px;
+  border: none;
+  background: transparent;
 }
 
 .business-account-banner {
@@ -289,6 +304,8 @@
   font-weight: bold;
   font-size: 18px;
   position: relative;
+  flex-wrap: wrap;
+  text-align: center;
 }
 
 .business-signup-btn {
@@ -303,6 +320,7 @@
   transition: all 0.3s ease-in-out;
   cursor: pointer;
   margin-left: 10px;
+  white-space: nowrap;
 }
 
 .business-signup-btn:hover {
@@ -339,7 +357,7 @@
 /* Media Queries */
 @media (max-width: 1280px) {
   .navbar {
-    padding: 12px 40px;
+    padding: 12px 3%;
   }
 
   .nav-logo p {
@@ -358,7 +376,7 @@
 
 @media (max-width: 1024px) {
   .navbar {
-    padding: 12px 20px;
+    padding: 12px 2%;
   }
 
   .nav-menu {
@@ -367,19 +385,20 @@
   }
 
   .nav-login-cart button {
-    width: 70px;
-    height: 30px;
+    width: 90px;
+    height: 34px;
     font-size: 14px;
   }
 
   .nav-profile-icon {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
   }
 
   .nav-login-cart img {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
+    padding: 6px;
   }
 
   .nav-cart-count {
@@ -391,28 +410,101 @@
   }
 }
 
+/* Enhanced Mobile Styles */
 @media (max-width: 800px) {
   .navbar {
-    padding: 10px 0;
+    padding: 10px 3%;
+    position: relative;
   }
 
   .nav-menu-dropdown {
-    display: block;
-    width: 28px;
-    height: 28px;
-    transition: 0.5s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 12px;
+    transition: all 0.3s ease;
     cursor: pointer;
     transform: rotate(-90deg);
+    background-color: #f0f4f8;
+    height: 36px;
+    width: 36px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 200;
   }
 
   .nav-menu {
     display: none;
-    height: 70px;
+    flex-direction: column;
+    height: auto;
     width: 100%;
     position: absolute;
     background-color: white;
     justify-content: center;
-    top: 50px;
+    top: 100%;
+    left: 0;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    padding: 15px 0;
+    gap: 8px;
+    z-index: 100;
+    border-radius: 0 0 16px 16px;
+    animation: slideDown 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+    transform-origin: top center;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px) scaleY(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scaleY(1);
+    }
+  }
+
+  .nav-menu li {
+    width: 100%;
+    text-align: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+    transform: translateY(20px);
+    opacity: 0;
+    animation: fadeInItem 0.5s forwards;
+  }
+
+  @keyframes fadeInItem {
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .nav-menu li:nth-child(1) { animation-delay: 0.1s; }
+  .nav-menu li:nth-child(2) { animation-delay: 0.2s; }
+  .nav-menu li:nth-child(3) { animation-delay: 0.3s; }
+  .nav-menu li:nth-child(4) { animation-delay: 0.4s; }
+  .nav-menu li:nth-child(5) { animation-delay: 0.5s; }
+
+  .nav-menu li:last-child {
+    border-bottom: none;
+  }
+
+  .nav-menu li a {
+    justify-content: center;
+    color: #5b7fa7;
+    font-weight: 600;
+    padding: 8px 0;
+    transition: all 0.3s ease;
+  }
+
+  .nav-menu li a:hover {
+    color: #007aff;
+    transform: translateX(5px);
+  }
+
+  .nav-menu hr {
+    display: none;
   }
 
   .nav-menu-visible {
@@ -421,54 +513,105 @@
 
   .nav-menu-dropdown.open {
     transform: rotate(0deg);
+    background-color: #e6eef7;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
   }
 
   .profile-menu {
-    width: 250px;
+    width: 280px;
     right: 10px;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    border: none;
   }
 
   .profile-menu-header {
-    padding: 15px;
+    padding: 16px;
+    background: linear-gradient(135deg, #5b7fa7 0%, #4a6a93 100%);
   }
 
   .profile-menu-avatar {
-    width: 50px;
-    height: 50px;
+    width: 54px;
+    height: 54px;
+    border: 3px solid white;
+  }
+
+  .business-account-banner {
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px 10px;
+    background: linear-gradient(135deg, #5b7fa7 0%, #4a6a93 100%);
+  }
+
+  .business-signup-btn {
+    margin-left: 0;
+    margin-top: 8px;
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-size: 14px;
+    transform-origin: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   }
 }
 
 @media (max-width: 500px) {
   .navbar {
-    padding: 8px 0;
-    gap: 0;
+    padding: 10px 12px;
+    justify-content: space-between;
   }
 
   .nav-logo {
     transform: scale(0.9);
+    margin-left: -5px;
   }
 
-  .nav-menu {
-    height: 60px;
-    top: 50px;
+  .nav-logo p {
+    font-size: 24px;
+  }
+
+  .nav-logo img {
+    width: 32px;
   }
 
   .nav-login-cart {
-    transform: scale(0.9);
+    gap: 12px;
+  }
+
+  .nav-login-cart button {
+    width: 80px;
+    font-size: 13px;
+    height: 32px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #7395AE 0%, #5b7fa7 100%);
+    box-shadow: 0 3px 8px rgba(91, 127, 167, 0.4);
+  }
+
+  .nav-login-cart button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(91, 127, 167, 0.5);
   }
 
   .nav-menu-dropdown {
-    transform: scale(0.9);
-    transform: rotate(-90deg);
+    transform: scale(0.9) rotate(-90deg);
+    width: 34px;
+    height: 34px;
+    margin-right: 8px;
   }
 
   .nav-menu-dropdown.open {
-    transform: rotate(0deg);
+    transform: scale(0.9) rotate(0deg);
+  }
+
+  .nav-menu {
+    padding: 10px 0 20px;
+    max-height: 85vh;
+    overflow-y: auto;
   }
 
   .profile-menu {
-    width: 220px;
-    right: 5px;
+    width: 260px;
+    right: -5px;
+    max-width: 95vw;
   }
 
   .profile-menu-header {
@@ -476,28 +619,191 @@
   }
 
   .profile-menu-avatar {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
   }
 
   .profile-menu-username {
-    font-size: 14px;
+    font-size: 15px;
   }
 
   .profile-menu-email {
-    font-size: 11px;
-  }
-
-  .profile-menu button {
-    padding: 10px 15px;
     font-size: 12px;
   }
 
+  .profile-menu button {
+    padding: 12px 15px;
+    font-size: 13px;
+  }
+
   .nav-cart-count {
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+    top: -5px;
+    right: -5px;
+    border-width: 1px;
+  }
+  
+  .nav-login-cart img {
+    width: 38px;
+    height: 38px;
+    padding: 7px;
+    border-radius: 10px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  }
+  
+  /* Animation for profile and cart interactions */
+  .nav-login-cart img:active {
+    transform: scale(0.9);
+  }
+}
+
+@media (max-width: 360px) {
+  .navbar {
+    padding: 8px 10px;
+  }
+
+  .nav-logo {
+    transform: scale(0.8);
+  }
+
+  .nav-login-cart {
+    gap: 10px;
+    transform: scale(0.9);
+  }
+
+  .nav-login-cart button {
+    width: 70px;
+    font-size: 12px;
+    height: 30px;
+    padding: 0;
+  }
+
+  .nav-menu-dropdown {
+    transform: scale(0.8) rotate(-90deg);
+    margin-right: 5px;
+  }
+
+  .nav-menu-dropdown.open {
+    transform: scale(0.8) rotate(0deg);
+  }
+
+  .business-account-banner {
+    font-size: 14px;
+    padding: 12px 5px;
+    line-height: 1.3;
+  }
+
+  .business-signup-btn {
+    padding: 8px 16px;
+    font-size: 12px;
+    border-radius: 30px;
+    margin-top: 5px;
+  }
+
+  .truck-icon {
+    font-size: 24px;
+    margin-right: 8px;
+  }
+  
+  .profile-menu {
+    width: 240px;
+    max-width: 95vw;
+  }
+  
+  .profile-menu button {
+    padding: 10px 12px;
+    font-size: 12px;
+    gap: 8px;
+  }
+  
+  .profile-menu-avatar {
+    width: 40px;
+    height: 40px;
+  }
+  
+  /* Bottom sheet style for mobile menu */
+  .nav-menu {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -5px 25px rgba(0,0,0,0.2);
+    transform: translateY(100%);
+    animation: none;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1000;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+  }
+  
+  /* Show menu with transition */
+  .nav-menu-visible {
+    transform: translateY(0);
+    display: flex;
+  }
+  
+  /* Backdrop for mobile menu */
+  .menu-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 900;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+  }
+  
+  .menu-backdrop-visible {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  /* Add a grab handle for the bottom sheet */
+  .nav-menu::before {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 5px;
+    background-color: #ddd;
+    border-radius: 10px;
+    margin: 8px auto;
+  }
+  
+  /* Add swipe up arrow indicator */
+  .nav-menu::after {
+    content: '';
+    display: block;
     width: 20px;
     height: 20px;
-    font-size: 10px;
-    top: -6px;
-    right: -6px;
+    border-top: 3px solid #5b7fa7;
+    border-right: 3px solid #5b7fa7;
+    transform: rotate(-45deg);
+    margin: 5px auto 15px;
+    opacity: 0.7;
+    animation: pulseUpArrow 1.5s infinite;
   }
+  
+  @keyframes pulseUpArrow {
+    0% { transform: rotate(-45deg) scale(1); opacity: 0.7; }
+    50% { transform: rotate(-45deg) scale(1.2); opacity: 1; }
+    100% { transform: rotate(-45deg) scale(1); opacity: 0.7; }
+  }
+}
+
+/* Add JavaScript compatibility classes */
+.body-no-scroll {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
 }

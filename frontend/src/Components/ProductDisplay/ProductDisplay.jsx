@@ -197,7 +197,7 @@ const ProductDisplay = (props) => {
         <div
           className={`productdisplay-tab-content ${activeTab === "details" ? "active" : ""}`}
         >
-          <h1 className="product-name">{product.name}</h1>
+          <h1 className="name">{product.name}</h1>
           <p className="product-description">{product.description}</p>
 
           {/* If Gadgets or Food, show quantity selector + Add to Cart */}

@@ -661,12 +661,11 @@
   letter-spacing: 0.5px;
 }
 
-.product-name {
+.product-name1 {
   margin: 0;
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-size: 1.2rem;
+  font-weight: 700;
   color: var(--text-primary);
-  cursor: pointer;
   transition: var(--transition-speed);
   line-height: 1.4;
   overflow: hidden;
@@ -674,10 +673,6 @@
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-}
-
-.product-name:hover {
-  color: var(--button-color);
 }
 
 /* Rating display */

@@ -2,6 +2,7 @@ import React from 'react';
 import './Sidebar.css';
 import { Link } from 'react-router-dom';
 import dashboard from '../../assets/dashboard.png';
+import commission from '../../assets/dashboard.png';
 import list_product_icon from '../../assets/list_product_icon.png';
 import order_product_icon from '../../assets/order_product_icon.png';
 import user_management_icon from '../../assets/user_management_icon.png'; // Add this line
@@ -16,6 +17,12 @@ export const Sidebar = () => {
         <div className="sidebar-item">
           <img src={dashboard} alt="Dashboard" />
           <p>Dasboard</p>
+        </div>
+      </Link>
+      <Link to='/admin/commission' style={{ textDecoration: 'none' }}>
+        <div className="sidebar-item">
+          <img src={commission} alt="Commission" />
+          <p>Commission</p>
         </div>
       </Link>
       <Link to='/admin/listproduct' style={{ textDecoration: 'none' }}>

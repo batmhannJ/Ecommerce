@@ -36,8 +36,8 @@ export const PlaceOrder = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { itemDetails } = location.state || {};
-
   const [transactionId, setTransactionId] = useState(null);
+  const [markupValue, setMarkupValue] = useState(0); // Added state for markup value
   const [data, setData] = useState({
     firstName: "",
     lastName: "",
@@ -242,13 +242,17 @@ export const PlaceOrder = () => {
     }
   
     const referenceNumber = generateReferenceNumber();
-    const cartDetails = itemDetails.map((item) => ({
-      id: item.id,
-      name: item.name,
-      price: item.price || item.adjustedPrice,
-      quantity: item.quantity,
-      size: item.size,
-    }));
+    const cartDetails = itemDetails.map((item) => {
+      const product = all_product.find((p) => p.id === item.id); // Hanapin ang product sa all_product
+      return {
+        id: item.id,
+        name: item.name,
+        price: item.price || item.adjustedPrice,
+        quantity: item.quantity,
+        size: item.size,
+        markup_value: product?.markup_value || 0, // Kunin ang markup_value, default to 0 kung wala
+      };
+    });
   
     const paymongoUrl = "https://api.paymongo.com/v1";
     const secretKey = process.env.REACT_APP_PAYMONGO_SECRET_KEY;

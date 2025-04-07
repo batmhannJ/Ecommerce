@@ -44,7 +44,12 @@ const ProductSchema = new mongoose.Schema({
   },
   old_price: {
     type: Number,
-    required: true,
+  },
+  markup_price: {
+    type: Number,
+  },
+  markup_value: { 
+    type: Number,
   },
   s_stock: {
     type: Number,
@@ -85,13 +90,44 @@ ProductSchema.virtual("totalStock").get(function () {
   return this.s_stock + this.m_stock + this.l_stock + this.xl_stock;
 });
 
-// Middleware to handle stock calculation
+// Middleware to handle stock calculation and category-based markup price
 ProductSchema.pre("save", function (next) {
-  if (this.category === "clothes") {
-    // For clothing, calculate stock as the sum of sizes
+  // Calculate markup percentage based on category
+  let markupPercentage;
+  
+  switch(this.category.toLowerCase()) {
+    case 'gadget':
+    case 'gadgets':
+      markupPercentage = 0.01; // 1% for gadgets
+      break;
+    case 'food':
+    case 'foods':
+      markupPercentage = 0.10; // 10% for food
+      break;
+    case 'cloth':
+    case 'clothes':
+    case 'clothing':
+      markupPercentage = 0.02; // 2% for clothes
+      break;
+    default:
+      markupPercentage = 0.05; // Default markup of 5% for other categories
+  }
+  
+  // Calculate markup_price as new_price + (percentage of new_price)
+  const markup = this.new_price * markupPercentage;
+  this.markup_value = markup;
+  this.markup_price = this.new_price + markup;
+  
+  // Round markup_price to 2 decimal places for currency
+  this.markup_price = Math.round(this.markup_price * 100) / 100;
+  
+  // For clothing, calculate stock as the sum of sizes
+  if (this.category.toLowerCase() === "clothes" || 
+      this.category.toLowerCase() === "cloth" || 
+      this.category.toLowerCase() === "clothing") {
     this.stock = this.totalStock;
   }
-  // For other categories (e.g., gadgets), keep the stock value as provided
+  
   next();
 });
 

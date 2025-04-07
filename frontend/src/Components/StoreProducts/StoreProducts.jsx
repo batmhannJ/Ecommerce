@@ -81,7 +81,7 @@ const StoreProducts = () => {
   // Apply price filter
   filteredProducts = filteredProducts.filter(item => {
     const productData = item._doc || item;
-    const price = parseFloat(productData.new_price) || 0;
+    const price = parseFloat(productData.markup_price) || 0;
     return price >= priceRange[0] && price <= priceRange[1];
   });
   
@@ -90,13 +90,13 @@ const StoreProducts = () => {
     filteredProducts.sort((a, b) => {
       const aData = a._doc || a;
       const bData = b._doc || b;
-      return parseFloat(aData.new_price) - parseFloat(bData.new_price);
+      return parseFloat(aData.markup_price) - parseFloat(bData.markup_price);
     });
   } else if (sortBy === "price-high-low") {
     filteredProducts.sort((a, b) => {
       const aData = a._doc || a;
       const bData = b._doc || b;
-      return parseFloat(bData.new_price) - parseFloat(aData.new_price);
+      return parseFloat(bData.markup_price) - parseFloat(aData.markup_price);
     });
   } else if (sortBy === "newest") {
     filteredProducts.sort((a, b) => {
@@ -203,7 +203,7 @@ const StoreProducts = () => {
                   id={_doc.id}
                   name={_doc.name}
                   image={`http://localhost:4000/upload/images/${_doc.image}`}
-                  new_price={_doc.new_price}
+                  markup_price={_doc.markup_price}
                   old_price={_doc.old_price}
                   stock={_doc.stock}
                 />

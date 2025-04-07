@@ -24,9 +24,9 @@ const Shop = ({ products }) => {
   
   // Apply sorting
   if (sortBy === "price-low-high") {
-    filteredProducts.sort((a, b) => a.new_price - b.new_price);
+    filteredProducts.sort((a, b) => a.markup_price - b.markup_price);
   } else if (sortBy === "price-high-low") {
-    filteredProducts.sort((a, b) => b.new_price - a.new_price);
+    filteredProducts.sort((a, b) => b.markup_price - a.markup_price);
   } else if (sortBy === "newest") {
     filteredProducts.sort((a, b) => new Date(b.date) - new Date(a.date));
   } else if (sortBy === "rating") {
@@ -111,7 +111,7 @@ const Shop = ({ products }) => {
                   id={item.id}
                   name={item.name}
                   image={item.image}
-                  new_price={item.new_price}
+                  markup_price={item.markup_price}
                   old_price={item.old_price}
                   brand={item.brand}
                   rating={item.rating}

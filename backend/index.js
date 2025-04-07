@@ -23,6 +23,7 @@ const productRoute = require("./routes/productRoute");
 const cartRoute = require("./routes/cartRoute");
 const riderRoutes = require('./routes/riderRoute');
 const shopRoutes = require('./routes/shopRoute');
+const commissionRoutes = require('./routes/commissionRoute');
 const { signup } = require("./controllers/sellerController");
 const { getUsers } = require("./controllers/userController");
 const { searchAdmin } = require("./controllers/adminController");
@@ -1299,6 +1300,142 @@ app.get('/api/page', async (req, res) => {
 });
 
 
+app.get("/api/markup-values", async (req, res) => {
+  try {
+    // Kunin muna lahat ng transactions para i-check kung may data
+    const transactions = await Transaction.find({});
+    if (!transactions || transactions.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No transactions found in the database",
+      });
+    }
+
+    // Sum ng markupValue, gamit ang $ifNull para i-default sa 0 kung wala
+    const markupAggregation = await Transaction.aggregate([
+      {
+        $group: {
+          _id: null, // Walang grouping per field, kunin lang lahat
+          totalMarkupValue: {
+            $sum: { $ifNull: ["$markupValue", 0] }, // Default sa 0 kung missing ang markupValue
+          },
+        },
+      },
+    ]);
+
+    const totalMarkupValue = markupAggregation[0]?.totalMarkupValue || 0;
+
+    // Kunin ang mga detalye ng markup, i-default din sa 0 kung wala
+    const markupDetails = transactions.map((trans) => ({
+      productName: trans.item || "Unknown Product",
+      markup_value: trans.markupValue || 0, // Default sa 0 kung wala
+      occurrences: 1, // Simple count; pwede i-adjust kung may quantity field
+      subtotal: trans.markupValue || 0, // Default sa 0 kung wala
+    }));
+
+    res.json({
+      success: true,
+      totalMarkupValue,
+      markupDetails,
+    });
+  } catch (error) {
+    console.error("Error in /markup-values endpoint:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+});
+
+app.get("/api/delivery-comm", async (req, res) => {
+  try {
+    const transactions = await Transaction.find({});
+    if (!transactions || transactions.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No transactions found in the database",
+      });
+    }
+
+    // Sum ng deliveryComm
+    const aggregation = await Transaction.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalDeliveryComm: { $sum: { $ifNull: ["$deliveryComm", 0] } }, // Default sa 0 kung wala
+        },
+      },
+    ]);
+
+    const totalDeliveryComm = aggregation[0]?.totalDeliveryComm || 0;
+
+    res.json({
+      success: true,
+      totalDeliveryComm,
+    });
+  } catch (error) {
+    console.error("Error in /delivery-comm endpoint:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+});
+
+app.get("/api/monthly-commissions", async (req, res) => {
+  try {
+    const transactions = await Transaction.find({});
+    if (!transactions || transactions.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No transactions found in the database",
+      });
+    }
+
+    // Aggregate monthly totals
+    const monthlyAggregation = await Transaction.aggregate([
+      {
+        $group: {
+          _id: {
+            month: { $month: "$date" }, // Group by month
+            year: { $year: "$date" },   // Include year to avoid mixing data across years
+          },
+          seller: { $sum: { $ifNull: ["$markupValue", 0] } },   // Total markupValue per month
+          rider: { $sum: { $ifNull: ["$deliveryComm", 0] } },   // Total deliveryComm per month
+        },
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 }, // Sort by year and month
+      },
+    ]);
+
+    // Map to readable format
+    const monthNames = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+    const monthlyRevenue = monthlyAggregation.map((item) => ({
+      month: monthNames[item._id.month - 1], // Convert month number to name
+      seller: item.seller,
+      rider: item.rider,
+    }));
+
+    res.json({
+      success: true,
+      monthlyRevenue,
+    });
+  } catch (error) {
+    console.error("Error in /monthly-commissions endpoint:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+});
+
 //======================== M O B I L E ==================================//
 
 // API to send OTP
@@ -1813,3 +1950,4 @@ app.use('/api/rider', riderRoutes);
 app.use("/api", riderRoutes);
 app.use('/api', shopRoutes);
 //app.use('/api/shops', shopRoutes);
+app.use('/api/commissions', commissionRoutes);

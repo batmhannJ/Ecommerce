@@ -210,7 +210,6 @@ export const AddProduct = () => {
     if (
       !name ||
       !description ||
-      !old_price ||
       !new_price ||
       !image ||
       !category ||

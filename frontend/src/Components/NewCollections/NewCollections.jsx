@@ -64,7 +64,7 @@ const NewCollections = () => {
     
     if (authToken) {
       // Add to cart with default size (if applicable), base price, and quantity 1
-      addToCart(item.id, "", item.new_price, 1);
+      addToCart(item.id, "", item.markup_price, 1);
       
       // Update local quantity tracking
       setCartQuantities(prev => ({
@@ -126,7 +126,7 @@ const NewCollections = () => {
                 
                 
                 <div className="item_prices">
-                  <div className="item_price_new">₱{item.new_price}</div>
+                  <div className="item_price_new">₱{item.markup_price}</div>
                   
                 </div>
                 

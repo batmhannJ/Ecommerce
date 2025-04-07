@@ -99,7 +99,7 @@ const ShopCategory = (props) => {
   // Apply price range filter
   if (priceRange) {
     const [minPrice, maxPrice] = priceRange.split("-");
-    filteredProducts = filteredProducts.filter((item) => item.new_price >= minPrice && item.new_price <= maxPrice);
+    filteredProducts = filteredProducts.filter((item) => item.markup_price >= minPrice && item.markup_price <= maxPrice);
   }
 
   // Apply RAM filter
@@ -125,9 +125,9 @@ const ShopCategory = (props) => {
   } else if (sortBy === "distance") {
     filteredProducts.sort((a, b) => a.distance - b.distance);
   } else if (sortBy === "priceHigh") {
-    filteredProducts.sort((a, b) => b.new_price - a.new_price);
+    filteredProducts.sort((a, b) => b.markup_price - a.markup_price);
   } else if (sortBy === "priceLow") {
-    filteredProducts.sort((a, b) => a.new_price - b.new_price);
+    filteredProducts.sort((a, b) => a.markup_price - b.markup_price);
   }
 
   // Define filters for each category
@@ -607,12 +607,12 @@ const ShopCategory = (props) => {
                   
                   {/* Price Display */}
                   <div className="product-price">
-                    {item.old_price && item.old_price > item.new_price ? (
+                    {item.old_price && item.old_price > item.markup_price ? (
                       <>
-                        <span className="current-price">₱{item.new_price}</span>
+                        <span className="current-price">₱{item.markup_price}</span>
                       </>
                     ) : (
-                      <span className="current-price">₱{item.new_price}</span>
+                      <span className="current-price">₱{item.markup_price}</span>
                     )}
                   </div>
 

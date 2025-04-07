@@ -50,7 +50,8 @@ const ShopsPage = () => {
             }
             });
               console.log("API response received:", response);
-              
+              console.log("Shops data received:", response.data);
+
               setShops(response.data);
             } catch (error) {
               console.error("Error fetching shops:", error);
@@ -125,25 +126,33 @@ const ShopsPage = () => {
         </div>
       ) : (
         <div className="shops-grid">
-            {Array.isArray(shops) && shops.map((shop) => (
+        {Array.isArray(shops) && shops.map((shop) => {
+          // Debug logging for each shop
+          console.log("Rendering shop:", shop);
+          
+          return (
             <div className="shop-card" key={shop.id || shop._id}>
-              <img src={shop.image || "/placeholder-shop.jpg"} alt={shop.shopName} className="shop-image" />
+              <img 
+                src={shop.idPicture ? `http://localhost:4000/upload/${shop.idPicture}` : "/placeholder-shop.jpg"} 
+                alt={shop.shopName || "Shop"} 
+                className="shop-image" 
+                onError={(e) => {
+                  console.log("Image failed to load:", e.target.src);
+                  e.target.src = "/placeholder-shop.jpg";
+                }}
+              />
               <div className="shop-info">
-                <h2 className="shop-name">{shop.shopName}</h2>
-                <p className="shop-location">{shop.businessLocation}</p>
-                <p className="shop-rating">
-                  ⭐ {shop.rating || "N/A"} ({shop.reviewCount || 0} reviews)
+                <h2 className="shop-name">
+                  {shop.shopName || "Unknown Shop"}
+                </h2>
+                <p className="shop-location">
+                  {shop.businessLocation || "Unknown Location"}
                 </p>
-                <p className="shop-min-order">Min Order: ₱{shop.minOrder || "N/A"}</p>
-                {shop.freeDeliveryMinimum && (
-                  <p className="free-delivery">
-                    Free Delivery for orders above ₱{shop.freeDeliveryMinimum}
-                  </p>
-                )}
               </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
+      </div>
       )}
     </div>
   );

@@ -1287,7 +1287,7 @@ app.get('/api/page', async (req, res) => {
         const sellers = await Seller.find({
             businessLocation: { $regex: municipality, $options: 'i' },  // Case-insensitive partial match
             isApproved: true
-        }).select('shopName businessLocation image rating reviewCount minOrder freeDeliveryMinimum');
+        }).select('shopName businessLocation idPicture rating reviewCount minOrder freeDeliveryMinimum');
 
         console.log(`Found ${sellers.length} approved shops matching "${municipality}"`);
         

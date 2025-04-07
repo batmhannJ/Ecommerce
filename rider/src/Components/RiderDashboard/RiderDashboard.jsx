@@ -604,6 +604,7 @@ function RiderDashboard() {
             <h3>Delivered</h3>
             <span className="count">{deliveredItems.length}</span>
           </div>
+          
           {/* New Orders Pending Acceptance - Appears below summary boxes */}
         {pendingNewOrders.length > 0 && (
           <div className="new-orders-alert">

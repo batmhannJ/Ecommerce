@@ -591,7 +591,7 @@ const ShopCategory = (props) => {
                   )}
                   
                   {/* Product Name */}
-                  <h4 className="product-name" onClick={() => window.location.href = `/product/${item.id}`}>
+                  <h4 className="product-name1" onClick={() => window.location.href = `/product/${item.id}`}>
                     {item.name}
                   </h4>
                   

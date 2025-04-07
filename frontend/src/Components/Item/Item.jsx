@@ -7,6 +7,7 @@ const Item = (props) => {
     console.log("Item component props:", props);
     console.log("Image prop type:", typeof props.image);
     console.log("Image prop value:", props.image);
+    console.log("Shop name:", props.shopName);
   }, [props]);
 
   const handleClick = () => {
@@ -20,14 +21,14 @@ const Item = (props) => {
           {/* Image with error handling */}
           {props.image ? (
             <img 
-            src={props.image} // Add a leading slash
+            src={props.image}
             alt={props.name} 
               onError={(e) => {
                 console.error("Image failed to load:", props.image);
                 e.target.onerror = null;
                 e.target.src = "https://via.placeholder.com/150?text=No+Image";
               }}
-              style={{maxWidth: '100%'}} // Ensure image is visible
+              style={{maxWidth: '100%'}}
             />
           ) : (
             <div className="placeholder-image">No Image Available</div>
@@ -53,8 +54,8 @@ const Item = (props) => {
             )}
           </div>
           <div className="item_shipping">
-            <span>Free Shipping</span>
-          </div>
+            <span className="shop-name">{props.shopName || "Shop Name"}</span>
+          </div> 
         </div>
       </Link>
     </div>

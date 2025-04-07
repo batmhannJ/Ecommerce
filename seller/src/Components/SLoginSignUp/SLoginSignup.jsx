@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { sellerSignup, sellerLogin, requestPasswordReset, verifyOtp, resetPassword } from '../../services/api';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast } from 'react-toastify';
@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import './SLoginSignup.css';
 import axios from 'axios';
 import loginImage from "../../assets/askilogo.png";
-
+import { regions, provincesByCode, cities, barangays } from 'select-philippines-address';
 
 const SLoginSignup = () => {
   const [formData, setFormData] = useState({
@@ -15,8 +15,20 @@ const SLoginSignup = () => {
     email: '',
     password: '',
     idPicture: null,
-    businessLocation: '',
+    businessLocation: {
+      region: '',
+      province: '',
+      city: '',
+      barangay: ''
+    },
   });
+  
+  // States for Philippines address dropdowns
+  const [availableRegions, setAvailableRegions] = useState([]);
+  const [provinces, setProvinces] = useState([]);
+  const [citiesList, setCities] = useState([]);
+  const [barangaysList, setBarangays] = useState([]);
+  
   const [passwordError, setPasswordError] = useState('');
   const [isLogin, setIsLogin] = useState(false);
   const navigate = useNavigate();
@@ -28,6 +40,72 @@ const SLoginSignup = () => {
   const [otpSent, setOtpSent] = useState(false); 
   const [showPassword, setShowPassword] = useState(false);
 
+  // Fetch regions on component mount
+  useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        const data = await regions();
+        setAvailableRegions(data);
+      } catch (error) {
+        console.error("Error fetching regions:", error);
+        toast.error("Failed to load regions. Please refresh and try again.");
+      }
+    };
+
+    fetchRegions();
+  }, []);
+
+  // Fetch provinces when region is selected
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      if (formData.businessLocation.region) {
+        try {
+          const provincesData = await provincesByCode(formData.businessLocation.region);
+          setProvinces(provincesData);
+        } catch (error) {
+          console.error("Error fetching provinces:", error);
+          toast.error("Failed to load provinces. Please try again.");
+        }
+      }
+    };
+
+    fetchProvinces();
+  }, [formData.businessLocation.region]);
+
+  // Fetch cities when a province is selected
+  useEffect(() => {
+    const fetchCities = async () => {
+      if (formData.businessLocation.province) {
+        try {
+          const citiesData = await cities(formData.businessLocation.province);
+          setCities(citiesData);
+        } catch (error) {
+          console.error("Error fetching cities:", error);
+          toast.error("Failed to load cities. Please try again.");
+        }
+      }
+    };
+
+    fetchCities();
+  }, [formData.businessLocation.province]);
+
+  // Fetch barangays when a city is selected
+  useEffect(() => {
+    const fetchBarangays = async () => {
+      if (formData.businessLocation.city) {
+        try {
+          const barangaysData = await barangays(formData.businessLocation.city);
+          setBarangays(barangaysData);
+        } catch (error) {
+          console.error("Error fetching barangays:", error);
+          toast.error("Failed to load barangays. Please try again.");
+        }
+      }
+    };
+
+    fetchBarangays();
+  }, [formData.businessLocation.city]);
+
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
@@ -36,6 +114,15 @@ const SLoginSignup = () => {
     const { name, value, files } = e.target;
     if (name === 'idPicture') {
       setFormData({ ...formData, idPicture: files[0] });
+    } else if (name === 'region' || name === 'province' || name === 'city' || name === 'barangay') {
+      // For location fields, update the nested businessLocation object
+      setFormData({
+        ...formData,
+        businessLocation: {
+          ...formData.businessLocation,
+          [name]: value
+        }
+      });
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -50,18 +137,55 @@ const SLoginSignup = () => {
     e.preventDefault();
     const { name, shopName, email, password, idPicture, businessLocation } = formData;
 
-    if (!name || !shopName || !email || !password || !idPicture || !businessLocation) {
-      toast.error("Please fill out all fields.");
+    // Check if all required fields are filled
+    if (!name || !shopName || !email || !password || !idPicture) {
+      toast.error("Please fill out all basic fields.");
       return;
     }
 
-    const signupData = new FormData();
-    signupData.append('name', name);
-    signupData.append('shopName', shopName);
-    signupData.append('email', email);
-    signupData.append('password', password);
-    signupData.append('idPicture', idPicture);
-    signupData.append('businessLocation', businessLocation);
+    // Check if location fields are filled
+    if (!businessLocation.region || !businessLocation.province || !businessLocation.city) {
+      toast.error("Please select your complete business location.");
+      return;
+    }
+
+    const regionData = availableRegions.find(r => r.region_code === businessLocation.region) || {};
+  const provinceData = provinces.find(p => p.province_code === businessLocation.province) || {};
+  const cityData = citiesList.find(c => c.city_code === businessLocation.city) || {};
+  const barangayData = businessLocation.barangay ? 
+    barangaysList.find(b => b.brgy_code === businessLocation.barangay) || {} : {};
+
+  // Format the business location as a string for the backend
+  const formattedLocation = `${regionData.region_name || ''}, ${provinceData.province_name || ''}, ${cityData.city_name || ''}${businessLocation.barangay ? `, ${barangayData.brgy_name || ''}` : ''}`;
+
+  const signupData = new FormData();
+  signupData.append('name', name);
+  signupData.append('shopName', shopName);
+  signupData.append('email', email);
+  signupData.append('password', password);
+  signupData.append('idPicture', idPicture);
+  signupData.append('businessLocation', formattedLocation);
+  
+  // Add structured location data
+  signupData.append('businessLocationDetails', JSON.stringify({
+    region: {
+      code: businessLocation.region,
+      name: regionData.region_name
+    },
+    province: {
+      code: businessLocation.province,
+      name: provinceData.province_name
+    },
+    city: {
+      code: businessLocation.city,
+      name: cityData.city_name
+    },
+    barangay: businessLocation.barangay ? {
+      code: businessLocation.barangay,
+      name: barangayData.brgy_name
+    } : undefined
+  }));
+
 
     try {
       const result = await sellerSignup(signupData);
@@ -69,11 +193,9 @@ const SLoginSignup = () => {
       navigate('/');
     } catch (error) {
       const errorMessage = error.response?.data?.errors?.[0] || error.response?.data || error.message; 
-  
       toast.error(errorMessage);
       console.error('Sign up error:', error.response);
     }
-
   };
 
   const handleLogin = async (e) => {
@@ -152,27 +274,25 @@ const SLoginSignup = () => {
     }
   };
   
-  
-const handleResetPassword = async (e) => {
-  e.preventDefault();
-  if (!newPassword || !otp) {
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    if (!newPassword || !otp) {
       toast.error("Please enter both OTP and new password.");
       return;
-  }
+    }
 
-  try {
+    try {
       const result = await resetPassword(email, otp, newPassword);
       if (result.success) {
-          toast.success(result.message);
-          navigate('/login');
+        toast.success(result.message);
+        navigate('/login');
       } else {
-          toast.error(result.errors || 'Error resetting password');
+        toast.error(result.errors || 'Error resetting password');
       }
-  } catch (error) {
+    } catch (error) {
       toast.error(error.response?.data?.errors || 'Error resetting password');
-  }
-};
-
+    }
+  };
 
   return (
     <div className="login-container" style={{
@@ -293,27 +413,27 @@ const handleResetPassword = async (e) => {
             <div>
               <div className="password-container" style={{ position: 'relative' }}>
               <label>Password:</label>
-      <input
-        type="password"
-        name="password"
-        value={formData.password}
-        onChange={(e) => {
-          let password = e.target.value;
-          if (password.length > 20) {
-            password = password.slice(0, 20);
-          }
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={(e) => {
+                  let password = e.target.value;
+                  if (password.length > 20) {
+                    password = password.slice(0, 20);
+                  }
 
-          handleChange({ target: { name: 'password', value: password } });
+                  handleChange({ target: { name: 'password', value: password } });
 
-          const isValidPassword = validatePassword(password);
-          if (!isValidPassword) {
-            setPasswordError('Password must be between 8 and 20 characters and contain at least one uppercase letter.');
-          } else {
-            setPasswordError(''); 
-          }
-        }}
-        required
-      />
+                  const isValidPassword = validatePassword(password);
+                  if (!isValidPassword) {
+                    setPasswordError('Password must be between 8 and 20 characters and contain at least one uppercase letter.');
+                  } else {
+                    setPasswordError(''); 
+                  }
+                }}
+                required
+              />
                 <span
                   className="eye-icon"
                   onClick={togglePasswordVisibility}
@@ -331,23 +451,94 @@ const handleResetPassword = async (e) => {
               {passwordError && <p className="password-error">{passwordError}</p>}
             </div>
             <div>
-            <label>Shop Logo/Image</label>
-            <input
+              <label>Valid ID/GOVERNMENT ISSUED:</label>
+              <input
                 type="file"
                 name="idPicture"
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-            <label>Business Location:</label>
-              <input
-                type="text"
-                name="businessLocation"
-                value={formData.businessLocation}
                 onChange={handleChange}
                 required
               />
             </div>
+            
+            {/* Business Location Section with Cascading Dropdowns */}
+            <div className="location-section">
+              <label>Business Location:</label>
+              
+              {/* Region Dropdown */}
+              <div className="location-field">
+                <select
+                  name="region"
+                  value={formData.businessLocation.region}
+                  onChange={handleChange}
+                  required
+                  className="location-dropdown"
+                >
+                  <option value="">Select Region</option>
+                  {availableRegions.map((region) => (
+                    <option key={region.region_code} value={region.region_code}>
+                      {region.region_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* Province Dropdown */}
+              <div className="location-field">
+                <select
+                  name="province"
+                  value={formData.businessLocation.province}
+                  onChange={handleChange}
+                  disabled={!formData.businessLocation.region}
+                  required
+                  className="location-dropdown"
+                >
+                  <option value="">Select Province</option>
+                  {provinces.map((province) => (
+                    <option key={province.province_code} value={province.province_code}>
+                      {province.province_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* City/Municipality Dropdown */}
+              <div className="location-field">
+                <select
+                  name="city"
+                  value={formData.businessLocation.city}
+                  onChange={handleChange}
+                  disabled={!formData.businessLocation.province}
+                  required
+                  className="location-dropdown"
+                >
+                  <option value="">Select City/Municipality</option>
+                  {citiesList.map((city) => (
+                    <option key={city.city_code} value={city.city_code}>
+                      {city.city_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* Barangay Dropdown (Optional) */}
+              <div className="location-field">
+                <select
+                  name="barangay"
+                  value={formData.businessLocation.barangay}
+                  onChange={handleChange}
+                  disabled={!formData.businessLocation.city}
+                  className="location-dropdown"
+                >
+                  <option value="">Select Barangay (Optional)</option>
+                  {barangaysList.map((barangay) => (
+                    <option key={barangay.brgy_code} value={barangay.brgy_code}>
+                      {barangay.brgy_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            
             <button type="submit">Sign up</button>
             <p>Already registered? <span className="link" onClick={() => setIsLogin(true)}>Log in as a <b>Seller</b></span></p>
           </form>

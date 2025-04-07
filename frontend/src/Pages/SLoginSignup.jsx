@@ -149,24 +149,43 @@ const SLoginSignup = () => {
       return;
     }
 
-    // Format the business location as a string for the backend
-    const formattedLocation = `${
-      availableRegions.find(r => r.region_code === businessLocation.region)?.region_name || ''
-    }, ${
-      provinces.find(p => p.province_code === businessLocation.province)?.province_name || ''
-    }, ${
-      citiesList.find(c => c.city_code === businessLocation.city)?.city_name || ''
-    }${
-      businessLocation.barangay ? `, ${barangaysList.find(b => b.brgy_code === businessLocation.barangay)?.brgy_name || ''}` : ''
-    }`;
+    const regionData = availableRegions.find(r => r.region_code === businessLocation.region) || {};
+  const provinceData = provinces.find(p => p.province_code === businessLocation.province) || {};
+  const cityData = citiesList.find(c => c.city_code === businessLocation.city) || {};
+  const barangayData = businessLocation.barangay ? 
+    barangaysList.find(b => b.brgy_code === businessLocation.barangay) || {} : {};
 
-    const signupData = new FormData();
-    signupData.append('name', name);
-    signupData.append('shopName', shopName);
-    signupData.append('email', email);
-    signupData.append('password', password);
-    signupData.append('idPicture', idPicture);
-    signupData.append('businessLocation', formattedLocation);
+  // Format the business location as a string for the backend
+  const formattedLocation = `${regionData.region_name || ''}, ${provinceData.province_name || ''}, ${cityData.city_name || ''}${businessLocation.barangay ? `, ${barangayData.brgy_name || ''}` : ''}`;
+
+  const signupData = new FormData();
+  signupData.append('name', name);
+  signupData.append('shopName', shopName);
+  signupData.append('email', email);
+  signupData.append('password', password);
+  signupData.append('idPicture', idPicture);
+  signupData.append('businessLocation', formattedLocation);
+  
+  // Add structured location data
+  signupData.append('businessLocationDetails', JSON.stringify({
+    region: {
+      code: businessLocation.region,
+      name: regionData.region_name
+    },
+    province: {
+      code: businessLocation.province,
+      name: provinceData.province_name
+    },
+    city: {
+      code: businessLocation.city,
+      name: cityData.city_name
+    },
+    barangay: businessLocation.barangay ? {
+      code: businessLocation.barangay,
+      name: barangayData.brgy_name
+    } : undefined
+  }));
+
 
     try {
       const result = await sellerSignup(signupData);

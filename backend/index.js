@@ -1466,7 +1466,10 @@ app.post("/api/login-role", async (req, res) => {
           success: true, 
           token, 
           userId: user._id,
-          roleId: 1 
+          roleId: 1,
+          firstName: user.name.split(' ')[0],
+          lastName: user.name.split(' ').slice(1).join(' '),
+          phone: user.phone
         });
       }
       console.log("Password mismatch for user:", user._id);
@@ -1491,7 +1494,10 @@ app.post("/api/login-role", async (req, res) => {
           success: true, 
           token, 
           userId: admin._id,
-          roleId: 2 
+          roleId: 2,
+          firstName: user.name.split(' ')[0],
+          lastName: user.name.split(' ').slice(1).join(' '),
+          phone: user.phone
         });
       }
       console.log("Password mismatch for admin:", admin._id);
@@ -1516,7 +1522,10 @@ app.post("/api/login-role", async (req, res) => {
           success: true, 
           token, 
           userId: rider._id,
-          roleId: 3 
+          roleId: 3,
+          firstName: user.name.split(' ')[0],
+          lastName: user.name.split(' ').slice(1).join(' '),
+          phone: user.contactNumber
         });
       }
       console.log("Password mismatch for rider:", rider._id);
@@ -2073,6 +2082,69 @@ app.get("/redirect", (req, res) => {
       res.redirect(deepLink);
   } else {
       res.status(400).send("Missing deep_link parameter");
+  }
+});
+
+// ==================== RIDER MOBILE ============================ //
+
+// GET endpoint to fetch user details by ID
+app.get("/api/user-details/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    console.log("Fetching user details for ID:", userId);
+    
+    // Find the user in the Users collection
+    const user = await Users.findById(userId);
+    
+    if (!user) {
+      console.log("User not found with ID:", userId);
+      return res.status(404).json({ 
+        success: false, 
+        errors: "User not found" 
+      });
+    }
+    
+    // Split the name into first and last name components
+    const nameParts = user.name.split(' ');
+    const firstName = nameParts[0];
+    const lastName = nameParts.slice(1).join(' ');
+    
+    console.log("User found:", user.name);
+    
+    // Return user details in the format expected by your app
+    return res.json({
+      resp: true,
+      msg: "User details retrieved successfully",
+      user: {
+        uid: user._id,
+        firstName: firstName,
+        lastName: lastName,
+        email: user.email,
+        phone: user.phone || '',
+        image: user.image || '',
+        rolId: 1,
+        notificationToken: ''
+      },
+      token: req.header('xx-token') || ''
+    });
+    
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+    res.status(500).json({ 
+      resp: false, 
+      msg: "Server Error",
+      user: {
+        uid: '',
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        image: '',
+        rolId: 0,
+        notificationToken: ''
+      },
+      token: ''
+    });
   }
 });
 

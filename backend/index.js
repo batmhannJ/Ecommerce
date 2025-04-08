@@ -2123,6 +2123,15 @@ app.get("/api/user-details/:userId", async (req, res) => {
         phone: user.phone || '',
         image: user.image || '',
         rolId: 1,
+        address: {
+          country: user.address.country,
+          street: user.address.street,
+          region: user.address.region,
+          province: user.address.province,
+          municipality: user.address.municipality,
+          barangay: user.address.barangay,
+          zip: user.address.zip
+        },
         notificationToken: ''
       },
       token: req.header('xx-token') || ''
@@ -2141,6 +2150,15 @@ app.get("/api/user-details/:userId", async (req, res) => {
         phone: '',
         image: '',
         rolId: 0,
+        address: {
+          country: user.address.country,
+          street: user.address.street,
+          region: user.address.region,
+          province: user.address.province,
+          municipality: user.address.municipality,
+          barangay: user.address.barangay,
+          zip: user.address.zip
+        },
         notificationToken: ''
       },
       token: ''

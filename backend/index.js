@@ -65,6 +65,7 @@ const allowedOrigins = [
   'http://localhost:4000',
   'http://localhost:5175',
   'http://localhost:51549',
+  'http://localhost:60375',
 ];
 
 app.use(
@@ -77,7 +78,7 @@ app.use(
       }
     },
     methods: ["GET", "POST", "DELETE", "PATCH", "PUT"], // Allowed HTTP methods
-    allowedHeaders: ["Content-Type", "Authorization"], // Headers needed for requests
+    allowedHeaders: ["Content-Type", "Authorization", "xx-token"], // Headers needed for requests
     exposedHeaders: ["Content-Length", "X-Foo", "X-Bar"], // Expose additional headers if needed
     credentials: true, // Allow cookies or credentials in the request
   })
@@ -192,6 +193,8 @@ const Product = require("./models/productModels");
 const { authMiddleware: fetchUser } = require("./middleware/auth");
 
 const Users = require("./models/userModels");
+const Admin = require("./models/adminUserModel");
+const Rider = require("./models/riderModel");
 const Seller = require("./models/sellerModels");
 const Cart = require('./models/cartModel'); 
 
@@ -1435,6 +1438,141 @@ app.get("/api/monthly-commissions", async (req, res) => {
     });
   }
 });
+app.post("/api/login-role", async (req, res) => {
+  console.log("Login request received:", req.body);
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    console.log("Missing email or password in request");
+    return res.status(400).json({ success: false, errors: "Email and password are required" });
+  }
+
+  try {
+    // Check Users table
+    console.log("Checking Users table for email:", email);
+    let user = await Users.findOne({ email });
+    if (user) {
+      console.log("User found in Users table:", user._id);
+      if (password === user.password) {
+        const data = {
+          user: {
+            id: user.id,
+            role_id: 1 // Users table
+          }
+        };
+        const token = jwt.sign(data, "secret_ecom");
+        console.log("Login successful for user:", user._id, "Role ID: 1");
+        return res.json({ 
+          success: true, 
+          token, 
+          userId: user._id,
+          roleId: 1 
+        });
+      }
+      console.log("Password mismatch for user:", user._id);
+      return res.json({ success: false, errors: "Error: Wrong Password" });
+    }
+
+    // Check Admins table
+    console.log("Checking Admins table for email:", email);
+    let admin = await Admin.findOne({ email });
+    if (admin) {
+      console.log("User found in Admins table:", admin._id);
+      if (password === admin.password) {
+        const data = {
+          user: {
+            id: admin.id,
+            role_id: 2 // Admins table
+          }
+        };
+        const token = jwt.sign(data, "secret_ecom");
+        console.log("Login successful for admin:", admin._id, "Role ID: 2");
+        return res.json({ 
+          success: true, 
+          token, 
+          userId: admin._id,
+          roleId: 2 
+        });
+      }
+      console.log("Password mismatch for admin:", admin._id);
+      return res.json({ success: false, errors: "Error: Wrong Password" });
+    }
+
+    // Check Riders table
+    console.log("Checking Riders table for email:", email);
+    let rider = await Rider.findOne({ email });
+    if (rider) {
+      console.log("User found in Riders table:", rider._id);
+      if (password === rider.password) {
+        const data = {
+          user: {
+            id: rider.id,
+            role_id: 3 // Riders table
+          }
+        };
+        const token = jwt.sign(data, "secret_ecom");
+        console.log("Login successful for rider:", rider._id, "Role ID: 3");
+        return res.json({ 
+          success: true, 
+          token, 
+          userId: rider._id,
+          roleId: 3 
+        });
+      }
+      console.log("Password mismatch for rider:", rider._id);
+      return res.json({ success: false, errors: "Error: Wrong Password" });
+    }
+
+    // If no match found in any table
+    console.log("No user found with email:", email);
+    res.status(404).json({ success: false, errors: "Error: Wrong Email Address" });
+    
+  } catch (error) {
+    console.error("Server error during login:", error);
+    res.status(500).json({ success: false, errors: "Server Error" });
+  }
+});
+
+app.get("/api/renew-token-login", async (req, res) => {
+  console.log("Renew token request received");
+
+  // Get the token from the xx-token header
+  const token = req.headers['xx-token'];
+
+  if (!token) {
+    console.log("No token provided in xx-token header");
+    return res.status(401).json({ success: false, errors: "No token provided" });
+  }
+
+  try {
+    // Verify the existing token
+    const decoded = jwt.verify(token, "secret_ecom");
+    console.log("Token verified, decoded:", decoded);
+
+    // Extract user data from the decoded token
+    const userData = decoded.user;
+
+    // Generate a new token with the same user data
+    const newToken = jwt.sign({ user: userData }, "secret_ecom", {
+      expiresIn: '1h', // Set a new expiration time (e.g., 1 hour)
+    });
+
+    console.log("New token generated:", newToken);
+    res.json({
+      success: true,
+      token: newToken,
+      userId: userData.id,
+      roleId: userData.role_id,
+    });
+  } catch (error) {
+    console.error("Error verifying token:", error);
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ success: false, errors: "Token expired" });
+    }
+    return res.status(401).json({ success: false, errors: "Invalid token" });
+  }
+});
+
 
 //======================== M O B I L E ==================================//
 

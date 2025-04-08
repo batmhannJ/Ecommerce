@@ -2147,6 +2147,38 @@ app.get("/api/user-details/:userId", async (req, res) => {
     });
   }
 });
+// Updated API endpoint for allproducts
+app.get("/allproducts-mobile", async (req, res) => {
+  try {
+    let products = await Product.find({available: true});
+    
+    // Transform MongoDB products to match the mobile app's expected format
+    const transformedProducts = products.map(product => ({
+      id: product.id,
+      nameProduct: product.name,
+      description: product.description || "",
+      price: product.new_price,
+      status: product.available ? 1 : 0,
+      picture: product.image,
+      category: product.category,
+      category_id: product.category ? 1 : 0, // You might want to replace this with actual category IDs
+    }));
+    
+    console.log("All Products Fetched");
+    res.status(200).json({
+      resp: true,
+      msg: "Products fetched successfully",
+      productsdb: transformedProducts
+    });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({
+      resp: false,
+      msg: "Failed to fetch products",
+      productsdb: []
+    });
+  }
+});
 
 // Admin Routes
 app.use("/api/admin", adminRoutes);

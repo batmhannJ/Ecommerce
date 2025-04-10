@@ -4,9 +4,10 @@ part of 'mylocationmap_bloc.dart';
 abstract class MylocationmapEvent {}
 
 class OnChangeLocationEvent extends MylocationmapEvent {
-  final LatLng location;
+  final LatLng? location;
+  final String addressName;
 
-  OnChangeLocationEvent(this.location);
+  OnChangeLocationEvent(this.location, this.addressName);
 }
 
 

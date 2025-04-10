@@ -123,16 +123,37 @@ class UserServices {
     return ResponseDefault.fromJson(jsonDecode(data.body));
   }
 
-  Future<List<ListAddress>> getAddresses() async {
-    final token = await secureStorage.readToken();
-
+Future<List<ListAddress>> getAddresses() async {
+  try {
+    final userId = await secureStorage.readUserId();
+    
+    if (userId == null) {
+      throw Exception('User ID not available');
+    }
+    
+    print("Calling API with userId: $userId");
+    
     final response = await http.get(
-      Uri.parse('${Environment.endpointApi}/get-addresses'),
-      headers: {'Accept': 'application/json', 'xx-token': token!},
+      Uri.parse('${Environment.endpointBase}api/get-addresses?userId=$userId'),
+      headers: {'Accept': 'application/json'},
     );
 
-    return AddressesResponse.fromJson(jsonDecode(response.body)).listAddresses;
+    print("API Response status code: ${response.statusCode}");
+    print("API Response body: ${response.body}");
+    
+    final responseData = jsonDecode(response.body);
+    
+    if (responseData['success'] != true) {
+      throw Exception(responseData['message'] ?? 'Failed to load addresses');
+    }
+    
+    final addressesResponse = AddressesResponse.fromJson(responseData);
+    return addressesResponse.listAddresses ?? [];  // Return empty list if null
+  } catch (e) {
+    print("Error in getAddresses: $e");
+    return []; // Return empty list on error
   }
+}
 
   Future<ResponseDefault> deleteStreetAddress(String idAddress) async {
     final token = await secureStorage.readToken();

@@ -146,23 +146,23 @@ class _DetailsTotal extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const TextCustom(text: 'Subtotal', color: Colors.grey),
-              TextCustom(text: '\$ ${cardBloc.state.total}0', color: Colors.grey),
+              TextCustom(text: '\₱ ${cardBloc.state.total}', color: Colors.grey),
             ],
           ),
-          const SizedBox(height: 10.0),
+          /*const SizedBox(height: 10.0),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const TextCustom(text: 'IGV', color: Colors.grey),
-              TextCustom(text: '\$ 2.5', color: Colors.grey),
+              TextCustom(text: '\₱ 2.5', color: Colors.grey),
             ],
-          ),
+          ),*/
           const SizedBox(height: 10.0),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const TextCustom(text: 'Shipping', color: Colors.grey),
-              TextCustom(text: '\$ 0.00', color: Colors.grey),
+              TextCustom(text: '\₱ 0.00', color: Colors.grey),
             ],
           ),
           const Divider(),
@@ -170,7 +170,7 @@ class _DetailsTotal extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const TextCustom(text: 'Total', fontWeight: FontWeight.w500),
-              TextCustom(text: '\$ ${cardBloc.state.total}0', fontWeight: FontWeight.w500),
+              TextCustom(text: '\₱ ${cardBloc.state.total}0', fontWeight: FontWeight.w500),
             ],
           ),
         ],

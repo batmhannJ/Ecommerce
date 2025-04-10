@@ -97,7 +97,7 @@ class CartClientScreen extends StatelessWidget {
                                         children: [
                                           TextCustom(text: state.products![i].nameProduct, fontWeight: FontWeight.w500, fontSize: 20),
                                           const SizedBox(height: 10.0),
-                                          TextCustom(text: '\$ ${state.products![i].price * state.products![i].quantity}', color: ColorsFrave.primaryColor )
+                                          TextCustom(text: '\₱ ${state.products![i].price * state.products![i].quantity}', color: ColorsFrave.primaryColor )
                                         ],
                                       ),
                                     ),
@@ -167,7 +167,7 @@ class CartClientScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const TextCustom(text: 'Total'),
-                          TextCustom(text: '${state.total}'),
+                          TextCustom(text: '\₱ ${state.total}'),
                         ],
                       ),
                       const SizedBox(height: 20.0),
@@ -175,7 +175,7 @@ class CartClientScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const TextCustom(text: 'Sub Total'),
-                          TextCustom(text: '${state.total}'),
+                          TextCustom(text: '\₱ ${state.total}'),
                         ],
                       ),
                       const SizedBox(height: 20.0),

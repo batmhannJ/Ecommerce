@@ -12,9 +12,11 @@ class ImagesProductsResponse {
   });
 
   factory ImagesProductsResponse.fromJson(Map<String, dynamic> json) => ImagesProductsResponse(
-    resp: json["resp"],
-    msg: json["msg"],
-    imageProductdb: json["imageProductdb"] != null ? List<ImageProductdb>.from(json["imageProductdb"].map((x) => ImageProductdb.fromJson(x))) : [],
+    resp: json["resp"] ?? false,  // Add null safety
+    msg: json["msg"] ?? "",       // Add null safety
+    imageProductdb: json["imageProductdb"] != null 
+        ? List<ImageProductdb>.from(json["imageProductdb"].map((x) => ImageProductdb.fromJson(x))) 
+        : [],
   );
 }
 

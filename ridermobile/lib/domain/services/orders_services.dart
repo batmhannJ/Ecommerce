@@ -12,7 +12,7 @@ import 'package:restaurant/domain/models/response/response_default.dart';
 class OrdersServices {
 
 
-  Future<ResponseDefault> addNewOrders(int uidAddress, double total, String typePayment, List<ProductCart> products) async {
+  Future<ResponseDefault> addNewOrders(String uidAddress, double total, String typePayment, List<ProductCart> products) async {
 
     final token = await secureStorage.readToken();
 

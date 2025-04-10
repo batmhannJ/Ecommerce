@@ -27,14 +27,15 @@ class MylocationmapBloc extends Bloc<MylocationmapEvent, MylocationmapState> {
   late StreamSubscription<Position> _positionSubscription;
 
 
-  void initialLocation() async {
-    
+ void initialLocation() async {
     _positionSubscription = Geolocator.getPositionStream().listen((Position position) {
-
-      add( OnChangeLocationEvent(LatLng(position.latitude, position.longitude)) );
-
+      if (state.addressName.isEmpty) { // Only update if no address yet
+        add(OnChangeLocationEvent(
+          LatLng(position.latitude, position.longitude),
+          state.addressName,
+        ));
+      }
     });
-
   }
 
 
@@ -58,15 +59,13 @@ class MylocationmapBloc extends Bloc<MylocationmapEvent, MylocationmapState> {
 
   }
 
-
-
-
-  Future<void> _onChangeLocation( OnChangeLocationEvent event, Emitter<MylocationmapState> emit ) async {
-
-    emit( state.copyWith( existsLocation: true, location: event.location ) );
-
+Future<void> _onChangeLocation(OnChangeLocationEvent event, Emitter<MylocationmapState> emit) async {
+    emit(state.copyWith(
+      existsLocation: true,
+      locationCentral: event.location, // Update locationCentral
+      addressName: event.addressName,  // Update addressName
+    ));
   }
-
   Future<void> _onMapReady(OnMapReadyMyLocationEvent event, Emitter<MylocationmapState> emit ) async {
 
     emit( state.copyWith( mapReady: true ) );

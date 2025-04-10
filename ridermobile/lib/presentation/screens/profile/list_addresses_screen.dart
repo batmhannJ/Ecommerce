@@ -9,19 +9,23 @@ import 'package:restaurant/presentation/components/components.dart';
 import 'package:restaurant/presentation/helpers/helpers.dart';
 import 'package:restaurant/presentation/screens/client/profile_client_screen.dart';
 import 'package:restaurant/presentation/themes/colors_frave.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:geolocator/geolocator.dart';
 
 class ListAddressesScreen extends StatefulWidget {
+  const ListAddressesScreen({super.key});  // Add const constructor
   @override
   _ListAddressesScreenState createState() => _ListAddressesScreenState();
 }
 
 class _ListAddressesScreenState extends State<ListAddressesScreen> with WidgetsBindingObserver {
-
+late Future<List<ListAddress>> _addressesFuture;  // Add future as state
 
   @override
   void initState() {
       WidgetsBinding.instance.addObserver(this);
      super.initState();
+     _addressesFuture = userServices.getAddresses();  // Initialize future
   }
 
   @override
@@ -31,48 +35,75 @@ class _ListAddressesScreenState extends State<ListAddressesScreen> with WidgetsB
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) async {
-    if( state == AppLifecycleState.resumed ){
-      if( await Permission.location.isGranted ){
+void didChangeAppLifecycleState(AppLifecycleState state) async {
+  if (kIsWeb) {
+    return; // Skip lifecycle handling on web
+  }
+  if (state == AppLifecycleState.resumed) {
+    final status = await Permission.location.status;
+    if (status.isGranted) {
+      if (mounted) {
         Navigator.push(context, routeFrave(page: AddStreetAddressScreen()));
       }
     }
   }
+}
 
-
-  void accessLocation( PermissionStatus status ) {
-
-    switch ( status ){
-      
-      case PermissionStatus.granted:
-        Navigator.push(context, routeFrave(page: AddStreetAddressScreen()));  
-        break;
-      case PermissionStatus.limited:
-        break;
-      case PermissionStatus.denied:
-      case PermissionStatus.restricted:
-      case PermissionStatus.permanentlyDenied:
-        openAppSettings();
+void requestLocationPermission() async {
+  try {
+    if (await Permission.location.serviceStatus.isEnabled) {
+      final status = await Permission.location.status;
+      if (status.isGranted) {
+        Navigator.push(context, routeFrave(page: AddStreetAddressScreen()));
+      } else if (status.isDenied) {
+        final result = await Permission.location.request();
+        accessLocation(result);
+      } else {
+        accessLocation(status);
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enable location services in your device settings.')),
+      );
     }
+  } catch (e) {
+    print('Permission error: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Unable to access location permissions. Please check app settings.')),
+    );
   }
+}
 
+  void accessLocation(PermissionStatus status) {
+  switch (status) {
+    case PermissionStatus.granted:
+      Navigator.push(context, routeFrave(page: AddStreetAddressScreen()));
+      break;
+    case PermissionStatus.denied:
+    case PermissionStatus.restricted:
+    case PermissionStatus.limited:
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Location permission is required to add an address.')),
+      );
+      break;
+    case PermissionStatus.permanentlyDenied:
+      openAppSettings(); // Direct user to settings if permission is permanently denied
+      break;
+  }
+}
 
-  @override
+ @override
   Widget build(BuildContext context) {
-    
     return BlocListener<UserBloc, UserState>(
       listener: (context, state) {
-        
-        if ( state is LoadingUserState ){
-
+        if (state is LoadingUserState) {
           modalLoading(context);
-
-        }else if ( state is SuccessUserState ){
-
+        } else if (state is SuccessUserState) {
           Navigator.pop(context);
-
-        }else if( state is FailureUserState ){
-
+          setState(() {
+            _addressesFuture = userServices.getAddresses();  // Refresh data
+          });
+        } else if (state is FailureUserState) {
           Navigator.pop(context);
           errorMessageSnack(context, state.error);
         }
@@ -91,23 +122,80 @@ class _ListAddressesScreenState extends State<ListAddressesScreen> with WidgetsB
           ),
           actions: [
             TextButton(
-              onPressed: () async => accessLocation( await Permission.location.request() ), 
-              child: const TextCustom(text: 'Add', color: ColorsFrave.primaryColor, fontSize: 17 )
+           onPressed: () async {
+            if (kIsWeb) {
+              try {
+                bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+                if (!serviceEnabled) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Please enable location services in your browser')),
+                  );
+                  return;
+                }
+                LocationPermission permission = await Geolocator.checkPermission();
+                if (permission == LocationPermission.denied) {
+                  permission = await Geolocator.requestPermission();
+                  if (permission == LocationPermission.denied) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Location permission denied')),
+                    );
+                    return;
+                  }
+                }
+                if (permission == LocationPermission.deniedForever) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Location permission permanently denied. Please enable it in browser settings.')),
+                  );
+                  return;
+                }
+                Navigator.push(context, routeFrave(page: AddStreetAddressScreen()));
+              } catch (e) {
+                print('Web location error: $e');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Unable to access location in web browser')),
+                );
+              }
+            } else {
+              try {
+                final status = await Permission.location.request();
+                accessLocation(status);
+              } catch (e) {
+                print('Permission error: $e');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Unable to access location permissions')),
+                );
+              }
+            }
+          },
+              child: const TextCustom(text: 'Add', color: ColorsFrave.primaryColor, fontSize: 17),
             ),
           ],
         ),
-        body: FutureBuilder<List<ListAddress>>(
-          future: userServices.getAddresses(),
-          builder: (context, snapshot) 
-            => (!snapshot.hasData)
-              ? const ShimmerFrave()
-              : _ListAddresses(listAddress: snapshot.data!)
+        // In ListAddressesScreen's build method, modify the FutureBuilder part:
+      body: FutureBuilder<List<ListAddress>>(
+          future: _addressesFuture,  // Use state variable
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const ShimmerFrave();
+            }
+            
+            if (snapshot.hasError) {
+              return Center(
+                child: TextCustom(
+                  text: 'Error: ${snapshot.error}',
+                  color: Colors.red,
+                ),
+              );
+            }
+            
+            final addresses = snapshot.data ?? [];
+            return _ListAddresses(listAddress: addresses);
+          },
         ),
       ),
     );
   }
 }
-
 class _ListAddresses extends StatelessWidget {
   
   final List<ListAddress> listAddress;
@@ -183,6 +271,3 @@ class _WithoutListAddress extends StatelessWidget {
     );
   }
 }
-
-
-

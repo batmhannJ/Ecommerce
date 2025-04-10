@@ -70,7 +70,7 @@ class OnRegisterClientEvent extends UserEvent {
 
 
 class OnDeleteStreetAddressEvent extends UserEvent {
-  final int uid;
+  final String uid;
 
   OnDeleteStreetAddressEvent(this.uid);
 }
@@ -86,7 +86,7 @@ class OnAddNewAddressEvent extends UserEvent {
 
 
 class OnSelectAddressButtonEvent extends UserEvent {
-  final int uidAddress;
+  final String uidAddress;
   final String addressName;
 
   OnSelectAddressButtonEvent(this.uidAddress, this.addressName);

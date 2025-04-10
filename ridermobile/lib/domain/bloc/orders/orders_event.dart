@@ -5,7 +5,7 @@ abstract class OrdersEvent {}
 
 class OnAddNewOrdersEvent extends OrdersEvent {
 
-  final int uidAddress;
+  final String uidAddress;
   final double total;
   final String typePayment;
   final List<ProductCart> products;

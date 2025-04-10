@@ -75,7 +75,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                             itemBuilder: (context, i, realIndex) 
                               => Container(
                                 width: size.width,
-                                child: Image.network('http://192.168.1.35:7070/'+ imagesProducts[i].picture),
+                                child: Image.network('http://localhost:4000/upload/images/'+ imagesProducts[i].picture),
                               ), 
                           ),
                         ),
@@ -217,13 +217,14 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                                 children: [
                                   TextButton(
                                     child: const TextCustom(text: 'Add to cart', color: Colors.white, fontSize: 18 ),
-                                    onPressed: (){
+                                    onPressed: () {
+                                      final fullImageUrl = 'upload/images/' + widget.product.picture; // Construct full URL
                                       final newProduct = ProductCart(
-                                        uidProduct: widget.product.id.toString(), 
-                                        imageProduct: widget.product.picture, 
-                                        nameProduct: widget.product.nameProduct, 
-                                        price: widget.product.price, 
-                                        quantity: cartBloc.state.quantity
+                                        uidProduct: widget.product.id.toString(),
+                                        imageProduct: fullImageUrl, // Use full URL here
+                                        nameProduct: widget.product.nameProduct,
+                                        price: widget.product.price,
+                                        quantity: cartBloc.state.quantity,
                                       );
                                       cartBloc.add(OnAddProductToCartEvent(newProduct));
                                       modalSuccess(context, 'Product Added', () => Navigator.pop(context));
@@ -232,7 +233,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                                   const SizedBox(width: 5.0),
                                   BlocBuilder<CartBloc, CartState>(
                                     builder: (context, state) 
-                                      => TextCustom(text: '\$ ${widget.product.price * state.quantity}', color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20 )
+                                      => TextCustom(text: '\₱ ${widget.product.price * state.quantity}', color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20 )
                                   )
                                 ],
                               )

@@ -156,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () {
                     if( _keyForm.currentState!.validate() ){
     
-                      authBloc.add( LoginEvent(_emailController.text, _passwordController.text));
+                      authBloc.add( LoginEvent(_emailController.text, _passwordController.text, context));
     
                     }
                   },

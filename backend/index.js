@@ -16,6 +16,7 @@ const server = require("http").createServer(app);
 const superAdminRoutes = require("./routes/superAdminRoute");
 const adminRoutes = require("./routes/adminRoute");
 const orderRouter = require("./routes/orderRoute");
+const orderRoutes = require('./routes/orderRoutes');
 const sellerRouter = require("./routes/sellerRoute");
 const userRoutes = require("./routes/userRoute");
 const transactionRoutes = require("./routes/transactionRoute");
@@ -2198,6 +2199,227 @@ app.get("/allproducts-mobile", async (req, res) => {
   }
 });
 
+app.get('/api/get-images-products/:id', async (req, res) => {
+  try {
+    const productId = parseInt(req.params.id);
+    
+    const product = await Product.findOne({ id: productId });
+    
+    if (!product) {
+      return res.status(404).json({ 
+        resp: false, 
+        msg: 'Product not found',
+        imageProductdb: [] 
+      });
+    }
+    
+    // Create image product data based on your model
+    const imageData = {
+      id: 1, // You might want to generate a proper ID here
+      picture: product.image,
+      product_id: product.id
+    };
+    
+    return res.status(200).json({
+      resp: true,
+      msg: 'Product image found',
+      imageProductdb: [imageData]  // Returns as array as your model expects a List
+    });
+    
+  } catch (error) {
+    console.error('Error fetching product image:', error);
+    return res.status(500).json({
+      resp: false,
+      msg: 'Server error while fetching product image',
+      imageProductdb: []
+    });
+  }
+});
+
+app.post('/api/add-new-orders', async (req, res) => {
+  try {
+    console.log('Received order request:', req.body); // Add this for debugging
+
+    const { uidAddress, total, typePayment, products } = req.body;
+
+    // Validate required fields based on your OrdersBloc implementation
+    if (!uidAddress || !total || !typePayment || !products || !Array.isArray(products)) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Missing required fields: uidAddress, total, typePayment, or products',
+      });
+    }
+
+    // Since your OrdersBloc doesn't send userId directly, you might need to:
+    // 1. Either extract it from the authentication token/session
+    // 2. Or look it up based on the address ID (assuming addresses are linked to users)
+    
+    // Option 1: Extract from auth token (if you're using authentication middleware)
+    // const userId = req.user.id;
+    
+    // Option 2: Look up user based on address (example)
+    const address = await Address.findById(uidAddress);
+    if (!address) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Address not found',
+      });
+    }
+    const userId = address.userId; // Assuming your address model has a userId field
+
+    // Map products to items (based on your ProductCart model)
+    const items = products.map(product => ({
+      productId: product.uidProduct,
+      name: product.nameProduct,
+      price: product.price,
+      quantity: product.quantity,
+      image: product.imageProduct,
+    }));
+
+    // Determine payment status based on typePayment
+    const paymentStatus = typePayment === 'CASH ON DELIVERY' ? false : true;
+
+    // Create new order
+    const newOrder = new Order({
+      userId, // User ID obtained from address or auth token
+      items,
+      amount: total,
+      address: {
+        id: uidAddress,
+      },
+      payment: paymentStatus,
+      status: 'PAID', // Default status for new orders, adjust as needed
+      dateTime: new Date() // Current timestamp
+    });
+
+    // Save to MongoDB
+    const savedOrder = await newOrder.save();
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Order added successfully',
+      data: savedOrder,
+    });
+  } catch (error) {
+    console.error('Error adding order:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to add order: ' + error.message,
+    });
+  }
+});
+
+app.post("/api/add-new-address", async (req, res) => {
+  try {
+    // Extract address data and userId from the request body
+    const {
+      userId,
+      street,
+      reference,
+      latitude,
+      longitude,
+      country, // Optional, defaults to "Philippines" in schema
+    } = req.body;
+
+    // Validate required fields
+    if (!userId || !street || !reference || !latitude || !longitude) {
+      return res.status(400).json({ error: "userId, street, reference, latitude, and longitude are required" });
+    }
+
+    // Find the user by ID
+    const user = await Users.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Update the address1 field with the provided data
+    user.address1 = {
+      street,
+      reference,
+      latitude,
+      longitude,
+      country: country || user.address1?.country || "Philippines", // Use provided country or default
+    };
+
+    // Save the updated user document
+    await user.save();
+
+    // Return a success response
+    res.status(200).json({
+      message: "Address1 added successfully",
+      address1: user.address1,
+    });
+  } catch (error) {
+    console.error("Error adding address1:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Add this route to your index.js file
+app.get('/api/get-addresses', async (req, res) => {
+  try {
+    // Since we're not verifying tokens, we need to get the user ID from the request
+    // You can pass it as a query parameter
+    const userId = req.query.userId;
+    
+    if (!userId) {
+      return res.status(400).json({ success: false, message: 'User ID is required' });
+    }
+    
+    const user = await Users.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    
+    // Build addresses list from user document
+    const addresses = [];
+    
+    // Handle address field
+    if (user.address && user.address.street) {
+      addresses.push({
+        id: "address",
+        street: user.address.street || "",
+        reference: user.address.reference || "",
+        latitude: user.address.latitude || 0,
+        longitude: user.address.longitude || 0
+      });
+    }
+    
+    // Handle address1 field
+    if (user.address1 && user.address1.street) {
+      addresses.push({
+        id: "address1",
+        street: user.address1.street || "",
+        reference: user.address1.reference || "",
+        latitude: user.address1.latitude || 0,
+        longitude: user.address1.longitude || 0
+      });
+    }
+    
+    // Handle address2 field
+    if (user.address2 && user.address2.street) {
+      addresses.push({
+        id: "address2",
+        street: user.address2.street || "",
+        reference: user.address2.reference || "",
+        latitude: user.address2.latitude || 0,
+        longitude: user.address2.longitude || 0
+      });
+    }
+    
+    // Return formatted response
+    return res.json({
+      success: true,
+      listAddresses: addresses
+    });
+    
+  } catch (error) {
+    console.log('[ERROR] Getting addresses:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 // Admin Routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/", adminRoutes);
@@ -2211,3 +2433,4 @@ app.use("/api", riderRoutes);
 app.use('/api', shopRoutes);
 //app.use('/api/shops', shopRoutes);
 app.use('/api/commissions', commissionRoutes);
+//app.use('/api', orderRoutes);

@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:meta/meta.dart';
 import 'package:bloc/bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -124,24 +126,22 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   }
   
-  Future<void> _onRegisterClient( OnRegisterClientEvent event, Emitter<UserState> emit ) async {
-
-    try {
-
-      emit( LoadingUserState() );
-
-      final nToken = await pushNotification.getNotificationToken();
-
-      final data = await userServices.registerClient(event.name, event.lastname, event.phone, event.image, event.email, event.password, nToken!);
-
-      if( data.resp ) emit( SuccessUserState() );
-      else emit( FailureUserState(data.msg) );
-      
-    } catch (e) {
-      emit( FailureUserState(e.toString()));
+ Future<void> _onRegisterClient(OnRegisterClientEvent event, Emitter<UserState> emit) async {
+  try {
+    emit(LoadingUserState());
+    final nToken = await pushNotification.getNotificationToken();
+    final data = await userServices.registerClient(event.name, event.lastname, event.phone, event.image, event.email, event.password, nToken!);
+    if (data.resp) {
+      final user = await userServices.getUserById(); // Fetch the user after registration
+      emit(SuccessUserState());
+      emit(state.copyWith(user: user)); // Set the user in state
+    } else {
+      emit(FailureUserState(data.msg));
     }
-
+  } catch (e) {
+    emit(FailureUserState(e.toString()));
   }
+}
 
   Future<void> _onRegisterDelivery( OnRegisterDeliveryEvent event, Emitter<UserState> emit) async {
 
@@ -226,37 +226,64 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
     emit( state.copyWith( uidAddress: event.uidAddress, addressName: event.addressName ) );
 
-  }
+  }// In your UserBloc class
 
-  Future<void> _onAddNewStreetAddress( OnAddNewAddressEvent event, Emitter<UserState> emit ) async {
-
-    try {
-
-      emit( LoadingUserState() );
-
-      final data = await userServices.addNewAddressLocation(event.street, event.reference, event.location.latitude.toString(), event.location.longitude.toString());
-      
-      if( data.resp ){
-
-        final user = await userServices.getUserById();
-
-        final userdb = await userServices.getAddressOne();
-
-        add(OnSelectAddressButtonEvent(userdb.address.id, userdb.address.reference));
-
-        emit( SuccessUserState() );
-
-        emit( state.copyWith( user: user ) );
-
-      }else{
-        emit( FailureUserState(data.msg) );
-      }
-
-    } catch (e) {
-      emit( FailureUserState(e.toString()) );
+Future<void> _onAddNewStreetAddress(OnAddNewAddressEvent event, Emitter<UserState> emit) async {
+  try {
+    // Store the current user before changing state
+    final currentUser = state.user;
+    
+    emit(LoadingUserState());
+    
+    print('User ID in _onAddNewStreetAddress: ${currentUser?.uid}');
+    if (currentUser == null) {
+      emit(FailureUserState('No user found in state. Please log in first.'));
+      return;
     }
 
-  }
+    final userId = currentUser.uid;
+    print('Proceeding with User ID: $userId');
 
+    try {
+      final response = await http.post(
+        Uri.parse('http://localhost:4000/api/add-new-address'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'userId': userId,
+          'street': event.street,
+          'reference': event.reference,
+          'latitude': event.location.latitude,
+          'longitude': event.location.longitude,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        // Emit ONLY the success state - don't try to update the user
+        // or trigger any other state changes afterwards
+        emit(SuccessUserState());
+        
+        // Don't do this:
+        // final user = await userServices.getUserById();
+        // final userdb = await userServices.getAddressOne();
+        // if (userdb != null && userdb.address != null) {
+        //   add(OnSelectAddressButtonEvent(userdb.address.id, userdb.address.reference));
+        // }
+        // if (user != null) {
+        //   emit(state.copyWith(user: user));
+        // } else {
+        //   emit(state.copyWith(user: currentUser));
+        // }
+      } else {
+        emit(FailureUserState('Failed to add address: ${response.body}'));
+      }
+    } catch (e) {
+      print('HTTP error: $e');
+      emit(FailureUserState(e.toString()));
+    }
+  } catch (e) {
+    print('Exception in _onAddNewStreetAddress: $e');
+    emit(FailureUserState(e.toString()));
+  }
+}
 
 }

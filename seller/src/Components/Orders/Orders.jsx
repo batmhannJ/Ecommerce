@@ -114,6 +114,18 @@ const Orders = () => {
     setOrders(sortedOrders);
   };
 
+  // Handle click to copy Order ID to clipboard
+  const copyOrderId = (orderId) => {
+    navigator.clipboard.writeText(orderId)
+      .then(() => {
+        toast.success(`Order ID ${orderId} copied to clipboard!`);
+      })
+      .catch((error) => {
+        console.error("Error copying Order ID:", error);
+        toast.error("Failed to copy Order ID");
+      });
+  };
+
   // Get status badge class
   const getStatusBadgeClass = (status) => {
     switch (status) {
@@ -180,6 +192,15 @@ const Orders = () => {
           ) : (
             orders.map((order, index) => (
               <div key={index} className="order-item">
+                {/* Order ID badge */}
+                <span 
+                  className="order-id" 
+                  onClick={() => copyOrderId(order.transactionId)}
+                  title="Click to copy Order ID"
+                >
+                  {order.transactionId}
+                </span>
+
                 <div className="order-item-header">
                   <img src={parcel_icon} alt="parcel icon" />
                   <div>

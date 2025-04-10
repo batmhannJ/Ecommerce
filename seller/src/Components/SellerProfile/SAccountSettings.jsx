@@ -18,26 +18,25 @@ const SAccountSettings = () => {
   const [formErrors, setFormErrors] = useState({});
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
+
   const imageHandler = (e) => {
     const file = e.target.files[0];
-    setImage(file); // Update the state for preview
-  
-    // Update `idPicture` in `formData`
+    setImage(file);
     setFormData((prev) => ({
       ...prev,
-      idPicture: file, // Store the file, not just the name
+      idPicture: file,
     }));
   };
-  
+
   const getUserIdFromToken = () => {
     const authToken = localStorage.getItem("admin_token");
     if (authToken) {
       try {
         const payload = JSON.parse(atob(authToken.split(".")[1]));
-        console.log("Decoded token payload:", payload); // Check the decoded token payload
         return payload.id;
       } catch (error) {
         console.error("Error decoding token:", error);
@@ -63,8 +62,6 @@ const SAccountSettings = () => {
             Authorization: `Bearer ${authToken}`,
           },
         });
-        console.log("Fetched user data:", response.data);
-
         const { name, phone, email, shopName, businessLocation, idPicture } = response.data;
         setFormData({ name, phone, email, shopName, businessLocation, idPicture, password: "" });
       } catch (error) {
@@ -96,25 +93,23 @@ const SAccountSettings = () => {
     if (validateForm()) {
       setFormSubmitted(true);
       const adminId = getUserIdFromToken();
-  
+
       let formDataUpload = new FormData();
       formDataUpload.append("name", formData.name);
       formDataUpload.append("email", formData.email);
       formDataUpload.append("phone", formData.phone);
       formDataUpload.append("shopName", formData.shopName);
       formDataUpload.append("businessLocation", formData.businessLocation);
-  
-      // **Kung may bagong image, idagdag sa FormData**
+
       if (image) {
         formDataUpload.append("idPicture", image);
       }
-  
+
       if (formData.password) {
         formDataUpload.append("password", formData.password);
       }
-  
+
       try {
-        console.log("Outgoing update request data:", formDataUpload);
         const response = await axios.patch(
           `http://localhost:4000/api/editseller/${adminId}`,
           formDataUpload,
@@ -125,14 +120,12 @@ const SAccountSettings = () => {
             },
           }
         );
-  
         console.log("User updated successfully:", response.data);
       } catch (error) {
         console.error("Error updating user:", error.response ? error.response.data : error.message);
       }
     }
   };
-  
 
   return (
     <div className="account-settings">
@@ -156,36 +149,34 @@ const SAccountSettings = () => {
                 value={formData.name}
                 onChange={handleChange}
                 aria-required="true"
+                placeholder="Enter your name"
               />
               {formErrors.name && <span className="account-settings__error">{formErrors.name}</span>}
             </div>
 
             <div className="account-settings__form-group">
-            <label htmlFor="phone">
-              Phone/Mobile <span>*</span>
-            </label>
-            <input
-              type="tel"
-              name="phone"
-              id="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              onInput={(e) => {
-                let value = e.target.value.replace(/[^0-9]/g, "");
-                if (value.length > 0) {
-                  value = '9' + value.slice(1);
-                }
-                e.target.value = value.slice(0, 10);
-              }}
-              maxLength="10"
-              aria-required="true"
-            />
-            {formErrors.phone && (
-              <span className="account-settings__error">
-                {formErrors.phone}
-              </span>
-            )}
-          </div>
+              <label htmlFor="phone">Phone/Mobile <span>*</span></label>
+              <input
+                type="tel"
+                name="phone"
+                id="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                onInput={(e) => {
+                  let value = e.target.value.replace(/[^0-9]/g, "");
+                  if (value.length > 0) {
+                    value = "9" + value.slice(1);
+                  }
+                  e.target.value = value.slice(0, 10);
+                }}
+                maxLength="10"
+                aria-required="true"
+                placeholder="9XXXXXXXXX"
+              />
+              {formErrors.phone && (
+                <span className="account-settings__error">{formErrors.phone}</span>
+              )}
+            </div>
 
             <div className="account-settings__form-group">
               <label htmlFor="email">Email <span>*</span></label>
@@ -196,11 +187,13 @@ const SAccountSettings = () => {
                 value={formData.email}
                 onChange={handleChange}
                 aria-required="true"
+                placeholder="Enter your email"
               />
               {formErrors.email && <span className="account-settings__error">{formErrors.email}</span>}
             </div>
+
             <div className="account-settings__form-group">
-              <label htmlFor="name">Shop Name <span>*</span></label>
+              <label htmlFor="shopName">Shop Name <span>*</span></label>
               <input
                 type="text"
                 name="shopName"
@@ -208,11 +201,13 @@ const SAccountSettings = () => {
                 value={formData.shopName}
                 onChange={handleChange}
                 aria-required="true"
+                placeholder="Enter shop name"
               />
               {formErrors.shopName && <span className="account-settings__error">{formErrors.shopName}</span>}
             </div>
+
             <div className="account-settings__form-group">
-              <label htmlFor="name">Business Address <span>*</span></label>
+              <label htmlFor="businessLocation">Business Address <span>*</span></label>
               <input
                 type="text"
                 name="businessLocation"
@@ -220,52 +215,58 @@ const SAccountSettings = () => {
                 value={formData.businessLocation}
                 onChange={handleChange}
                 aria-required="true"
+                placeholder="Enter business address"
               />
-              {formErrors.businessLocation && <span className="account-settings__error">{formErrors.businessLocation}</span>}
+              {formErrors.businessLocation && (
+                <span className="account-settings__error">{formErrors.businessLocation}</span>
+              )}
             </div>
-            <div className="account-settings__form-group">
-              <label htmlFor="file-input">
-                <img
-                  src={image ? URL.createObjectURL(image) : upload_area}
-                  className="addproduct-thumbnail-img"
-                  alt=""
+
+            <div className="account-settings__form-group upload-group">
+              <label htmlFor="file-input">ID Picture</label>
+              <div className="image-upload-container">
+                <label htmlFor="file-input">
+                  <img
+                    src={image ? URL.createObjectURL(image) : upload_area}
+                    className="addproduct-thumbnail-img"
+                    alt="ID Picture Preview"
+                  />
+                </label>
+                <input
+                  onChange={imageHandler}
+                  type="file"
+                  name="idPicture"
+                  id="file-input"
+                  accept="image/*"
+                  hidden
                 />
-              </label>
-              <input
-                onChange={imageHandler}
-                type="file"
-                name="idPicture"
-                id="file-input"
-                hidden
-              />
+              </div>
             </div>
-            <div className="account-settings__form-group">
+
+            <div className="account-settings__form-group password-group">
               <label htmlFor="password">Password <span>(optional)</span></label>
-              <div style={{ position: 'relative' }}>
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                id="password"
-                value={formData.password}
-                onChange={handleChange}
-                style={{ paddingRight: '30px', width: '100%'}}
-              />
-              <span
-                className="eye-icon"
-                onClick={togglePasswordVisibility}
-                style={{
-                  cursor: 'pointer',
-                  position: 'absolute',
-                  right: '10px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                }}
-              >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </span>
+              <div className="password-container">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  id="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="password-input"
+                  placeholder="Enter new password"
+                />
+                <span
+                  className="eye-icon"
+                  onClick={togglePasswordVisibility}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </span>
+              </div>
+              {formErrors.password && (
+                <span className="account-settings__error">{formErrors.password}</span>
+              )}
             </div>
-            {formErrors.password && <span className="account-settings__error">{formErrors.password}</span>}
-                      </div>
+
             <button className="account-settings__button" type="submit">
               Save Changes
             </button>

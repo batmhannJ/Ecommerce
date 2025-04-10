@@ -1,174 +1,280 @@
+/* Modal Overlay */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.7); /* Darker background for better focus */
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Modal Content */
+.modal-content {
+  background: var(--white);
+  border-radius: 16px;
+  width: 90vw; /* Fluid width based on viewport */
+  max-width: 800px; /* Maximum width */
+  min-width: 300px; /* Minimum width for very small screens */
+  display: flex;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  animation: slideUp 0.4s ease-out;
+}
+
+/* Sidebar for Image */
+.modal-image-sidebar {
+  flex: 0 0 clamp(200px, 35%, 300px); /* Fluid width between 200px and 300px */
+  background: #f0f5fa;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--border-light);
+}
+
+/* Image Upload Area */
+.image-upload-area {
+  width: clamp(120px, 20vw, 180px); /* Scales with viewport width */
+  height: clamp(120px, 20vw, 180px);
+  border-radius: 12px;
+  background: var(--white);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-}
-
-.edit-form {
-  background: #ffffff;
-  padding: 30px; /* Increased padding for more space */
-  border-radius: 15px; /* Larger rounded corners for a softer look */
   position: relative;
-  max-width: 700px; /* Increased width */
-  width: 95%; /* Width set to 95% of the viewport */
-  height: 500px; /* Increased height for more space */
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Softer and larger shadow for depth */
-  transition: all 0.3s ease;
-  overflow-y: auto; /* Enables scrolling when content exceeds height */
-}
-
-.edit-form h2 {
-  font-size: 26px; /* Larger font size for headings */
-  color: #333; /* Darker text for better readability */
-  margin-bottom: 20px;
-  font-weight: 700; /* Bold font weight */
-  text-align: center; /* Center-align the heading */
-}
-
-.edit-form input,
-.edit-form select {
-  width: 100%;
-  padding: 12px 15px; /* Larger padding for inputs and selects */
-  margin: 12px 0;
-  border: 2px solid #ddd; /* Thicker border for inputs */
-  border-radius: 10px; /* Larger border radius */
-  font-size: 16px;
-  transition: border-color 0.3s ease;
-}
-
-.edit-form input:focus,
-.edit-form select:focus {
-  border-color: #ff6f61; /* Change border color on focus */
-  outline: none; /* Remove default outline */
-}
-
-.edit-form button {
-  border: none;
-  border-radius: 10px; /* Larger border radius for buttons */
-  padding: 12px 20px; /* Larger button padding */
-  font-size: 16px; /* Larger text size */
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-  width: 100%; /* Make button span the full width */
-  margin-top: 15px; /* Space between input fields and buttons */
+  transition: all 0.3s ease;
+  border: 2px dashed var(--primary-light);
 }
 
-/* Specific styles for the Update button */
+.image-upload-area:hover {
+  border-color: var(--primary);
+  box-shadow: 0 4px 15px rgba(91, 127, 167, 0.2);
+}
+
+.image-upload-area img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.image-upload-placeholder {
+  font-size: clamp(30px, 4vw, 40px); /* Scales with viewport */
+  color: var(--primary-light);
+}
+
+.image-upload-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.image-upload-label {
+  margin-top: 10px;
+  font-size: clamp(12px, 1.5vw, 14px); /* Fluid font size */
+  font-weight: 600;
+  color: var(--text-dark);
+  text-align: center;
+}
+
+/* Form Section */
+.modal-form-section {
+  flex: 1;
+  padding: clamp(15px, 3vw, 25px); /* Fluid padding */
+}
+
+/* Modal Header */
+.modal-form-section h2 {
+  font-size: clamp(18px, 2.5vw, 22px); /* Fluid header size */
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0 0 15px;
+  text-align: center;
+  position: relative;
+}
+
+.modal-form-section h2::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(40px, 6vw, 50px); /* Fluid underline */
+  height: 3px;
+  background: var(--primary);
+  border-radius: 2px;
+}
+
+/* Two-Column Layout */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Adaptive columns */
+  gap: clamp(10px, 2vw, 15px); /* Fluid gap */
+}
+
+/* Input Group */
+.input-group {
+  margin-bottom: clamp(8px, 1.5vw, 12px); /* Fluid margin */
+}
+
+.input-group label {
+  display: block;
+  font-size: clamp(12px, 1.5vw, 13px);
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 4px;
+}
+
+.input-group input,
+.input-group select {
+  width: 100%;
+  padding: clamp(8px, 1.2vw, 10px) clamp(10px, 1.5vw, 12px); /* Fluid padding */
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  background: var(--white);
+  font-size: clamp(12px, 1.5vw, 14px);
+  color: var(--text-dark);
+  transition: all 0.3s ease;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(91, 127, 167, 0.2);
+  outline: none;
+}
+
+/* Buttons Container */
+.modal-buttons {
+  display: flex;
+  gap: clamp(8px, 1vw, 10px);
+  margin-top: clamp(10px, 2vw, 15px);
+}
+
+.update-button,
+.cancel-button {
+  flex: 1;
+  padding: clamp(8px, 1.2vw, 10px);
+  border-radius: 8px;
+  border: none;
+  font-size: clamp(13px, 1.8vw, 15px);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
 .update-button {
-  background-color: #4CAF50; /* Green for the "Update" button */
-  color: white;
+  background: var(--primary);
+  color: var(--white);
 }
 
 .update-button:hover {
-  background-color: #45a049; /* Slightly darker green on hover */
-  transform: scale(1.05); /* Slight scale effect on hover */
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(91, 127, 167, 0.3);
 }
 
-/* Specific styles for the Cancel button */
 .cancel-button {
-  background-color: #f44336; /* Red for the "Cancel" button */
-  color: white;
+  background: var(--text-light);
+  color: var(--white);
 }
 
 .cancel-button:hover {
-  background-color: #e53935; /* Slightly darker red on hover */
-  transform: scale(1.05); /* Slight scale effect on hover */
+  background: var(--text-medium);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
 }
 
-.cancel-button + .cancel-button {
-  margin-left: 10px; /* Space between buttons */
-}
-
-
-.edit-form button:hover {
-  background-color: #e55b52;
-  transform: scale(1.05); /* Slight scale effect on hover */
-}
-
-.edit-form button + button {
-  margin-top: 10px; /* Add space between buttons */
-}
-
-/* Responsive Styles */
+/* Responsive Design */
 @media (max-width: 1024px) {
-  .edit-form {
-    padding: 25px;
-    width: 85%;
-    height: 450px; /* Adjusted height for medium screens */
+  .modal-content {
+    width: 85vw;
+    max-width: 700px;
   }
 
-  .edit-form h2 {
-    font-size: 24px;
-    margin-bottom: 18px;
-  }
-
-  .edit-form input,
-  .edit-form select {
-    font-size: 15px;
-    padding: 10px;
-  }
-
-  .edit-form button {
-    font-size: 15px;
-    padding: 10px;
+  .modal-image-sidebar {
+    flex: 0 0 clamp(180px, 30%, 250px);
   }
 }
 
 @media (max-width: 768px) {
-  .edit-form {
-    padding: 20px;
-    width: 90%;
-    height: 450px; /* Adjusted height for smaller screens */
+  .modal-content {
+    width: 90vw;
+    max-width: 600px;
+    flex-direction: column; /* Stack vertically */
   }
 
-  .edit-form h2 {
-    font-size: 22px;
-    margin-bottom: 16px;
+  .modal-image-sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--border-light);
+    padding: clamp(10px, 2vw, 15px);
+    flex: unset; /* Reset flex for stacking */
   }
 
-  .edit-form input,
-  .edit-form select {
-    font-size: 14px;
-    padding: 10px;
-  }
-
-  .edit-form button {
-    font-size: 14px;
-    padding: 10px;
-  }
-  
-  .edit-form button + button {
-    margin-top: 12px; /* Space between stacked buttons */
+  .modal-form-section {
+    padding: clamp(10px, 2vw, 20px);
   }
 }
 
 @media (max-width: 480px) {
-  .edit-form {
-    padding: 18px;
-    width: 95%;
-    height: 420px; /* Adjusted height for mobile */
+  .modal-content {
+    width: 95vw;
+    min-width: 280px;
   }
 
-  .edit-form h2 {
-    font-size: 20px;
-    margin-bottom: 12px;
+  .form-grid {
+    grid-template-columns: 1fr; /* Single column */
   }
 
-  .edit-form input,
-  .edit-form select {
-    font-size: 13px;
-    padding: 8px;
+  .modal-buttons {
+    flex-direction: column;
+    gap: 8px;
   }
 
-  .edit-form button {
-    font-size: 13px;
-    padding: 8px;
+  .image-upload-area {
+    width: clamp(100px, 25vw, 120px);
+    height: clamp(100px, 25vw, 120px);
+  }
+
+  .image-upload-placeholder {
+    font-size: clamp(25px, 6vw, 30px);
+  }
+}
+
+@media (min-width: 1200px) {
+  .modal-content {
+    width: 70vw; /* Slightly narrower on very large screens */
+    max-width: 900px;
+  }
+
+  .modal-image-sidebar {
+    flex: 0 0 40%; /* Slightly wider sidebar */
+  }
+
+  .image-upload-area {
+    width: 200px;
+    height: 200px;
   }
 }

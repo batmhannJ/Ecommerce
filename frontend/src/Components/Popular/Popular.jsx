@@ -32,7 +32,7 @@ const Popular = () => {
             id={item.id}
             name={item.name}
             image={item.image}
-            new_price={item.new_price}
+            markup_price={item.markup_price}
           />
         ))}
       </div>

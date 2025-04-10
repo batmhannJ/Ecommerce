@@ -12,6 +12,9 @@ const transactionSchema = new mongoose.Schema({
   status: { type: String, required: true },
   userId: { type: String, required: true },
   riderId: { type: String, required: true },
+  markupValue: { type: Number },
+  deliveryFee: { type: Number }, 
+  deliveryComm: {type: Number },
 });
 
 module.exports = mongoose.model("Transaction", transactionSchema);

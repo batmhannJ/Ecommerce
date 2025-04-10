@@ -10,7 +10,7 @@ const ProductDisplay = (props) => {
   const { addToCart } = useContext(ShopContext);
   const navigate = useNavigate();
   const [selectedSize, setSelectedSize] = useState("");
-  const [adjustedPrice, setAdjustedPrice] = useState(product.new_price);
+  const [adjustedPrice, setAdjustedPrice] = useState(product.markup_price);
   const [adjustedOldPrice, setAdjustedPriceOld] = useState(product.old_price);
   const [currentStock, setCurrentStock] = useState(product.stock); // Default to total stock
   const [quantity, setQuantity] = useState(1); // State for quantity
@@ -28,7 +28,7 @@ const ProductDisplay = (props) => {
       thumb3: product.thumbnail3
     });
     // Reset adjustedPrice, stock, and quantity when product changes
-    setAdjustedPrice(product.new_price);
+    setAdjustedPrice(product.markup_price);
     setAdjustedPriceOld(product.old_price);
     setSelectedSize(""); // Optionally reset size
     setCurrentStock(product.stock); // Reset to default total stock
@@ -50,7 +50,7 @@ const ProductDisplay = (props) => {
     } else if (size === "XL") {
       priceAdjustment = 300;
     }
-    setAdjustedPrice(product.new_price + priceAdjustment);
+    setAdjustedPrice(product.markup_price + priceAdjustment);
 
     let priceAdjustmentOld = 0;
     if (size === "S") {

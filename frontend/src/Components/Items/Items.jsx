@@ -42,7 +42,7 @@
         <div className="items-details">
           <p className="items-name">{props.name}</p>
           <div className="items-price">
-            <span className="new-price">₱{props.new_price}</span>
+            <span className="new-price">₱{props.markup_price}</span>
           </div>
         </div>
       </div>

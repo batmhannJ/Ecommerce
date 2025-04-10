@@ -86,47 +86,54 @@ const MyOrders = () => {
     const cartDetails = JSON.parse(localStorage.getItem("cartDetails"));
     const deliveryFee = parseFloat(localStorage.getItem("deliveryFee")) || 0;
     const storedUserData = localStorage.getItem("userData");
-    // Get rider ID from localStorage if available, or use default value
     const riderId = localStorage.getItem("riderId") || "unassigned";
-
+  
     console.log("Reference Number:", referenceNumber);
     console.log("Cart Details:", cartDetails);
     console.log("Delivery Fee:", deliveryFee);
     console.log("User Data:", storedUserData);
     console.log("Rider ID:", riderId);
-    
+  
     if (!cartDetails || cartDetails.length === 0) {
       console.error("Cart details are missing or empty");
       toast.error("Cart details are missing. Cannot process order.");
       return;
     }
-    
+  
     if (!referenceNumber) {
       console.error("Reference number is missing");
       toast.error("Reference number is missing. Cannot process order.");
       return;
     }
-    
+  
     const userData = storedUserData ? JSON.parse(storedUserData) : null;
-    
+  
     if (!userData) {
       console.error("User data is missing");
       toast.error("User data is missing. Cannot process order.");
       return;
     }
-
+  
     try {
       // Format phone number with country code if needed
-      const formattedPhone = userData.phone.startsWith("+") ? 
-        userData.phone : 
-        `+63${userData.phone.startsWith("0") ? userData.phone.substring(1) : userData.phone}`;
-      
+      const formattedPhone = userData.phone.startsWith("+")
+        ? userData.phone
+        : `+63${userData.phone.startsWith("0") ? userData.phone.substring(1) : userData.phone}`;
+  
       // Format complete address including barangay
       const formattedAddress = `${userData.street}, ${userData.barangay}, ${userData.city}, ${userData.state}, ${userData.zipcode}, ${userData.country}`;
-      
+  
       // Calculate total amount
       const totalAmount = getTotalCartAmount() + deliveryFee;
-      
+  
+      // Calculate total markup value from cartDetails
+      const totalMarkupValue = cartDetails.reduce(
+        (sum, item) => sum + (item.markup_value || 0) * item.quantity,
+        0
+      );
+
+      const deliveryComm = deliveryFee * 0.2;
+  
       const transactionData = {
         transactionId: referenceNumber,
         date: new Date(),
@@ -140,16 +147,23 @@ const MyOrders = () => {
         address: formattedAddress,
         status: "Pending",
         userId: userId,
-        riderId: riderId,  // ADD THIS REQUIRED FIELD
+        riderId: riderId,
+        markupValue: totalMarkupValue, 
+        deliveryComm: deliveryComm, // Idinagdag ang deliveryComm (20% ng deliveryFee)
+        // Optional: If you want to store markup_value per item, uncomment the line below
+        // items: cartDetails.map(item => ({ ...item, markup_value: item.markup_value || 0 })),
       };
-      
+  
       console.log("Sending transaction data:", transactionData);
-      
+  
       // Save transaction details to the backend
-      const response = await axios.post("http://localhost:4000/api/transactions", transactionData);
-      
+      const response = await axios.post(
+        "http://localhost:4000/api/transactions",
+        transactionData
+      );
+  
       console.log("Transaction saved successfully:", response.data);
-
+  
       // Update stock information
       await axios.post("http://localhost:4000/api/updateStock", {
         updates: cartDetails.map((item) => ({
@@ -158,42 +172,37 @@ const MyOrders = () => {
           quantity: item.quantity,
         })),
       });
-
+  
       console.log("Clearing cart...");
       clearCart();
       console.log("Cart cleared");
-      
+  
       // Clear local storage and show success message
       localStorage.removeItem("cartDetails");
       localStorage.removeItem("referenceNumber");
       localStorage.removeItem("deliveryFee");
-      localStorage.removeItem("riderId"); // Remove riderId if it was set
+      localStorage.removeItem("riderId");
       toast.success("Order successfully placed!");
-      
+  
       // Refresh orders list
       fetchOrders();
-      
     } catch (error) {
       console.error("Post-payment error:", error);
-      
+  
       if (error.response) {
-        // The request was made and the server responded with a status code
         console.error("Error response data:", error.response.data);
         console.error("Error response status:", error.response.status);
-        
-        // Check if we have detailed validation errors
+  
         if (error.response.data && error.response.data.errors) {
           const errorFields = Object.keys(error.response.data.errors).join(", ");
           toast.error(`Missing required fields: ${errorFields}. Please contact support.`);
         } else {
-          toast.error(`Failed to process order: ${error.response.data.message || 'Server error'}`);
+          toast.error(`Failed to process order: ${error.response.data.message || "Server error"}`);
         }
       } else if (error.request) {
-        // The request was made but no response was received
         console.error("Error request:", error.request);
         toast.error("Failed to connect to server. Please check your connection.");
       } else {
-        // Something happened in setting up the request
         toast.error(`Error: ${error.message}`);
       }
     }

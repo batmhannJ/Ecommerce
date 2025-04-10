@@ -12,6 +12,7 @@ import RiderRequest from '../../Components/RiderRequest/RiderRequest';
 import AccountSettings from '../../Components/AdminProfile/AccountSettings'; // Adjust path as necessary
 import SellerList from '../../Components/SellerList/SellerList';
 import RiderList from '../../Components/RiderList/RiderList';
+import Commission from '../../Components/Commission/Commission';
 
 
 const Admin = () => {
@@ -30,6 +31,7 @@ const Admin = () => {
           <Route path="accountsettings" element={<AccountSettings />} />
           <Route path="sellerlist" element={<SellerList />} />
           <Route path="riderlist" element={<RiderList />} />
+          <Route path="commission" element={<Commission />} />
         </Routes>
       </div>
     </div>

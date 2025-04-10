@@ -16,7 +16,7 @@ const SearchResults = () => {
             id={product.id}
             name={product.name}
             image={product.image}
-            new_price={product.new_price}
+            markup_price={product.markup_price}
           />
         ))
       ) : (

@@ -16,6 +16,7 @@ const server = require("http").createServer(app);
 const superAdminRoutes = require("./routes/superAdminRoute");
 const adminRoutes = require("./routes/adminRoute");
 const orderRouter = require("./routes/orderRoute");
+const orderRoutes = require('./routes/orderRoutes');
 const sellerRouter = require("./routes/sellerRoute");
 const userRoutes = require("./routes/userRoute");
 const transactionRoutes = require("./routes/transactionRoute");
@@ -23,6 +24,7 @@ const productRoute = require("./routes/productRoute");
 const cartRoute = require("./routes/cartRoute");
 const riderRoutes = require('./routes/riderRoute');
 const shopRoutes = require('./routes/shopRoute');
+const commissionRoutes = require('./routes/commissionRoute');
 const { signup } = require("./controllers/sellerController");
 const { getUsers } = require("./controllers/userController");
 const { searchAdmin } = require("./controllers/adminController");
@@ -64,6 +66,7 @@ const allowedOrigins = [
   'http://localhost:4000',
   'http://localhost:5175',
   'http://localhost:51549',
+  'http://localhost:60375',
 ];
 
 app.use(
@@ -76,7 +79,7 @@ app.use(
       }
     },
     methods: ["GET", "POST", "DELETE", "PATCH", "PUT"], // Allowed HTTP methods
-    allowedHeaders: ["Content-Type", "Authorization"], // Headers needed for requests
+    allowedHeaders: ["Content-Type", "Authorization", "xx-token"], // Headers needed for requests
     exposedHeaders: ["Content-Length", "X-Foo", "X-Bar"], // Expose additional headers if needed
     credentials: true, // Allow cookies or credentials in the request
   })
@@ -191,6 +194,8 @@ const Product = require("./models/productModels");
 const { authMiddleware: fetchUser } = require("./middleware/auth");
 
 const Users = require("./models/userModels");
+const Admin = require("./models/adminUserModel");
+const Rider = require("./models/riderModel");
 const Seller = require("./models/sellerModels");
 const Cart = require('./models/cartModel'); 
 
@@ -1299,6 +1304,286 @@ app.get('/api/page', async (req, res) => {
 });
 
 
+app.get("/api/markup-values", async (req, res) => {
+  try {
+    // Kunin muna lahat ng transactions para i-check kung may data
+    const transactions = await Transaction.find({});
+    if (!transactions || transactions.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No transactions found in the database",
+      });
+    }
+
+    // Sum ng markupValue, gamit ang $ifNull para i-default sa 0 kung wala
+    const markupAggregation = await Transaction.aggregate([
+      {
+        $group: {
+          _id: null, // Walang grouping per field, kunin lang lahat
+          totalMarkupValue: {
+            $sum: { $ifNull: ["$markupValue", 0] }, // Default sa 0 kung missing ang markupValue
+          },
+        },
+      },
+    ]);
+
+    const totalMarkupValue = markupAggregation[0]?.totalMarkupValue || 0;
+
+    // Kunin ang mga detalye ng markup, i-default din sa 0 kung wala
+    const markupDetails = transactions.map((trans) => ({
+      productName: trans.item || "Unknown Product",
+      markup_value: trans.markupValue || 0, // Default sa 0 kung wala
+      occurrences: 1, // Simple count; pwede i-adjust kung may quantity field
+      subtotal: trans.markupValue || 0, // Default sa 0 kung wala
+    }));
+
+    res.json({
+      success: true,
+      totalMarkupValue,
+      markupDetails,
+    });
+  } catch (error) {
+    console.error("Error in /markup-values endpoint:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+});
+
+app.get("/api/delivery-comm", async (req, res) => {
+  try {
+    const transactions = await Transaction.find({});
+    if (!transactions || transactions.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No transactions found in the database",
+      });
+    }
+
+    // Sum ng deliveryComm
+    const aggregation = await Transaction.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalDeliveryComm: { $sum: { $ifNull: ["$deliveryComm", 0] } }, // Default sa 0 kung wala
+        },
+      },
+    ]);
+
+    const totalDeliveryComm = aggregation[0]?.totalDeliveryComm || 0;
+
+    res.json({
+      success: true,
+      totalDeliveryComm,
+    });
+  } catch (error) {
+    console.error("Error in /delivery-comm endpoint:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+});
+
+app.get("/api/monthly-commissions", async (req, res) => {
+  try {
+    const transactions = await Transaction.find({});
+    if (!transactions || transactions.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No transactions found in the database",
+      });
+    }
+
+    // Aggregate monthly totals
+    const monthlyAggregation = await Transaction.aggregate([
+      {
+        $group: {
+          _id: {
+            month: { $month: "$date" }, // Group by month
+            year: { $year: "$date" },   // Include year to avoid mixing data across years
+          },
+          seller: { $sum: { $ifNull: ["$markupValue", 0] } },   // Total markupValue per month
+          rider: { $sum: { $ifNull: ["$deliveryComm", 0] } },   // Total deliveryComm per month
+        },
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 }, // Sort by year and month
+      },
+    ]);
+
+    // Map to readable format
+    const monthNames = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+    const monthlyRevenue = monthlyAggregation.map((item) => ({
+      month: monthNames[item._id.month - 1], // Convert month number to name
+      seller: item.seller,
+      rider: item.rider,
+    }));
+
+    res.json({
+      success: true,
+      monthlyRevenue,
+    });
+  } catch (error) {
+    console.error("Error in /monthly-commissions endpoint:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+});
+app.post("/api/login-role", async (req, res) => {
+  console.log("Login request received:", req.body);
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    console.log("Missing email or password in request");
+    return res.status(400).json({ success: false, errors: "Email and password are required" });
+  }
+
+  try {
+    // Check Users table
+    console.log("Checking Users table for email:", email);
+    let user = await Users.findOne({ email });
+    if (user) {
+      console.log("User found in Users table:", user._id);
+      if (password === user.password) {
+        const data = {
+          user: {
+            id: user.id,
+            role_id: 1 // Users table
+          }
+        };
+        const token = jwt.sign(data, "secret_ecom");
+        console.log("Login successful for user:", user._id, "Role ID: 1");
+        return res.json({ 
+          success: true, 
+          token, 
+          userId: user._id,
+          roleId: 1,
+          firstName: user.name.split(' ')[0],
+          lastName: user.name.split(' ').slice(1).join(' '),
+          phone: user.phone
+        });
+      }
+      console.log("Password mismatch for user:", user._id);
+      return res.json({ success: false, errors: "Error: Wrong Password" });
+    }
+
+    // Check Admins table
+    console.log("Checking Admins table for email:", email);
+    let admin = await Admin.findOne({ email });
+    if (admin) {
+      console.log("User found in Admins table:", admin._id);
+      if (password === admin.password) {
+        const data = {
+          user: {
+            id: admin.id,
+            role_id: 2 // Admins table
+          }
+        };
+        const token = jwt.sign(data, "secret_ecom");
+        console.log("Login successful for admin:", admin._id, "Role ID: 2");
+        return res.json({ 
+          success: true, 
+          token, 
+          userId: admin._id,
+          roleId: 2,
+          firstName: user.name.split(' ')[0],
+          lastName: user.name.split(' ').slice(1).join(' '),
+          phone: user.phone
+        });
+      }
+      console.log("Password mismatch for admin:", admin._id);
+      return res.json({ success: false, errors: "Error: Wrong Password" });
+    }
+
+    // Check Riders table
+    console.log("Checking Riders table for email:", email);
+    let rider = await Rider.findOne({ email });
+    if (rider) {
+      console.log("User found in Riders table:", rider._id);
+      if (password === rider.password) {
+        const data = {
+          user: {
+            id: rider.id,
+            role_id: 3 // Riders table
+          }
+        };
+        const token = jwt.sign(data, "secret_ecom");
+        console.log("Login successful for rider:", rider._id, "Role ID: 3");
+        return res.json({ 
+          success: true, 
+          token, 
+          userId: rider._id,
+          roleId: 3,
+          firstName: user.name.split(' ')[0],
+          lastName: user.name.split(' ').slice(1).join(' '),
+          phone: user.contactNumber
+        });
+      }
+      console.log("Password mismatch for rider:", rider._id);
+      return res.json({ success: false, errors: "Error: Wrong Password" });
+    }
+
+    // If no match found in any table
+    console.log("No user found with email:", email);
+    res.status(404).json({ success: false, errors: "Error: Wrong Email Address" });
+    
+  } catch (error) {
+    console.error("Server error during login:", error);
+    res.status(500).json({ success: false, errors: "Server Error" });
+  }
+});
+
+app.get("/api/renew-token-login", async (req, res) => {
+  console.log("Renew token request received");
+
+  // Get the token from the xx-token header
+  const token = req.headers['xx-token'];
+
+  if (!token) {
+    console.log("No token provided in xx-token header");
+    return res.status(401).json({ success: false, errors: "No token provided" });
+  }
+
+  try {
+    // Verify the existing token
+    const decoded = jwt.verify(token, "secret_ecom");
+    console.log("Token verified, decoded:", decoded);
+
+    // Extract user data from the decoded token
+    const userData = decoded.user;
+
+    // Generate a new token with the same user data
+    const newToken = jwt.sign({ user: userData }, "secret_ecom", {
+      expiresIn: '1h', // Set a new expiration time (e.g., 1 hour)
+    });
+
+    console.log("New token generated:", newToken);
+    res.json({
+      success: true,
+      token: newToken,
+      userId: userData.id,
+      roleId: userData.role_id,
+    });
+  } catch (error) {
+    console.error("Error verifying token:", error);
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ success: false, errors: "Token expired" });
+    }
+    return res.status(401).json({ success: false, errors: "Invalid token" });
+  }
+});
+
+
 //======================== M O B I L E ==================================//
 
 // API to send OTP
@@ -1801,6 +2086,340 @@ app.get("/redirect", (req, res) => {
   }
 });
 
+// ==================== RIDER MOBILE ============================ //
+
+// GET endpoint to fetch user details by ID
+app.get("/api/user-details/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    console.log("Fetching user details for ID:", userId);
+    
+    // Find the user in the Users collection
+    const user = await Users.findById(userId);
+    
+    if (!user) {
+      console.log("User not found with ID:", userId);
+      return res.status(404).json({ 
+        success: false, 
+        errors: "User not found" 
+      });
+    }
+    
+    // Split the name into first and last name components
+    const nameParts = user.name.split(' ');
+    const firstName = nameParts[0];
+    const lastName = nameParts.slice(1).join(' ');
+    
+    console.log("User found:", user.name);
+    
+    // Return user details in the format expected by your app
+    return res.json({
+      resp: true,
+      msg: "User details retrieved successfully",
+      user: {
+        uid: user._id,
+        firstName: firstName,
+        lastName: lastName,
+        email: user.email,
+        phone: user.phone || '',
+        image: user.image || '',
+        rolId: 1,
+        address: {
+          country: user.address.country,
+          street: user.address.street,
+          region: user.address.region,
+          province: user.address.province,
+          municipality: user.address.municipality,
+          barangay: user.address.barangay,
+          zip: user.address.zip
+        },
+        notificationToken: ''
+      },
+      token: req.header('xx-token') || ''
+    });
+    
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+    res.status(500).json({ 
+      resp: false, 
+      msg: "Server Error",
+      user: {
+        uid: '',
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        image: '',
+        rolId: 0,
+        address: {
+          country: user.address.country,
+          street: user.address.street,
+          region: user.address.region,
+          province: user.address.province,
+          municipality: user.address.municipality,
+          barangay: user.address.barangay,
+          zip: user.address.zip
+        },
+        notificationToken: ''
+      },
+      token: ''
+    });
+  }
+});
+// Updated API endpoint for allproducts
+app.get("/allproducts-mobile", async (req, res) => {
+  try {
+    let products = await Product.find({available: true});
+    
+    // Transform MongoDB products to match the mobile app's expected format
+    const transformedProducts = products.map(product => ({
+      id: product.id,
+      nameProduct: product.name,
+      description: product.description || "",
+      price: product.new_price,
+      status: product.available ? 1 : 0,
+      picture: product.image,
+      category: product.category,
+      category_id: product.category ? 1 : 0, // You might want to replace this with actual category IDs
+    }));
+    
+    console.log("All Products Fetched");
+    res.status(200).json({
+      resp: true,
+      msg: "Products fetched successfully",
+      productsdb: transformedProducts
+    });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({
+      resp: false,
+      msg: "Failed to fetch products",
+      productsdb: []
+    });
+  }
+});
+
+app.get('/api/get-images-products/:id', async (req, res) => {
+  try {
+    const productId = parseInt(req.params.id);
+    
+    const product = await Product.findOne({ id: productId });
+    
+    if (!product) {
+      return res.status(404).json({ 
+        resp: false, 
+        msg: 'Product not found',
+        imageProductdb: [] 
+      });
+    }
+    
+    // Create image product data based on your model
+    const imageData = {
+      id: 1, // You might want to generate a proper ID here
+      picture: product.image,
+      product_id: product.id
+    };
+    
+    return res.status(200).json({
+      resp: true,
+      msg: 'Product image found',
+      imageProductdb: [imageData]  // Returns as array as your model expects a List
+    });
+    
+  } catch (error) {
+    console.error('Error fetching product image:', error);
+    return res.status(500).json({
+      resp: false,
+      msg: 'Server error while fetching product image',
+      imageProductdb: []
+    });
+  }
+});
+
+app.post('/api/add-new-orders', async (req, res) => {
+  try {
+    console.log('Received order request:', req.body); // Add this for debugging
+
+    const { uidAddress, total, typePayment, products } = req.body;
+
+    // Validate required fields based on your OrdersBloc implementation
+    if (!uidAddress || !total || !typePayment || !products || !Array.isArray(products)) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Missing required fields: uidAddress, total, typePayment, or products',
+      });
+    }
+
+    // Since your OrdersBloc doesn't send userId directly, you might need to:
+    // 1. Either extract it from the authentication token/session
+    // 2. Or look it up based on the address ID (assuming addresses are linked to users)
+    
+    // Option 1: Extract from auth token (if you're using authentication middleware)
+    // const userId = req.user.id;
+    
+    // Option 2: Look up user based on address (example)
+    const address = await Address.findById(uidAddress);
+    if (!address) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Address not found',
+      });
+    }
+    const userId = address.userId; // Assuming your address model has a userId field
+
+    // Map products to items (based on your ProductCart model)
+    const items = products.map(product => ({
+      productId: product.uidProduct,
+      name: product.nameProduct,
+      price: product.price,
+      quantity: product.quantity,
+      image: product.imageProduct,
+    }));
+
+    // Determine payment status based on typePayment
+    const paymentStatus = typePayment === 'CASH ON DELIVERY' ? false : true;
+
+    // Create new order
+    const newOrder = new Order({
+      userId, // User ID obtained from address or auth token
+      items,
+      amount: total,
+      address: {
+        id: uidAddress,
+      },
+      payment: paymentStatus,
+      status: 'PAID', // Default status for new orders, adjust as needed
+      dateTime: new Date() // Current timestamp
+    });
+
+    // Save to MongoDB
+    const savedOrder = await newOrder.save();
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Order added successfully',
+      data: savedOrder,
+    });
+  } catch (error) {
+    console.error('Error adding order:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to add order: ' + error.message,
+    });
+  }
+});
+
+app.post("/api/add-new-address", async (req, res) => {
+  try {
+    // Extract address data and userId from the request body
+    const {
+      userId,
+      street,
+      reference,
+      latitude,
+      longitude,
+      country, // Optional, defaults to "Philippines" in schema
+    } = req.body;
+
+    // Validate required fields
+    if (!userId || !street || !reference || !latitude || !longitude) {
+      return res.status(400).json({ error: "userId, street, reference, latitude, and longitude are required" });
+    }
+
+    // Find the user by ID
+    const user = await Users.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Update the address1 field with the provided data
+    user.address1 = {
+      street,
+      reference,
+      latitude,
+      longitude,
+      country: country || user.address1?.country || "Philippines", // Use provided country or default
+    };
+
+    // Save the updated user document
+    await user.save();
+
+    // Return a success response
+    res.status(200).json({
+      message: "Address1 added successfully",
+      address1: user.address1,
+    });
+  } catch (error) {
+    console.error("Error adding address1:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Add this route to your index.js file
+app.get('/api/get-addresses', async (req, res) => {
+  try {
+    // Since we're not verifying tokens, we need to get the user ID from the request
+    // You can pass it as a query parameter
+    const userId = req.query.userId;
+    
+    if (!userId) {
+      return res.status(400).json({ success: false, message: 'User ID is required' });
+    }
+    
+    const user = await Users.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    
+    // Build addresses list from user document
+    const addresses = [];
+    
+    // Handle address field
+    if (user.address && user.address.street) {
+      addresses.push({
+        id: "address",
+        street: user.address.street || "",
+        reference: user.address.reference || "",
+        latitude: user.address.latitude || 0,
+        longitude: user.address.longitude || 0
+      });
+    }
+    
+    // Handle address1 field
+    if (user.address1 && user.address1.street) {
+      addresses.push({
+        id: "address1",
+        street: user.address1.street || "",
+        reference: user.address1.reference || "",
+        latitude: user.address1.latitude || 0,
+        longitude: user.address1.longitude || 0
+      });
+    }
+    
+    // Handle address2 field
+    if (user.address2 && user.address2.street) {
+      addresses.push({
+        id: "address2",
+        street: user.address2.street || "",
+        reference: user.address2.reference || "",
+        latitude: user.address2.latitude || 0,
+        longitude: user.address2.longitude || 0
+      });
+    }
+    
+    // Return formatted response
+    return res.json({
+      success: true,
+      listAddresses: addresses
+    });
+    
+  } catch (error) {
+    console.log('[ERROR] Getting addresses:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 // Admin Routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/", adminRoutes);
@@ -1813,3 +2432,5 @@ app.use('/api/rider', riderRoutes);
 app.use("/api", riderRoutes);
 app.use('/api', shopRoutes);
 //app.use('/api/shops', shopRoutes);
+app.use('/api/commissions', commissionRoutes);
+//app.use('/api', orderRoutes);

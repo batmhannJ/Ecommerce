@@ -15,18 +15,31 @@ class OrdersServices {
   Future<ResponseDefault> addNewOrders(String uidAddress, double total, String typePayment, List<ProductCart> products) async {
 
     final token = await secureStorage.readToken();
-
+    final userId = await secureStorage.readUserId();
+if (userId == null) {
+      throw Exception('User ID not found in secure storage');
+    }
+   // Prepare request payload with userId included
     Map<String, dynamic> data = {
-      "uidAddress"  : uidAddress,
+      "userId": userId,         // Add userId from secure storage
+      "uidAddress": uidAddress,
       "typePayment": typePayment,
-      "total"       : total,
-      "products"    : products 
+      "total": total,
+      "products": products.map((p) => {
+        "uidProduct": p.uidProduct,
+        "nameProduct": p.nameProduct,
+        "price": p.price,
+        "quantity": p.quantity,
+        "imageProduct": p.imageProduct,
+      }).toList(),
     };
 
     final resp = await http.post(Uri.parse('${Environment.endpointApi}/add-new-orders'),
       headers: {'Content-type' : 'application/json', 'xx-token' : token!},
       body: json.encode(data)
     );
+    
+    print('Raw API Response: ${resp.body}');
 
     return ResponseDefault.fromJson(jsonDecode(resp.body));
   }
@@ -95,21 +108,39 @@ class OrdersServices {
     );
     return ResponseDefault.fromJson( jsonDecode( resp.body ));
   }
-  
+Future<List<OrdersClient>> getListOrdersForClient() async {
+  final userId = await secureStorage.readUserId();
 
-  Future<List<OrdersClient>> getListOrdersForClient() async {
-
-    final token = await secureStorage.readToken();
-
-    final resp = await http.get(Uri.parse('${Environment.endpointApi}/get-list-orders-for-client'),
-      headers: {'Accept' : 'application/json', 'xx-token' : token!}
-    );
-    
-    return OrdersClientResponse.fromJson( jsonDecode(resp.body)).ordersClient;
+  if (userId == null) {
+    throw Exception('User ID not found');
   }
 
+  final url = '${Environment.endpointApi}/client-order?userId=$userId';
+  print('Calling URL: $url');
 
+  final response = await http.get(
+    Uri.parse(url),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  );
 
+  print('Orders API Response: ${response.body}');
+
+  if (response.statusCode == 200) {
+    final jsonResponse = jsonDecode(response.body);
+    final ordersResponse = OrdersClientResponse.fromJson(jsonResponse);
+    if (ordersResponse.status) {
+      print('Parsed orders count: ${ordersResponse.ordersClient.length}');
+      print('Parsed orders: ${ordersResponse.ordersClient.map((o) => o.id).toList()}');
+      return ordersResponse.ordersClient;
+    } else {
+      throw Exception(ordersResponse.message.isEmpty ? 'Failed to fetch orders' : ordersResponse.message);
+    }
+  } else {
+    throw Exception('HTTP Error: ${response.statusCode}');
+  }
+}
 }
 
 final ordersServices = OrdersServices();

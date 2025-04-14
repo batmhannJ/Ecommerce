@@ -4,8 +4,8 @@ part of 'payments_bloc.dart';
 class PaymentsState {
 
   final String typePaymentMethod;
-  final IconData iconPayment;
-  final Color colorPayment;
+  final IconData? iconPayment;
+  final Color? colorPayment;
 
   PaymentsState({
     this.typePaymentMethod = 'CREDIT CARD',

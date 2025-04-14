@@ -1,77 +1,100 @@
-
 class OrdersClientResponse {
-
-  final bool resp;
-  final String msg;
+  final bool status;
+  final String message;
   final List<OrdersClient> ordersClient;
 
   OrdersClientResponse({
-    required this.resp,
-    required this.msg,
+    required this.status,
+    required this.message,
     required this.ordersClient,
   });
 
   factory OrdersClientResponse.fromJson(Map<String, dynamic> json) => OrdersClientResponse(
-    resp: json["resp"],
-    msg: json["msg"],
-    ordersClient: json["ordersClient"] != null ? List<OrdersClient>.from(json["ordersClient"].map((x) => OrdersClient.fromJson(x))) : [],
-  );
+        status: json['status'] == 'success',
+        message: json['message']?.toString() ?? '',
+        ordersClient: (json['data'] as List<dynamic>?)
+                ?.map((x) => OrdersClient.fromJson(x as Map<String, dynamic>))
+                .toList() ??
+            [],
+      );
 }
 
 class OrdersClient {
-
-  final int id;
-  final int clientId;
-  final int deliveryId;
-  final String reference;
-  final String latClient;
-  final String lngClient;
-  final String delivery;
-  final String deliveryPhone;
-  final String imageDelivery;
-  final int addressId;
-  final String latitude;
-  final String longitude;
-  final String status;
+  final String id;
   final double amount;
-  final String payType;
+  final String status;
   final DateTime currentDate;
+  final List<OrderItem> items;
+  final Address address;
 
   OrdersClient({
     required this.id,
-    required this.clientId,
-    required this.deliveryId,
-    required this.reference,
-    required this.latClient,
-    required this.lngClient,
-    required this.delivery,
-    required this.deliveryPhone,
-    required this.imageDelivery,
-    required this.addressId,
-    required this.latitude,
-    required this.longitude,
-    required this.status,
     required this.amount,
-    required this.payType,
+    required this.status,
     required this.currentDate,
+    required this.items,
+    required this.address,
   });
 
-  factory OrdersClient.fromJson(Map<String, dynamic> json) => OrdersClient(
-    id: json["id"],
-    clientId: json["client_id"],
-    deliveryId: json["delivery_id"] == null ? 0 : json["delivery_id"],
-    delivery: json["delivery"] == null ? '' : json["delivery"],
-    deliveryPhone: json["deliveryPhone"] == '' ? null : json["deliveryPhone"],
-    imageDelivery: json["imageDelivery"] == '' ? null : json["imageDelivery"],
-    addressId: json["address_id"],
-    reference: json["reference"],
-    latClient: json["latClient"],
-    lngClient: json["lngClient"],
-    latitude: json["latitude"],
-    longitude: json["longitude"],
-    status: json["status"],
-    amount: json["amount"].toDouble(),
-    payType: json["pay_type"],
-    currentDate: DateTime.parse(json["currentDate"]),
-  );
+  factory OrdersClient.fromJson(Map<String, dynamic> json) {
+    print('Parsing order JSON: $json');
+    return OrdersClient(
+      id: json['id']?.toString() ?? '',
+      amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
+      status: json['status']?.toString() ?? '',
+      currentDate: DateTime.tryParse(json['currentDate']?.toString() ?? '') ?? DateTime.now(),
+      items: (json['items'] as List<dynamic>?)
+              ?.map((item) => OrderItem.fromJson(item as Map<String, dynamic>))
+              .toList() ??
+          [],
+      address: Address.fromJson(json['address'] as Map<String, dynamic>? ?? {}),
+    );
+  }
+}
+class Address {
+  final String street;
+  final String reference;
+  final double latitude;
+  final double longitude;
+  final String country;
+
+  Address({
+    required this.street,
+    required this.reference,
+    required this.latitude,
+    required this.longitude,
+    required this.country,
+  });
+
+  factory Address.fromJson(Map<String, dynamic> json) => Address(
+        street: json['street']?.toString() ?? 'Unknown',
+        reference: json['reference']?.toString() ?? 'Unknown',
+        latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,
+        longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
+        country: json['country']?.toString() ?? 'Unknown',
+      );
+}
+
+class OrderItem {
+  final String productId;
+  final String name;
+  final double price;
+  final int quantity;
+  final String image;
+
+  OrderItem({
+    required this.productId,
+    required this.name,
+    required this.price,
+    required this.quantity,
+    required this.image,
+  });
+
+  factory OrderItem.fromJson(Map<String, dynamic> json) => OrderItem(
+        productId: json['productId']?.toString() ?? '',
+        name: json['name']?.toString() ?? '',
+        price: (json['price'] as num?)?.toDouble() ?? 0.0,
+        quantity: (json['quantity'] as num?)?.toInt() ?? 0,
+        image: json['image']?.toString() ?? '',
+      );
 }

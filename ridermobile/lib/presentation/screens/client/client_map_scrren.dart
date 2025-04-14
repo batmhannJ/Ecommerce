@@ -9,7 +9,6 @@ import 'package:restaurant/presentation/helpers/helpers.dart';
 import 'package:restaurant/presentation/themes/colors_frave.dart';
 
 class ClientMapScreen extends StatefulWidget {
-
   final OrdersClient orderClient;
 
   const ClientMapScreen({required this.orderClient});
@@ -19,20 +18,18 @@ class ClientMapScreen extends StatefulWidget {
 }
 
 class _ClientMapScreenState extends State<ClientMapScreen> {
-
   late MapclientBloc mapClientBloc;
 
   @override
   void initState() {
-
-    mapClientBloc = BlocProvider.of<MapclientBloc>(context);
-    mapClientBloc.add( OnMarkerClientEvent(
-        LatLng(double.parse(widget.orderClient.latitude), double.parse(widget.orderClient.longitude)), 
-        LatLng(double.parse(widget.orderClient.latClient), double.parse(widget.orderClient.lngClient))
-      ) 
-    );
-    mapClientBloc.initSocketDelivery(widget.orderClient.id.toString());
     super.initState();
+    mapClientBloc = BlocProvider.of<MapclientBloc>(context);
+    mapClientBloc.add(OnMarkerClientEvent(
+      LatLng(widget.orderClient.address.latitude, widget.orderClient.address.longitude),
+      // Placeholder; adjust based on latClient, lngClient purpose
+      LatLng(widget.orderClient.address.latitude, widget.orderClient.address.longitude),
+    ));
+    mapClientBloc.initSocketDelivery(widget.orderClient.id);
   }
 
   @override
@@ -40,22 +37,19 @@ class _ClientMapScreenState extends State<ClientMapScreen> {
     mapClientBloc.disconectSocket();
     super.dispose();
   }
-  
 
   @override
-  Widget build(BuildContext context){
-
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
           _MapClient(orderClient: widget.orderClient),
-
           Positioned(
             left: 10,
             right: 10,
             bottom: 20,
-            child: _InfoCardClient( widget.orderClient)
-          )
+            child: _InfoCardClient(widget.orderClient),
+          ),
         ],
       ),
     );
@@ -63,20 +57,23 @@ class _ClientMapScreenState extends State<ClientMapScreen> {
 }
 
 class _MapClient extends StatelessWidget {
-
   final OrdersClient orderClient;
 
   const _MapClient({required this.orderClient});
-  
+
   @override
   Widget build(BuildContext context) {
-
     final mapClientBloc = BlocProvider.of<MapclientBloc>(context);
-    
+
     return BlocBuilder<MapclientBloc, MapclientState>(
-      builder: (context, state) 
-        => GoogleMap(
-        initialCameraPosition: CameraPosition(target:  LatLng(double.parse(orderClient.latitude), double.parse(orderClient.longitude)), zoom: 17.5),
+      builder: (context, state) => GoogleMap(
+        initialCameraPosition: CameraPosition(
+          target: LatLng(
+            orderClient.address.latitude, // Fixed: Removed 'widget'
+            orderClient.address.longitude,
+          ),
+          zoom: 17.5,
+        ),
         zoomControlsEnabled: false,
         myLocationEnabled: false,
         myLocationButtonEnabled: false,
@@ -84,13 +81,10 @@ class _MapClient extends StatelessWidget {
         markers: state.markerClient.values.toSet(),
       ),
     );
-      
   }
 }
 
-
 class _InfoCardClient extends StatelessWidget {
-  
   final OrdersClient orderClient;
 
   const _InfoCardClient(this.orderClient);
@@ -104,8 +98,8 @@ class _InfoCardClient extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: [
-          BoxShadow(color: Colors.grey.withOpacity(.5), blurRadius: 7, spreadRadius: 5)
-        ]
+          BoxShadow(color: Colors.grey.withOpacity(.5), blurRadius: 7, spreadRadius: 5),
+        ],
       ),
       child: Column(
         children: [
@@ -116,28 +110,34 @@ class _InfoCardClient extends StatelessWidget {
                 width: 45,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  image: DecorationImage(
-                    image: NetworkImage('${Environment.endpointBase}${orderClient.imageDelivery}')
-                  )
-                ), 
+                  color: Colors.grey[200],
+                ),
+                child: const Icon(Icons.person, color: ColorsFrave.primaryColor),
               ),
               const SizedBox(width: 10.0),
-              TextCustom(text: orderClient.delivery),
+              const TextCustom(text: 'Delivery: Not assigned'),
               const Spacer(),
               InkWell(
-                onTap: () async => await urlLauncherFrave.makePhoneCall('tel:${orderClient.deliveryPhone}'),
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Delivery phone not available')),
+                  );
+                },
                 child: Container(
                   height: 45,
                   width: 45,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.0),
-                    color: Colors.grey[200]
+                    color: Colors.grey[200],
                   ),
                   child: const Icon(Icons.phone, color: ColorsFrave.primaryColor),
                 ),
-              )
+              ),
             ],
           ),
+          const SizedBox(height: 10),
+          TextCustom(text: 'Address: ${orderClient.address.street}'),
+          TextCustom(text: 'Reference: ${orderClient.address.reference}'),
         ],
       ),
     );

@@ -44,17 +44,42 @@ if (userId == null) {
     return ResponseDefault.fromJson(jsonDecode(resp.body));
   }
 
-
-  Future<List<OrdersResponse>> getOrdersByStatus( String status ) async {
-
-    final token = await secureStorage.readToken();
-
-    final resp = await http.get(Uri.parse('${Environment.endpointApi}/get-orders-by-status/$status'),
-      headers: {'Accept' : 'application/json', 'xx-token' : token!},
+Future<List<OrdersResponse>> getOrdersByStatus(String status) async {
+  try {
+    final response = await http.get(
+      Uri.parse('${Environment.endpointApi}/get-orders-by-status/$status'),
+      headers: { 'Content-Type': 'application/json' }
     );
-    return OrdersByStatusResponse.fromJson(jsonDecode(resp.body)).ordersResponse;
+    
+    print('API Response status code: ${response.statusCode}');
+    print('API Response body: ${response.body}');
+    
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      print('Decoded JSON: $data');
+      
+      try {
+        final orderResponse = OrdersByStatusResponse.fromJson(data);
+        print('Successfully parsed response');
+        print('Parsed ${orderResponse.ordersResponse.length} orders from response');
+        
+        if (orderResponse.ordersResponse.isNotEmpty) {
+          print('First order ID: ${orderResponse.ordersResponse[0].id}');
+        }
+        
+        return orderResponse.ordersResponse;
+      } catch (parseError) {
+        print('Error parsing response: $parseError');
+        return [];
+      }
+    }
+    
+    return [];
+  } catch (e) {
+    print('Error in getOrdersByStatus: $e');
+    return [];
   }
-
+}
 
   Future<List<DetailsOrder>> gerOrderDetailsById(String idOrder) async {
 

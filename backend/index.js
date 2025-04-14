@@ -2383,7 +2383,7 @@ app.post('/api/add-new-orders', async (req, res) => {
       amount: total,
       address: { id: uidAddress },
       payment: paymentStatus,
-      status: 'PAID',
+      status: 'Pending',
       dateTime: new Date(),
     });
 
@@ -2643,7 +2643,44 @@ app.get('/api/get-details-order-by-id/:id', async (req, res) => {
     });
   }
 });
-
+app.get("/api/get-orders-by-status/:status", async (req, res) => {
+  try {
+    const status = req.params.status;
+    console.log(`Fetching orders with status: ${status}`);
+    
+    // Find all orders with the specified status
+    const orders = await order
+      .find({ status: status })
+      .populate('userId', 'name email phone') // Populate userId
+      .sort({ dateTime: -1 }); // Sort by newest first
+    
+    if (orders.length === 0) {
+      console.log(`No orders found with status: ${status}`);
+      return res.json({
+        resp: true,
+        msg: `No orders found with status: ${status}`,
+        orders: [],
+      });
+    }
+    
+    console.log(`Found ${orders.length} orders with status: ${status}`);
+    // Log the orders to see the exact structure
+    console.log('Orders data:', JSON.stringify(orders, null, 2));
+    return res.json({
+      resp: true,
+      msg: 'Orders retrieved successfully',
+      orders: orders,
+    });
+    
+  } catch (error) {
+    console.error(`Error fetching orders by status: ${error}`);
+    return res.status(500).json({
+      resp: false,
+      msg: 'Server Error while retrieving orders',
+      orders: [],
+    });
+  }
+});
 // Admin Routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/", adminRoutes);

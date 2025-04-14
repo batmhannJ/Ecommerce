@@ -59,6 +59,11 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "User",
     },
+    status: { 
+      type: String, 
+      enum: ["Active", "Offline"], 
+      default: "Offline" 
+    }, // Add status field
   },
   { timestamps: true } // This adds createdAt and updatedAt
 );

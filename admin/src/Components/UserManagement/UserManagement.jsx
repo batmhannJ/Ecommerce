@@ -29,11 +29,6 @@ function UserManagement() {
 
   useEffect(() => {
     fetchUsers();
-    const statusInterval = setInterval(() => {
-      updateOnlineStatus();
-    }, 30000);
-
-    return () => clearInterval(statusInterval);
   }, []);
 
   const fetchUsers = async () => {
@@ -42,20 +37,16 @@ function UserManagement() {
       const response = await axios.get("http://localhost:4000/api/users");
       const userData = Array.isArray(response.data) ? response.data : [];
 
-      const enhancedUsers = userData.map((user) => {
-        const lastLogin = user.lastLogin || new Date(Date.now() - Math.floor(Math.random() * 10000000000)).toISOString();
-
-        return {
-          ...user,
-          status: Math.random() > 0.5 ? "Active" : "Offline",
-          workingTime: `00:${Math.floor(Math.random() * 60)
-            .toString()
-            .padStart(2, "0")}:${Math.floor(Math.random() * 60)
-            .toString()
-            .padStart(2, "0")}`,
-            lastLogin: user.lastLogin || null, // Use database value or null
-        };
-      });
+      const enhancedUsers = userData.map((user) => ({
+        ...user,
+        status: user.status || "Offline", // Use database status, default to "Offline" if missing
+        workingTime: `00:${Math.floor(Math.random() * 60)
+          .toString()
+          .padStart(2, "0")}:${Math.floor(Math.random() * 60)
+          .toString()
+          .padStart(2, "0")}`,
+        lastLogin: user.lastLogin || null, // Use database value or null
+      }));
 
       setUsers(enhancedUsers);
     } catch (error) {
@@ -135,7 +126,6 @@ function UserManagement() {
   };
 
   const handleSearch = async (searchTerm) => {
-    // If searchTerm is empty, fetch all users
     if (!searchTerm.trim()) {
       fetchUsers();
       return;
@@ -148,20 +138,16 @@ function UserManagement() {
       );
 
       const userData = Array.isArray(response.data) ? response.data : [];
-      const enhancedUsers = userData.map((user) => {
-        const lastLogin = user.lastLogin || new Date(Date.now() - Math.floor(Math.random() * 10000000000)).toISOString();
-
-        return {
-          ...user,
-          status: Math.random() > 0.5 ? "Active" : "Offline",
-          workingTime: `00:${Math.floor(Math.random() * 60)
-            .toString()
-            .padStart(2, "0")}:${Math.floor(Math.random() * 60)
-            .toString()
-            .padStart(2, "0")}`,
-          lastLogin,
-        };
-      });
+      const enhancedUsers = userData.map((user) => ({
+        ...user,
+        status: user.status || "Offline", // Use database status, default to "Offline" if missing
+        workingTime: `00:${Math.floor(Math.random() * 60)
+          .toString()
+          .padStart(2, "0")}:${Math.floor(Math.random() * 60)
+          .toString()
+          .padStart(2, "0")}`,
+        lastLogin: user.lastLogin || null, // Use database value or null
+      }));
 
       setUsers(enhancedUsers);
       setCurrentPage(1);

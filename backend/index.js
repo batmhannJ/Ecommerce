@@ -430,7 +430,9 @@ app.post("/signup", async (req, res) => {
   const data = { user: { id: user.id } };
   const token = jwt.sign(data, "secret_ecom");
   res.json({ success: true, token });
-});// Creating Endpoint for User Login
+});
+
+// Creating Endpoint for User Login
 app.post("/login", async (req, res) => {
   try {
     // Find user by email
@@ -441,6 +443,7 @@ app.post("/login", async (req, res) => {
       if (passCompare) {
         // Update lastLogin field with current timestamp
         user.lastLogin = new Date();
+        user.status = "Active"; // Set status to Active
         await user.save(); // Save the updated user document
 
         // Prepare JWT data
@@ -456,7 +459,8 @@ app.post("/login", async (req, res) => {
           success: true, 
           token, 
           userId: user._id,
-          lastLogin: user.lastLogin // Optional: Include lastLogin in response for debugging
+          lastLogin: user.lastLogin, // Optional: Include lastLogin in response for debugging
+          status: user.status, // Include status in response
         });
       } else {
         res.json({ success: false, errors: "Error: Wrong Password" });
@@ -469,7 +473,33 @@ app.post("/login", async (req, res) => {
     res.status(500).json({ success: false, errors: "Server error during login" });
   }
 });
+app.patch("/api/users/:id/status", async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
 
+  try {
+    // Validate status
+    if (!["Active", "Offline"].includes(status)) {
+      console.error("Invalid status value:", status);
+      return res.status(400).json({ error: "Invalid status value" });
+    }
+
+    const user = await Users.findById(id);
+    if (!user) {
+      console.error("User not found:", id);
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    user.status = status;
+    await user.save();
+
+    console.log("Status updated for user:", id, "to:", status);
+    res.status(200).json({ message: "Status updated successfully" });
+  } catch (error) {
+    console.error("Error updating status:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 // Creating Endpoint for NewCollection Data
 app.get("/newcollections", async (req, res) => {
   try {

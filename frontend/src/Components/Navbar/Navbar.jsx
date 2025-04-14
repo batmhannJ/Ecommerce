@@ -108,18 +108,53 @@ const Navbar = () => {
       }
     };
 
-    // Only fetch if logged in
     const isLoggedIn = !!localStorage.getItem("auth-token");
     if (isLoggedIn) {
       fetchUserData();
     }
   }, []);
 
+// Handle logout with status update
+const handleLogout = async () => {
+  const userId = getUserIdFromToken();
+
+  if (userId) {
+    try {
+      const response = await fetch(
+        `http://localhost:4000/api/users/${userId}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: "Offline" }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Failed to update status:", response.status, errorData);
+        alert(`Failed to update status: ${errorData.error || response.statusText}`);
+      } else {
+        console.log("Status updated successfully");
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      alert(`Error updating status: ${error.message}`);
+    }
+  } else {
+    console.error("No userId found");
+    alert("No userId found");
+  }
+
+  // Clear token and redirect
+  localStorage.removeItem("auth-token");
+  window.location.replace("/");
+};
   const isLoggedIn = !!localStorage.getItem("auth-token");
 
   return (
     <div className="navbar-container">
-      {/* Business Account Banner (Dismissible) */}
       {isBannerVisible && (
         <div className="business-account-banner">
           <Truck className="truck-icon" size={32} />
@@ -191,13 +226,7 @@ const Navbar = () => {
               <button>Login</button>
             </Link>
           ) : (
-            <button
-              className="nav-logout-btn"
-              onClick={() => {
-                localStorage.removeItem("auth-token");
-                window.location.replace("/");
-              }}
-            >
+            <button className="nav-logout-btn" onClick={handleLogout}>
               Logout
             </button>
           )}
@@ -238,12 +267,7 @@ const Navbar = () => {
                   </button>
                 </Link>
                 <div className="profile-menu-divider"></div>
-                <button 
-                  onClick={() => {
-                    localStorage.removeItem("auth-token");
-                    window.location.replace("/");
-                  }}
-                >
+                <button onClick={handleLogout}>
                   <LogOut size={18} className="menu-icon" /> Logout
                 </button>
               </div>

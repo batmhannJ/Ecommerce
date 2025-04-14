@@ -108,7 +108,7 @@
 .modal-form-section h2 {
   font-size: clamp(18px, 2.5vw, 22px); /* Fluid header size */
   font-weight: 700;
-  color: #2c5282;
+  color: var(--primary);
   margin: 0 0 15px;
   text-align: center;
   position: relative;
@@ -122,7 +122,7 @@
   transform: translateX(-50%);
   width: clamp(40px, 6vw, 50px); /* Fluid underline */
   height: 3px;
-  background: #2c5282;
+  background: var(--primary);
   border-radius: 2px;
 }
 
@@ -186,7 +186,7 @@
 }
 
 .update-button {
-  background: #2c5282;
+  background: var(--primary);
   color: var(--white);
 }
 

@@ -1,349 +1,515 @@
+/* Commission.css - Modern Design with Area Chart */
+
+/* Root Variables for Consistent Theming */
+:root {
+  --primary-bg: #f7fafc; /* Soft off-white background */
+  --card-bg: #ffffff; /* Pure white for cards */
+  --primary-text: #2d3748; /* Dark slate for text */
+  --secondary-text: #718096; /* Muted gray for secondary text */
+  --accent-blue: #3730a3; /* Dark blue for rider data */
+  --accent-orange: #fb923c; /* Pastel orange for seller data */
+  --accent-purple: #9f7aea; /* Soft purple for totals */
+  --gradient-blue: linear-gradient(135deg, #2c2971, #3730a3); /* Deeper blue gradient for chart */
+  --gradient-orange: linear-gradient(135deg, #f97316, #fb923c); /* Orange gradient for chart */
+  --gradient-purple: linear-gradient(135deg, #9f7aea, #b794f4); /* Purple gradient for cards */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1); /* Medium shadow */
+  --shadow-glow: 0 0 12px rgba(59, 130, 246, 0.4); /* Glow for chart elements */
+  --border-color: #e2e8f0; /* Light border */
+  --transition: all 0.3s ease; /* Smooth transitions */
+}
+
+/* Base Container */
 .bg-gray-50 {
-    background-color: #f9fafb;
+  background: var(--primary-bg);
+  min-height: 100vh;
+  padding: 2rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Main Content Wrapper */
+.max-w-6xl {
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+/* Header Section */
+.mb-8 {
+  margin-bottom: 2.5rem;
+}
+
+.text-3xl {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--primary-text);
+  letter-spacing: -0.025em;
+  background: linear-gradient(to right, var(--accent-blue), var(--accent-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gray-500 {
+  font-size: 1rem;
+  color: var(--secondary-text);
+  margin-top: 0.5rem;
+}
+
+/* Card Grid */
+.grid {
+  display: grid;
+}
+
+.grid-cols-1 {
+  grid-template-columns: 1fr;
+}
+
+.gap-6 {
+  gap: 2rem;
+}
+
+/* Card Styling */
+.bg-white {
+  background: var(--card-bg);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-md);
+  padding: 1.5rem;
+  transition: var(--transition);
+}
+
+.bg-white:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Card Headers */
+.text-blue-600 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  background: var(--gradient-blue);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.75rem;
+}
+
+.text-green-600 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  background: var(--gradient-orange);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.75rem;
+}
+
+.text-purple-600 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  background: var(--gradient-purple);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.75rem;
+}
+
+/* Card Values */
+.text-3xl.font-bold {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-text);
+}
+
+/* Card Subtext */
+.text-sm {
+  font-size: 0.875rem;
+  color: var(--secondary-text);
+  margin-top: 0.5rem;
+}
+
+/* Monthly Commission Chart */
+.text-xl {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-text);
+  margin-bottom: 1.5rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.h-64 {
+  height: 18rem;
+  position: relative;
+}
+
+.h-48 {
+  height: 12rem;
+  position: relative;
+}
+
+/* Area Chart Styles */
+.area-chart-path {
+  opacity: 0;
+  animation: fadeInArea 1.5s forwards ease-out;
+}
+
+@keyframes fadeInArea {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  
-  .min-h-screen {
-    min-height: 100vh;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  .p-6 {
-    padding: 1.5rem;
+}
+
+/* Y-axis and X-axis styling */
+.absolute {
+  position: absolute;
+}
+
+.left-0 {
+  left: 0;
+}
+
+.top-0 {
+  top: 0;
+}
+
+.bottom-0 {
+  bottom: 0;
+}
+
+.left-10 {
+  left: 2.5rem;
+}
+
+.w-10 {
+  width: 2.5rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.h-full {
+  height: 100%;
+}
+
+.flex.flex-col.justify-between {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.pointer-events-none {
+  pointer-events: none;
+}
+
+.pt-2 {
+  padding-top: 0.5rem;
+}
+
+.transform {
+  transform: translateX(-50%);
+}
+
+.overflow-visible {
+  overflow: visible;
+}
+
+/* No Data Message */
+.h-48.flex.items-center.justify-center.text-gray-500 {
+  height: 12rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--secondary-text);
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 0.5rem;
+}
+
+/* Chart Legend */
+.flex.justify-center.space-x-6 {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.mt-6 {
+  margin-top: 1.5rem;
+}
+
+.space-x-6 > * + * {
+  margin-left: 1.5rem;
+}
+
+.flex.items-center {
+  display: flex;
+  align-items: center;
+}
+
+.w-3.h-3.rounded {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 0.25rem;
+  margin-right: 0.5rem;
+}
+
+.w-3 {
+  width: 0.75rem;
+}
+
+.h-3 {
+  height: 0.75rem;
+}
+
+.rounded {
+  border-radius: 0.25rem; 
+}
+
+.mr-2 {
+  margin-right: 0.5rem;
+}
+
+.mr-1 {
+  margin-right: 0.25rem;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+  color: var(--secondary-text);
+}
+
+/* Top Performers Sections */
+.space-y-4 {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.flex.items-center.justify-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  transition: var(--transition);
+}
+
+.flex.items-center.justify-between:hover {
+  background: rgba(66, 153, 225, 0.05);
+}
+
+/* Rank Circles */
+.w-8.h-8.rounded-full {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.bg-yellow-100.text-yellow-800 {
+  background: linear-gradient(135deg, #f6e05e, #ecc94b);
+  color: #744210;
+}
+
+.bg-gray-100.text-gray-800 {
+  background: linear-gradient(135deg, #e2e8f0, #cbd5e0);
+  color: #2d3748;
+}
+
+.bg-orange-100.text-orange-800 {
+  background: linear-gradient(135deg, #f6ad55, #ed8936);
+  color: #7b341e;
+}
+
+/* Performer Details */
+.ml-3 {
+  margin-left: 1rem;
+}
+
+.font-medium {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary-text);
+}
+
+.text-sm.text-gray-500 {
+  font-size: 0.875rem;
+  color: var(--secondary-text);
+}
+
+/* Commission Values */
+.text-right {
+  text-align: right;
+}
+
+.font-semibold.text-blue-600 {
+  font-size: 1rem;
+  font-weight: 600;
+  background: var(--gradient-blue);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.font-semibold.text-green-600 {
+  font-size: 1rem;
+  font-weight: 600;
+  background: var(--gradient-orange);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Shadow utilities */
+.shadow {
+  box-shadow: var(--shadow-sm);
+}
+
+.shadow-md {
+  box-shadow: var(--shadow-md);
+}
+
+/* Margin utilities */
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.mb-8 {
+  margin-bottom: 2rem;
+}
+
+/* Padding utilities */
+.p-6 {
+  padding: 1.5rem;
+}
+
+/* Border utilities */
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+/* Spacing utilities */
+.space-x-4 > * + * {
+  margin-left: 1rem;
+}
+
+.space-y-1 > * + * {
+  margin-top: 0.25rem;
+}
+
+.space-x-2 > * + * {
+  margin-left: 0.5rem;
+}
+
+/* Flex utilities */
+.flex-1 {
+  flex: 1 1 0%;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-end {
+  align-items: flex-end;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+/* Original bar chart styles (kept for compatibility) */
+.flex.h-48.items-end.space-x-2 {
+  display: flex;
+  height: 12rem;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.w-full.bg-blue-500.rounded-t {
+  background: var(--accent-blue);
+  border-radius: 0.25rem 0.25rem 0 0;
+  position: relative;
+  transition: var(--transition);
+}
+
+.w-full.bg-green-500.rounded-t {
+  background: var(--accent-orange);
+  border-radius: 0.25rem 0.25rem 0 0;
+  position: relative;
+  transition: var(--transition);
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+/* SVG specific styles */
+svg {
+  display: block;
+}
+
+/* Responsive Design */
+@media (min-width: 768px) {
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
   }
-  
-  .max-w-6xl {
-    max-width: 72rem;
+
+  .md\:grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
   }
-  
-  .mx-auto {
-    margin-left: auto;
-    margin-right: auto;
+}
+
+@media (max-width: 640px) {
+  .bg-gray-50 {
+    padding: 1rem;
   }
-  
-  .mb-8 {
-    margin-bottom: 2rem;
-  }
-  
-  /* Typography */
+
   .text-3xl {
-    font-size: 1.875rem;
-    line-height: 2.25rem;
+    font-size: 1.75rem;
   }
-  
+
   .text-xl {
     font-size: 1.25rem;
-    line-height: 1.75rem;
   }
-  
-  .text-lg {
-    font-size: 1.125rem;
-    line-height: 1.75rem;
-  }
-  
-  .text-sm {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-  }
-  
-  .text-xs {
-    font-size: 0.75rem;
-    line-height: 1rem;
-  }
-  
-  .font-bold {
-    font-weight: 700;
-  }
-  
-  .font-semibold {
-    font-weight: 600;
-  }
-  
-  .font-medium {
-    font-weight: 500;
-  }
-  
-  /* Colors */
-  .text-gray-800 {
-    color: #1f2937;
-  }
-  
-  .text-gray-500 {
-    color: #6b7280;
-  }
-  
-  .text-blue-600 {
-    color: #2563eb;
-  }
-  
-  .text-green-600 {
-    color: #059669;
-  }
-  
-  .text-purple-600 {
-    color: #7c3aed;
-  }
-  
-  .text-yellow-800 {
-    color: #92400e;
-  }
-  
-  .text-orange-800 {
-    color: #9a3412;
-  }
-  
+
   .bg-white {
-    background-color: #ffffff;
+    padding: 1rem;
   }
-  
-  .bg-blue-500 {
-    background-color: #3b82f6;
-  }
-  
-  .bg-green-500 {
-    background-color: #10b981;
-  }
-  
-  .bg-yellow-100 {
-    background-color: #fef3c7;
-  }
-  
-  .bg-gray-100 {
-    background-color: #f3f4f6;
-  }
-  
-  .bg-orange-100 {
-    background-color: #ffedd5;
-  }
-  
-  /* Card Styling */
-  .rounded-lg {
-    border-radius: 0.5rem;
-  }
-  
-  .rounded-t {
-    border-top-left-radius: 0.25rem;
-    border-top-right-radius: 0.25rem;
-  }
-  
-  .rounded-full {
-    border-radius: 9999px;
-  }
-  
-  .shadow {
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  }
-  
-  /* Grid System */
-  .grid {
-    display: grid;
-  }
-  
-  .grid-cols-1 {
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-  }
-  
-  .gap-6 {
-    gap: 1.5rem;
-  }
-  
-  /* Spacing and Layout Utilities */
-  .p-2 {
-    padding: 0.5rem;
-  }
-  
-  .mb-2 {
-    margin-bottom: 0.5rem;
-  }
-  
-  .mb-4 {
-    margin-bottom: 1rem;
-  }
-  
-  .mt-1 {
-    margin-top: 0.25rem;
-  }
-  
-  .mt-2 {
-    margin-top: 0.5rem;
-  }
-  
-  .mt-4 {
-    margin-top: 1rem;
-  }
-  
-  .ml-3 {
-    margin-left: 0.75rem;
-  }
-  
-  .mr-1 {
-    margin-right: 0.25rem;
-  }
-  
-  .space-y-1 > * + * {
-    margin-top: 0.25rem;
-  }
-  
-  .space-y-4 > * + * {
-    margin-top: 1rem;
-  }
-  
-  .space-x-2 > * + * {
-    margin-left: 0.5rem;
-  }
-  
-  .space-x-4 > * + * {
-    margin-left: 1rem;
-  }
-  
-  /* Flexbox Utilities */
-  .flex {
-    display: flex;
-  }
-  
-  .flex-1 {
-    flex: 1 1 0%;
-  }
-  
-  .flex-col {
-    flex-direction: column;
-  }
-  
-  .items-center {
-    align-items: center;
-  }
-  
-  .items-end {
-    align-items: flex-end;
-  }
-  
-  .justify-between {
-    justify-content: space-between;
-  }
-  
-  .justify-center {
-    justify-content: center;
-  }
-  
-  /* Height and Width */
-  .h-3 {
-    height: 0.75rem;
-  }
-  
-  .h-8 {
-    height: 2rem;
-  }
-  
-  .h-48 {
-    height: 12rem;
-  }
-  
+
   .h-64 {
-    height: 16rem;
+    height: 14rem;
+  }
+
+  .h-48 {
+    height: 10rem;
   }
   
-  .w-3 {
-    width: 0.75rem;
+  /* Adjust text size for smaller screens */
+  .text-xs {
+    font-size: 0.65rem;
   }
   
-  .w-8 {
-    width: 2rem;
+  .w-10 {
+    width: 1.5rem;
   }
   
-  .w-full {
-    width: 100%;
+  .left-10 {
+    left: 1.5rem;
   }
-  
-  /* Chart Specific Styles */
-  .bar-chart {
-    display: flex;
-    align-items: flex-end;
-    height: 12rem;
-  }
-  
-  .bar-wrapper {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .bar-seller {
-    width: 100%;
-    background-color: #3b82f6;
-    border-top-left-radius: 0.25rem;
-    border-top-right-radius: 0.25rem;
-  }
-  
-  .bar-rider {
-    width: 100%;
-    background-color: #10b981;
-    border-top-left-radius: 0.25rem;
-    border-top-right-radius: 0.25rem;
-  }
-  
-  /* Responsive Design */
-  @media (min-width: 768px) {
-    .md\:grid-cols-2 {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    
-    .md\:grid-cols-3 {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-  
-  /* Table Styles */
-  .border {
-    border-width: 1px;
-    border-color: #e5e7eb;
-  }
-  
-  .border-collapse {
-    border-collapse: collapse;
-  }
-  
-  .text-left {
-    text-align: left;
-  }
-  
-  .text-center {
-    text-align: center;
-  }
-  
-  .text-right {
-    text-align: right;
-  }
-  
-  /* Other Utilities */
-  .overflow-x-auto {
-    overflow-x: auto;
-  }
-  
-  /* Currency Symbol */
-  .currency-symbol::before {
-    content: "₱";
-  }
-  
-  /* Performance Ranking Circles */
-  .rank-circle {
-    width: 2rem;
-    height: 2rem;
-    border-radius: 9999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .rank-1 {
-    background-color: #fef3c7;
-    color: #92400e;
-  }
-  
-  .rank-2 {
-    background-color: #f3f4f6;
-    color: #1f2937;
-  }
-  
-  .rank-3 {
-    background-color: #ffedd5;
-    color: #9a3412;
-  }
+}

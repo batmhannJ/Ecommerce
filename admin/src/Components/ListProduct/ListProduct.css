@@ -1,166 +1,200 @@
+/* List Product Styling - Formal and Clean Theme with Scrollable Small Screens */
+:root {
+  --primary: #2c5282; /* Deep formal blue */
+  --primary-light: #a0aec0; /* Light gray-blue */
+  --primary-dark: #1a3657; /* Darker blue */
+  --secondary: #38a169; /* Subtle green */
+  --accent-color: #4a90e2; /* Added for gradient, inspired by seller */
+  --text-dark: #1a202c; /* Deep gray */
+  --text-medium: #4a5568; /* Medium gray */
+  --text-light: #718096; /* Light gray */
+  --background: #edf2f7; /* Light neutral background */
+  --white: #ffffff; /* Pure white for cards */
+  --border-light: #e2e8f0; /* Soft border */
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+  --danger: #c53030; /* Formal red */
+}
+
+/* Main container */
 .list-product {
-  margin-top: 20px;
+  box-sizing: border-box;
+  width: 95%;
+  max-width: 1000px;
   padding: 20px;
-  width: 1000px; /* Fixed width for larger screens */
-  height: 670px; /* Set the desired height */
-  overflow-y: auto; /* Allow vertical scrolling */
-  border-radius: 10px; /* Optional: Round the corners */
-  background-color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Add shadow effect */
-  margin-left: 20px; /* Maintain left margin */
+  border-radius: 8px;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  margin: 20px auto;
+  border: 1px solid var(--border-light);
+  margin-left: 55px; /* Shift container to the right */
 }
 
+/* Section heading */
 .list-product h3 {
-  font-size: 24px;
-  color: #333;
-  text-align: center; /* Center text */
-  margin-bottom: 20px;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 30px;
+  text-align: center;
+  background: linear-gradient(to right, var(--primary), var(--accent-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
+/* Button container styling */
+.button {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Buttons styling */
 .edit-button,
 .delete-button {
-  padding: 5px 10px;
-  border: none;
-  border-radius: 5px;
-  font-size: 14px;
-  font-weight: bold;
+  width: 80px;
+  min-width: 70px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  margin-right: 10px; /* Adds space between the buttons */
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  text-align: center;
 }
 
 .edit-button {
-  background-color: #28a745; /* Green */
-  color: white;
-}
-
-.delete-button {
-  background-color: #dc3545; /* Red */
-  color: white;
+  background: #4CAF50; /* Green for edit, from seller */
 }
 
 .edit-button:hover {
-  background-color: #28a745; /* Darker Green */
+  background: #45a049; /* Darker green on hover, from seller */
+  opacity: 0.9;
   transform: scale(1.05);
 }
 
+.delete-button {
+  background: #F44336; /* Red for delete, from seller */
+}
+
 .delete-button:hover {
-  background-color: #dc3545; /* Darker Red */
+  background: #d32f2f; /* Darker red on hover, from seller */
+  opacity: 0.9;
   transform: scale(1.05);
 }
 
 .edit-button:active,
 .delete-button:active {
-  transform: scale(0.95);
+  transform: scale(0.98);
+  opacity: 0.8;
 }
 
+/* Product list container */
+.listproduct-allproducts {
+  max-height: 450px;
+  overflow-y: auto;
+  width: 100%;
+  margin: 10px 0;
+  border-radius: 6px;
+  background: var(--white);
+  border: 1px solid var(--border-light);
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-light) var(--white);
+}
+
+.listproduct-allproducts::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.listproduct-allproducts::-webkit-scrollbar-thumb {
+  background: var(--primary-light);
+  border-radius: 3px;
+}
+
+.listproduct-allproducts::-webkit-scrollbar-track {
+  background: var(--white);
+}
+
+/* Product list grid - Header */
 .listproduct-format-main {
   display: grid;
-  grid-template-columns: 100px 2fr 1fr 1fr 1fr 1fr 1fr;
-  gap: 15px;
-  width: 100%;
-  height: 100px;
-  color: #333;
-  font-size: 16px;
+  grid-template-columns: 80px 2fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 12px;
+  padding: 10px;
+  color: var(--text-medium);
+  font-size: 14px;
   font-weight: 600;
-  margin-bottom: 10px;
-  margin-top: 10px;
-}
-
-.listproduct-format {
+  background: var(--background);
+  border-bottom: 1px solid var(--border-light);
   align-items: center;
+  min-width: 700px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
+/* Product row styling */
+.listproduct-format {
+  display: grid;
+  grid-template-columns: 80px 2fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 12px;
+  padding: 12px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border-light);
+  align-items: center;
+  transition: background 0.2s ease;
+  min-width: 700px;
+}
+
+.listproduct-format:hover {
+  background: #f7fafc;
+}
+
+/* Product image styling */
 .listproduct-product-icon {
-  width: 100px;
-  height: 100px;
+  width: 70px;
+  height: 70px;
   object-fit: cover;
   border-radius: 6px;
-  border: 1px solid #ccc;
-  background-color: #f7f7f7;
+  border: 1px solid var(--border-light);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
 }
 
 .listproduct-product-icon:hover {
+  border-color: var(--primary);
   transform: scale(1.05);
-  transition: 0.3s ease;
 }
 
+/* Remove icon styling */
 .listproduct-remove-icon {
-  cursor: pointer;
   width: 24px;
   height: 24px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
-.listproduct-allproducts {
-  max-height: 400px;
-  overflow-y: auto;
-  width: 100%;
-  margin-top: 20px;
+.listproduct-remove-icon:hover {
+  transform: scale(1.1);
 }
 
+/* Divider styling */
 hr {
   border: none;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--border-light);
+  margin: 5px 0;
 }
 
-.edit-form {
-  background-color: #f9f9f9;
-  padding: 20px;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  position: relative;
-  width: 100%;
-  max-width: 500px; /* Adjusted for consistency */
-  margin: 20px auto; /* Centered */
-}
-
-.edit-form h2 {
-  margin-top: 0;
-  font-size: 20px;
-  color: #333;
-  text-align: center; /* Center text */
-}
-
-.edit-form input,
-.edit-form select {
-  width: calc(100% - 16px);
-  padding: 10px;
-  border: 2px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  color: #333;
-}
-
-/* Responsive design for smaller screens */
-@media (max-width: 1040px) {
+/* Responsive Styles */
+@media (max-width: 1024px) {
   .list-product {
-    width: calc(100% - 100px); /* Responsive width minus left margin */
-    margin-left: 100px; /* Maintain left margin */
-  }
-
-  .listproduct-format-main {
-    grid-template-columns: 80px 2fr 1fr 1fr 1fr 1fr 1fr;
-    font-size: 14px;
-  }
-
-  .listproduct-product-icon {
-    width: 80px;
-    height: 80px;
-  }
-}
-
-@media (max-width: 768px) {
-  .list-product {
-    margin: 10px; /* Adjust margin for smaller screens */
-    padding: 10px;
-    width: calc(100% - 20px); /* Full width minus padding */
-  }
-
-  .listproduct-format-main {
-    grid-template-columns: 60px 1fr 1fr 1fr 1fr; /* Adjust grid for smaller screens */
-    gap: 8px;
-    font-size: 12px;
+    width: 90%;
+    padding: 18px;
+    margin-left: 40px; /* Slightly less shift for tablets */
   }
 
   .listproduct-product-icon {
@@ -168,84 +202,145 @@ hr {
     height: 60px;
   }
 
-  .listproduct-remove-icon {
-    width: 18px;
+  .listproduct-allproducts {
+    max-height: 420px;
   }
+}
 
-  .edit-form {
+@media (max-width: 768px) {
+  .list-product {
+    width: 92%;
     padding: 15px;
+    margin-left: 30px; /* Slightly less shift for tablets */
   }
 
-  .edit-form input,
-  .edit-form select {
-    font-size: 12px;
-    padding: 8px;
+  .list-product h3 {
+    font-size: 22px;
   }
 
-  .edit-form button {
-    padding: 8px 16px;
+  .listproduct-product-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .listproduct-allproducts {
+    max-height: 400px;
+  }
+
+  .edit-button,
+  .delete-button {
+    width: 70px;
+    min-width: 60px;
+    padding: 6px 8px;
     font-size: 12px;
+  }
+
+  .button {
+    gap: 5px;
+  }
+}
+
+@media (max-width: 576px) {
+  .list-product {
+    width: 95%;
+    padding: 12px;
+    margin-left: 20px; /* Minimal shift for mobile */
+  }
+
+  .list-product h3 {
+    font-size: 20px;
+  }
+
+  .listproduct-product-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .listproduct-allproducts {
+    max-height: 380px;
+  }
+
+  .listproduct-format-main,
+  .listproduct-format {
+    font-size: 13px;
+  }
+
+  .edit-button,
+  .delete-button {
+    width: 60px;
+    min-width: 50px;
+    padding: 5px 6px;
+    font-size: 11px;
+  }
+
+  .button {
+    gap: 4px;
   }
 }
 
 @media (max-width: 480px) {
+  .list-product {
+    width: 98%;
+    padding: 10px;
+  }
+
+  .listproduct-product-icon {
+    width: 35px;
+    height: 35px;
+  }
+
+  .listproduct-allproducts {
+    max-height: 360px;
+  }
+
+  .edit-button,
+  .delete-button {
+    width: 55px;
+    min-width: 45px;
+    padding: 4px 5px;
+    font-size: 10px;
+  }
+
+  .button {
+    gap: 3px;
+  }
+}
+
+@media (max-width: 375px) {
+  .list-product {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    margin-left: 10px; /* Almost no shift for very small screens */
+  }
+
   .list-product h3 {
-    font-size: 20px; /* Smaller font size for headings */
+    font-size: 18px;
   }
 
-  .edit-form h2 {
-    font-size: 18px; /* Smaller font size for edit form heading */
+  .listproduct-product-icon {
+    width: 30px;
+    height: 30px;
   }
 
-  .edit-form input,
-  .edit-form select {
-    font-size: 12px; /* Smaller font size for inputs */
+  .listproduct-allproducts {
+    max-height: 340px;
+  }
+
+  .listproduct-format-main,
+  .listproduct-format {
+    font-size: 12px;
+  }
+
+  .edit-button,
+  .delete-button {
+    width: 50px;
+    min-width: 40px;
+    padding: 3px 4px;
+    font-size: 9px;
+  }
+
+  .button {
+    gap: 2px;
   }
 }
-
-/* Add these styles to your existing ListProduct.css file */
-
-.zoomable-image {
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  border-radius: 4px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.zoomable-image:hover {
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
-
-/* Add animation for when products load */
-.listproduct-allproducts {
-  animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Improve the list layout */
-.listproduct-format-main {
-  transition: background-color 0.2s ease;
-}
-
-.listproduct-format:hover {
-  background-color: rgba(0, 0, 0, 0.02);
-}
-
-/* Style for the remove icon */
-.listproduct-remove-icon {
-  transition: transform 0.2s ease;
-  cursor: pointer;
-}
-
-.listproduct-remove-icon:hover {
-  transform: scale(1.1);
-} 

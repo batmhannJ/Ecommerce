@@ -38,13 +38,16 @@ router.post("/login", async (req, res) => {
         .status(400)
         .json({ success: false, errors: "Invalid credentials" });
     }
+    // Update lastLogin field with the current timestamp
+    user.lastLogin = new Date();
+    //await user.save();
     const token = jwt.sign({ id: user._id }, "your_jwt_secret", {
       expiresIn: "1h",
     });
     res.json({
       success: true,
       token,
-      user: { id: user._id, username: user.username, email: user.email },
+      user: { id: user._id, username: user.username, email: user.email, lastLogin: user.lastLogin },
     });
   } catch (error) {
     console.error("Error logging in user:", error);
@@ -153,13 +156,14 @@ router.get("/get-user-details/:id", async (req, res) => {
   const userId = req.params.id;
 
   try {
-    const user = await Users.findById(userId).select("name email phone"); // Select only the needed fields
+    const user = await Users.findById(userId).select("name email phone lastLogin"); // Select only the needed fields
 
     if (user) {
       return res.status(200).json({
         name: user.name,
         email: user.email,
         phone: user.phone,
+        lastLogin: user.lastLogin,
       });
     } else {
       return res.status(404).json({ message: "User not found" });

@@ -429,27 +429,43 @@ app.post("/signup", async (req, res) => {
   const data = { user: { id: user.id } };
   const token = jwt.sign(data, "secret_ecom");
   res.json({ success: true, token });
-});
-
-// Creating Endpoint for User Login
+});// Creating Endpoint for User Login
 app.post("/login", async (req, res) => {
-  let user = await Users.findOne({ email: req.body.email });
-  if (user) {
-    const passCompare = req.body.password === user.password;
-    if (passCompare) {
-      const data = {
-        user: {
-          id: user.id,
-        },
-      };
-      const token = jwt.sign(data, "secret_ecom");
-      // Ibalik ang user ID kasama ang token
-      res.json({ success: true, token, userId: user._id }); // Idagdag ang user ID dito
+  try {
+    // Find user by email
+    let user = await Users.findOne({ email: req.body.email });
+    if (user) {
+      // Compare password (Note: This is plain text comparison; consider using bcrypt for security)
+      const passCompare = req.body.password === user.password;
+      if (passCompare) {
+        // Update lastLogin field with current timestamp
+        user.lastLogin = new Date();
+        await user.save(); // Save the updated user document
+
+        // Prepare JWT data
+        const data = {
+          user: {
+            id: user.id,
+          },
+        };
+        const token = jwt.sign(data, "secret_ecom");
+
+        // Return response with token and user ID
+        res.json({ 
+          success: true, 
+          token, 
+          userId: user._id,
+          lastLogin: user.lastLogin // Optional: Include lastLogin in response for debugging
+        });
+      } else {
+        res.json({ success: false, errors: "Error: Wrong Password" });
+      }
     } else {
-      res.json({ success: false, errors: "Error: Wrong Password" });
+      res.json({ success: false, errors: "Error: Wrong Email Address" });
     }
-  } else {
-    res.json({ success: false, errors: "Error: Wrong Email Address" });
+  } catch (error) {
+    console.error("Error during login:", error);
+    res.status(500).json({ success: false, errors: "Server error during login" });
   }
 });
 

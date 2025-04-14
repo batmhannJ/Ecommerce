@@ -1,133 +1,59 @@
-.view-user-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
+/* ViewUserModal.css */
+
+/* View Modal */
+.view-modal {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border-radius: var(--border-radius);
+  padding: 2rem;
   width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.view-user-details {
-  background: #ffffff;
-  padding: 25px;
-  border-radius: 12px;
+  max-width: 400px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   position: relative;
-  max-width: 600px;
-  width: 90%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  animation: slideIn 0.3s ease;
 }
 
-.close-button {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: #ff6f61;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 35px;
-  height: 35px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 18px;
-  font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s;
-}
-
-.close-button:hover {
-  background: #e55b52;
-  transform: scale(1.1);
-}
-
-.user-detail {
-  margin-bottom: 15px;
-  font-size: 16px;
-  color: #333;
-}
-
-.user-detail strong {
-  color: #555;
-}
-
-h2 {
-  font-size: 24px;
-  color: #444;
-  margin-bottom: 20px;
+.view-modal h2 {
+  font-size: 1.5rem;
   font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  text-align: center;
 }
 
-/* Responsive Styles */
-
-@media (max-width: 1024px) {
-  .view-user-details {
-    padding: 20px;
-  }
-
-  .close-button {
-    width: 30px;
-    height: 30px;
-    font-size: 16px;
-    top: 12px;
-    right: 12px;
-  }
-
-  .user-detail {
-    font-size: 15px;
-  }
-
-  h2 {
-    font-size: 22px;
-  }
+.view-detail {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-@media (max-width: 768px) {
-  .view-user-details {
-    padding: 15px;
-  }
-
-  .close-button {
-    width: 28px;
-    height: 28px;
-    font-size: 14px;
-    top: 10px;
-    right: 10px;
-  }
-
-  .user-detail {
-    font-size: 14px;
-  }
-
-  h2 {
-    font-size: 20px;
-  }
+.view-detail:last-child {
+  border-bottom: none;
 }
 
+.detail-label {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.view-detail span {
+  color: var(--text-secondary);
+}
+
+/* Responsive Design */
 @media (max-width: 480px) {
-  .view-user-details {
-    padding: 10px;
+  .view-modal {
+    padding: 1.5rem;
     max-width: 90%;
   }
 
-  .close-button {
-    width: 25px;
-    height: 25px;
-    font-size: 12px;
-    top: 8px;
-    right: 8px;
+  .view-modal h2 {
+    font-size: 1.25rem;
   }
 
-  .user-detail {
-    font-size: 13px;
-  }
-
-  h2 {
-    font-size: 18px;
+  .view-detail {
+    font-size: 0.85rem;
   }
 }

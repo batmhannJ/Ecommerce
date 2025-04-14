@@ -1,85 +1,223 @@
-/* Sidebar Styles */
+/* Sidebar Styling - Modern and Responsive */
+
+/* Base styles */
 .sidebar {
+  background: #ffffff;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Hamburger menu icon (hidden by default, shown on mobile) */
+.hamburger {
+  display: none; /* Hidden on larger screens */
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 20px;
+  cursor: pointer;
+  padding: 10px;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+}
+
+.hamburger span {
+  width: 100%;
+  height: 3px;
+  background: #505050;
+  transition: all 0.3s ease;
+}
+
+/* Sidebar items container */
+.sidebar-items {
   display: flex;
   flex-direction: column;
   padding-top: 30px;
-  padding-bottom: 30px;
+  padding-bottom: 20px;
   gap: 20px;
-  width: 100%;
-  max-width: 300px; /* Increased width for a wider sidebar */
+  width: 250px; /* Fixed width for desktop */
   height: 100vh;
-  background: #2c3e50;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  color: #ecf0f1;
 }
 
+/* Sidebar item */
 .sidebar-item {
   display: flex;
   align-items: center;
   margin: 0 20px;
-  padding: 15px;
+  padding: 10px 15px;
   border-radius: 6px;
-  background: #34495e;
+  background: #f9f9f9;
   gap: 15px;
   cursor: pointer;
-  transition: transform 0.3s ease;
+  transition: background 0.3s ease;
 }
 
 .sidebar-item:hover {
-  background: #3b5998;
-  transform: translateY(-2px);
+  background: #e6e6e6;
 }
 
 .sidebar-item:active {
-  background: #3b5998;
-  transform: translateY(0);
+  background: #dcdcdc;
 }
 
 .sidebar-item img {
   width: 24px;
   height: 24px;
-  filter: invert(1);
+  flex-shrink: 0;
 }
 
 .sidebar-item p {
   font-size: 16px;
-  color: #ecf0f1;
+  color: #505050;
   margin: 0;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
+/* Active state */
 .sidebar-item.active {
-  background: #1abc9c;
-  color: #ffffff;
+  background: #e6f7ff;
 }
 
 .sidebar-item.active p {
-  color: #ffffff;
+  color: #1890ff;
 }
 
-/* Responsive Design for Smaller Screens */
+.sidebar-item.active img {
+  filter: invert(39%) sepia(92%) saturate(7486%) hue-rotate(181deg) brightness(99%) contrast(97%);
+}
+
+/* Desktop (default) - Vertical Sidebar */
+@media (min-width: 801px) {
+  .sidebar {
+    width: 250px;
+    min-width: 250px;
+    max-width: 250px;
+    height: 100vh;
+  }
+
+  .sidebar:hover {
+    border-radius: 4px;
+  }
+}
+
+/* Tablet (800px and below) - Horizontal Top Navbar */
 @media (max-width: 800px) {
   .sidebar {
-    padding: 10px 0;
-    flex-direction: row;
     width: 100%;
-    max-width: none;
     height: auto;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .sidebar-items {
+    flex-direction: row;
     justify-content: center;
-    box-shadow: none;
+    padding: 10px 0;
+    width: 100%;
+    height: auto;
+    gap: 10px;
   }
 
   .sidebar-item {
     margin: 0 10px;
-    padding: 10px;
-  }
-
-  .sidebar-item p {
-    display: none;
+    padding: 8px 12px;
+    gap: 10px;
   }
 
   .sidebar-item img {
-    width: 38px;
-    height: 38px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .sidebar-item p {
+    font-size: 14px;
+  }
+}
+
+/* Mobile (600px and below) - Hamburger Menu */
+@media (max-width: 600px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+
+  .hamburger {
+    display: flex; /* Show hamburger icon on mobile */
+  }
+
+  .sidebar-items {
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: -100%; /* Hidden by default */
+    width: 200px;
+    height: 100vh;
+    background: #ffffff;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    padding-top: 60px; /* Space for hamburger icon */
+    transition: left 0.3s ease;
+    z-index: 999;
+  }
+
+  .sidebar-items.open {
+    left: 0; /* Slide in when open */
+  }
+
+  .sidebar-item {
+    margin: 0 10px;
+    padding: 15px;
+    gap: 15px; /* Restore gap for mobile */
+    justify-content: flex-start;
+  }
+
+  .sidebar-item img {
+    display: block; /* Keep images visible on mobile */
+    width: 24px;
+    height: 24px;
+  }
+
+  .sidebar-item p {
+    font-size: 16px;
+    color: #505050;
+    display: block;
+  }
+
+  /* Adjust hamburger icon when menu is open */
+  .hamburger.open span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+
+  .hamburger.open span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .hamburger.open span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+  }
+}
+
+/* Very Small Screens (480px and below) */
+@media (max-width: 480px) {
+  .sidebar-items {
+    width: 180px;
+  }
+
+  .sidebar-item {
+    padding: 12px;
+  }
+
+  .sidebar-item p {
+    font-size: 14px;
+  }
+
+  .hamburger {
+    width: 25px;
+    height: 18px;
+  }
+
+  .hamburger span {
+    height: 2px;
   }
 }

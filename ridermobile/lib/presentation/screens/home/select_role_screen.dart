@@ -48,7 +48,8 @@ class SelectRoleScreen extends StatelessWidget {
                   if (state is SuccessAuthState && state.user != null) {
                     return Column(
                       children: [
-                        if (state.user!.rolId == 1)
+                        // Show Restaurant option for roleId 1 (admin) and roleId 2 (admin)
+                        if (state.user!.rolId == 1 || state.user!.rolId == 2)
                           _BtnRol(
                             svg: 'Assets/svg/restaurante.svg',
                             text: 'Restaurant',
@@ -60,29 +61,29 @@ class SelectRoleScreen extends StatelessWidget {
                               (route) => false,
                             ),
                           ),
-                        if (state.user!.rolId == 1 || state.user!.rolId == 3)
-                          _BtnRol(
-                            svg: 'Assets/svg/bussiness-man.svg',
-                            text: 'Client',
-                            color1: Color(0xffFE6488).withOpacity(.2),
-                            color2: Colors.amber.withOpacity(.1),
-                            onPressed: () => Navigator.pushReplacement(
-                              context,
-                              routeFrave(page: ClientHomeScreen()),
-                            ),
+                        // Show Client option for all role IDs
+                        _BtnRol(
+                          svg: 'Assets/svg/bussiness-man.svg',
+                          text: 'Client',
+                          color1: Color(0xffFE6488).withOpacity(.2),
+                          color2: Colors.amber.withOpacity(.1),
+                          onPressed: () => Navigator.pushReplacement(
+                            context,
+                            routeFrave(page: ClientHomeScreen()),
                           ),
-                        if (state.user!.rolId == 1 || state.user!.rolId == 3)
-                          _BtnRol(
-                            svg: 'Assets/svg/delivery-bike.svg',
-                            text: 'Delivery',
-                            color1: Color(0xff8956FF).withOpacity(.2),
-                            color2: Colors.purpleAccent.withOpacity(.1),
-                            onPressed: () => Navigator.pushAndRemoveUntil(
-                              context,
-                              routeFrave(page: DeliveryHomeScreen()),
-                              (route) => false,
-                            ),
+                        ),
+                        // Show Delivery option for all role IDs
+                        _BtnRol(
+                          svg: 'Assets/svg/delivery-bike.svg',
+                          text: 'Delivery',
+                          color1: Color(0xff8956FF).withOpacity(.2),
+                          color2: Colors.purpleAccent.withOpacity(.1),
+                          onPressed: () => Navigator.pushAndRemoveUntil(
+                            context,
+                            routeFrave(page: DeliveryHomeScreen()),
+                            (route) => false,
                           ),
+                        ),
                       ],
                     );
                   }

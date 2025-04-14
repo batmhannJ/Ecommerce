@@ -194,6 +194,7 @@ const Product = require("./models/productModels");
 const { authMiddleware: fetchUser } = require("./middleware/auth");
 
 const Users = require("./models/userModels");
+const order = require("./models/orderModel");
 const Admin = require("./models/adminUserModel");
 const Rider = require("./models/riderModel");
 const Seller = require("./models/sellerModels");
@@ -1493,33 +1494,33 @@ app.post("/api/login-role", async (req, res) => {
       return res.json({ success: false, errors: "Error: Wrong Password" });
     }
 
-    // Check Admins table
-    console.log("Checking Admins table for email:", email);
-    let admin = await Admin.findOne({ email });
-    if (admin) {
-      console.log("User found in Admins table:", admin._id);
-      if (password === admin.password) {
-        const data = {
-          user: {
-            id: admin.id,
-            role_id: 2 // Admins table
-          }
-        };
-        const token = jwt.sign(data, "secret_ecom");
-        console.log("Login successful for admin:", admin._id, "Role ID: 2");
-        return res.json({ 
-          success: true, 
-          token, 
-          userId: admin._id,
-          roleId: 2,
-          firstName: user.name.split(' ')[0],
-          lastName: user.name.split(' ').slice(1).join(' '),
-          phone: user.phone
-        });
-      }
-      console.log("Password mismatch for admin:", admin._id);
-      return res.json({ success: false, errors: "Error: Wrong Password" });
-    }
+     // Check Admins table
+     console.log("Checking Admins table for email:", email);
+     let admin = await Admin.findOne({ email });
+     if (admin) {
+       console.log("User found in Admins table:", admin._id);
+       if (password === admin.password) {
+         const data = {
+           user: {
+             id: admin.id,
+             role_id: 2 // Admins table
+           }
+         };
+         const token = jwt.sign(data, "secret_ecom");
+         console.log("Login successful for admin:", admin._id, "Role ID: 2");
+         return res.json({ 
+           success: true, 
+           token, 
+           userId: admin._id,
+           roleId: 2,
+           firstName: admin.name.split(' ')[0],  // Changed from user.name to admin.name
+           lastName: admin.name.split(' ').slice(1).join(' '),  // Changed from user.name to admin.name
+           phone: admin.phone  // Changed from user.phone to admin.phone
+         });
+       }
+       console.log("Password mismatch for admin:", admin._id);
+       return res.json({ success: false, errors: "Error: Wrong Password" });
+     }
 
     // Check Riders table
     console.log("Checking Riders table for email:", email);
@@ -2103,60 +2104,150 @@ app.get("/redirect", (req, res) => {
 });
 
 // ==================== RIDER MOBILE ============================ //
-
-// GET endpoint to fetch user details by ID
 app.get("/api/user-details/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
     console.log("Fetching user details for ID:", userId);
     
-    // Find the user in the Users collection
-    const user = await Users.findById(userId);
-    
-    if (!user) {
-      console.log("User not found with ID:", userId);
-      return res.status(404).json({ 
-        success: false, 
-        errors: "User not found" 
+    // Try to find in Users collection first
+    let user = await Users.findById(userId);
+    if (user) {
+      console.log("User found in Users collection:", user.name);
+      // Split the name into first and last name components
+      const nameParts = user.name.split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(' ');
+      
+      return res.json({
+        resp: true,
+        msg: "User details retrieved successfully",
+        user: {
+          uid: user._id,
+          firstName: firstName,
+          lastName: lastName,
+          email: user.email,
+          phone: user.phone || '',
+          image: user.image || '',
+          rolId: 1,
+          address: user.address ? {
+            country: user.address.country || '',
+            street: user.address.street || '',
+            region: user.address.region || '',
+            province: user.address.province || '',
+            municipality: user.address.municipality || '',
+            barangay: user.address.barangay || '',
+            zip: user.address.zip || ''
+          } : {
+            country: '',
+            street: '',
+            region: '',
+            province: '',
+            municipality: '',
+            barangay: '',
+            zip: ''
+          },
+          notificationToken: ''
+        },
+        token: req.header('xx-token') || ''
       });
     }
     
-    // Split the name into first and last name components
-    const nameParts = user.name.split(' ');
-    const firstName = nameParts[0];
-    const lastName = nameParts.slice(1).join(' ');
-    
-    console.log("User found:", user.name);
-    
-    // Return user details in the format expected by your app
-    return res.json({
-      resp: true,
-      msg: "User details retrieved successfully",
-      user: {
-        uid: user._id,
-        firstName: firstName,
-        lastName: lastName,
-        email: user.email,
-        phone: user.phone || '',
-        image: user.image || '',
-        rolId: 1,
-        address: {
-          country: user.address.country,
-          street: user.address.street,
-          region: user.address.region,
-          province: user.address.province,
-          municipality: user.address.municipality,
-          barangay: user.address.barangay,
-          zip: user.address.zip
+    // If not found in Users, try Admins
+    let admin = await Admin.findById(userId);
+    if (admin) {
+      console.log("User found in Admins collection:", admin.name);
+      // Split the name into first and last name components
+      const nameParts = admin.name.split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(' ');
+      
+      return res.json({
+        resp: true,
+        msg: "Admin details retrieved successfully",
+        user: {
+          uid: admin._id,
+          firstName: firstName,
+          lastName: lastName,
+          email: admin.email,
+          phone: admin.phone || '',
+          image: admin.image || '',
+          rolId: 2,
+          address: admin.address ? {
+            country: admin.address.country || '',
+            street: admin.address.street || '',
+            region: admin.address.region || '',
+            province: admin.address.province || '',
+            municipality: admin.address.municipality || '',
+            barangay: admin.address.barangay || '',
+            zip: admin.address.zip || ''
+          } : {
+            country: '',
+            street: '',
+            region: '',
+            province: '',
+            municipality: '',
+            barangay: '',
+            zip: ''
+          },
+          notificationToken: ''
         },
-        notificationToken: ''
-      },
-      token: req.header('xx-token') || ''
+        token: req.header('xx-token') || ''
+      });
+    }
+    
+    // If not found in Admins, try Riders
+    let rider = await Rider.findById(userId);
+    if (rider) {
+      console.log("User found in Riders collection:", rider.name);
+      // Split the name into first and last name components
+      const nameParts = rider.name.split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(' ');
+      
+      return res.json({
+        resp: true,
+        msg: "Rider details retrieved successfully",
+        user: {
+          uid: rider._id,
+          firstName: firstName,
+          lastName: lastName,
+          email: rider.email,
+          phone: rider.contactNumber || '',
+          image: rider.image || '',
+          rolId: 3,
+          address: rider.address ? {
+            country: rider.address.country || '',
+            street: rider.address.street || '',
+            region: rider.address.region || '',
+            province: rider.address.province || '',
+            municipality: rider.address.municipality || '',
+            barangay: rider.address.barangay || '',
+            zip: rider.address.zip || ''
+          } : {
+            country: '',
+            street: '',
+            region: '',
+            province: '',
+            municipality: '',
+            barangay: '',
+            zip: ''
+          },
+          notificationToken: ''
+        },
+        token: req.header('xx-token') || ''
+      });
+    }
+    
+    // If user not found in any collection
+    console.log("No user found with ID:", userId);
+    return res.status(404).json({ 
+      resp: false, 
+      msg: "User not found" 
     });
     
   } catch (error) {
     console.error("Error fetching user details:", error);
-    res.status(500).json({ 
+    return res.status(500).json({ 
       resp: false, 
       msg: "Server Error",
       user: {
@@ -2168,13 +2259,13 @@ app.get("/api/user-details/:userId", async (req, res) => {
         image: '',
         rolId: 0,
         address: {
-          country: user.address.country,
-          street: user.address.street,
-          region: user.address.region,
-          province: user.address.province,
-          municipality: user.address.municipality,
-          barangay: user.address.barangay,
-          zip: user.address.zip
+          country: '',
+          street: '',
+          region: '',
+          province: '',
+          municipality: '',
+          barangay: '',
+          zip: ''
         },
         notificationToken: ''
       },
@@ -2251,39 +2342,46 @@ app.get('/api/get-images-products/:id', async (req, res) => {
     });
   }
 });
-
 app.post('/api/add-new-orders', async (req, res) => {
   try {
-    console.log('Received order request:', req.body); // Add this for debugging
+    console.log('Received order request:', req.body);
+    // Extract userId from request body along with other fields
+    const { userId, uidAddress, total, typePayment, products } = req.body;
+    console.log('typePayment received:', typePayment);
 
-    const { uidAddress, total, typePayment, products } = req.body;
-
-    // Validate required fields based on your OrdersBloc implementation
-    if (!uidAddress || !total || !typePayment || !products || !Array.isArray(products)) {
+    // Validate required fields, including userId
+    if (!userId || !uidAddress || !total || !typePayment || !products || !Array.isArray(products)) {
       return res.status(400).json({
         status: 'error',
-        message: 'Missing required fields: uidAddress, total, typePayment, or products',
+        message: 'Missing required fields: userId, uidAddress, total, typePayment, or products',
       });
     }
 
-    // Since your OrdersBloc doesn't send userId directly, you might need to:
-    // 1. Either extract it from the authentication token/session
-    // 2. Or look it up based on the address ID (assuming addresses are linked to users)
-    
-    // Option 1: Extract from auth token (if you're using authentication middleware)
-    // const userId = req.user.id;
-    
-    // Option 2: Look up user based on address (example)
-    const address = await Address.findById(uidAddress);
-    if (!address) {
+    // Find the user using the provided userId
+    const user = await Users.findById(userId);
+    if (!user) {
       return res.status(404).json({
         status: 'error',
-        message: 'Address not found',
+        message: 'User not found',
       });
     }
-    const userId = address.userId; // Assuming your address model has a userId field
 
-    // Map products to items (based on your ProductCart model)
+    // Check which address matches uidAddress
+    let selectedAddress;
+    if (uidAddress === 'address' && user.address) {
+      selectedAddress = user.address;
+    } else if (uidAddress === 'address1' && user.address1) {
+      selectedAddress = user.address1;
+    } else if (uidAddress === 'address2' && user.address2) {
+      selectedAddress = user.address2;
+    } else {
+      return res.status(404).json({
+        status: 'error',
+        message: `Address "${uidAddress}" not found or not defined for this user`,
+      });
+    }
+
+    // Map products to items
     const items = products.map(product => ({
       productId: product.uidProduct,
       name: product.nameProduct,
@@ -2292,20 +2390,17 @@ app.post('/api/add-new-orders', async (req, res) => {
       image: product.imageProduct,
     }));
 
-    // Determine payment status based on typePayment
-    const paymentStatus = typePayment === 'CASH ON DELIVERY' ? false : true;
-
+    // Determine payment status
+    const paymentStatus = (typePayment && typePayment.toUpperCase() === 'Paypal') ? false : true;
     // Create new order
-    const newOrder = new Order({
-      userId, // User ID obtained from address or auth token
+    const newOrder = new order({
+      userId,
       items,
       amount: total,
-      address: {
-        id: uidAddress,
-      },
+      address: { id: uidAddress },
       payment: paymentStatus,
-      status: 'PAID', // Default status for new orders, adjust as needed
-      dateTime: new Date() // Current timestamp
+      status: 'Pending',
+      dateTime: new Date(),
     });
 
     // Save to MongoDB
@@ -2436,6 +2531,172 @@ app.get('/api/get-addresses', async (req, res) => {
   }
 });
 
+app.get('/api/client-order', async (req, res) => {
+  try {
+    const userId = req.query.userId;
+    console.log('Received userId:', userId);
+    if (!userId) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'userId is required',
+      });
+    }
+
+    const orders = await order.find({ userId }).sort({ dateTime: -1 });
+
+    if (!orders || orders.length === 0) {
+      return res.status(200).json({
+        status: 'success',
+        message: 'No orders found',
+        data: [],
+      });
+    }
+
+    // Fetch user to get address details
+    const user = await Users.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'User not found',
+      });
+    }
+
+    const formattedOrders = orders.map(order => {
+      // Look up address details based on address.id
+      let addressDetails = {
+        street: 'Unknown',
+        reference: 'Unknown',
+        latitude: 0,
+        longitude: 0,
+        country: 'Unknown',
+      };
+
+      if (order.address.id === 'address1' && user.address1) {
+        addressDetails = {
+          street: user.address1.street || 'Unknown',
+          reference: user.address1.reference || 'Unknown',
+          latitude: user.address1.latitude || 0,
+          longitude: user.address1.longitude || 0,
+          country: user.address1.country || 'Unknown',
+        };
+      } else if (order.address.id === 'address' && user.address) {
+        addressDetails = {
+          street: user.address.street || 'Unknown',
+          reference: '', // No reference in default address
+          latitude: 0, // Default address has no lat/lng
+          longitude: 0,
+          country: user.address.country || 'Unknown',
+        };
+      }
+
+      return {
+        id: order._id.toString(),
+        amount: order.amount,
+        status: order.status,
+        currentDate: order.dateTime,
+        items: order.items.map(item => ({
+          productId: item.productId,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image,
+        })),
+        address: addressDetails,
+      };
+    });
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Orders retrieved successfully',
+      data: formattedOrders,
+    });
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to fetch orders: ' + error.message,
+    });
+  }
+});
+
+app.get('/api/get-details-order-by-id/:id', async (req, res) => {
+  try {
+    const orderId = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Invalid order ID',
+      });
+    }
+
+    const orders = await order.findById(orderId);
+
+    if (!orders) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Order not found',
+      });
+    }
+
+    const details = orders.items.map(item => ({
+      nameProduct: item.name,
+      quantity: item.quantity,
+      total: item.price * item.quantity,
+      picture: item.image || 'without-image.png',
+    }));
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Order details retrieved successfully',
+      data: details,
+    });
+  } catch (error) {
+    console.error('Error fetching order details:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to fetch order details: ' + error.message,
+    });
+  }
+});
+app.get("/api/get-orders-by-status/:status", async (req, res) => {
+  try {
+    const status = req.params.status;
+    console.log(`Fetching orders with status: ${status}`);
+    
+    // Find all orders with the specified status
+    const orders = await order
+      .find({ status: status })
+      .populate('userId', 'name email phone') // Populate userId
+      .sort({ dateTime: -1 }); // Sort by newest first
+    
+    if (orders.length === 0) {
+      console.log(`No orders found with status: ${status}`);
+      return res.json({
+        resp: true,
+        msg: `No orders found with status: ${status}`,
+        orders: [],
+      });
+    }
+    
+    console.log(`Found ${orders.length} orders with status: ${status}`);
+    // Log the orders to see the exact structure
+    console.log('Orders data:', JSON.stringify(orders, null, 2));
+    return res.json({
+      resp: true,
+      msg: 'Orders retrieved successfully',
+      orders: orders,
+    });
+    
+  } catch (error) {
+    console.error(`Error fetching orders by status: ${error}`);
+    return res.status(500).json({
+      resp: false,
+      msg: 'Server Error while retrieving orders',
+      orders: [],
+    });
+  }
+});
 // Admin Routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/", adminRoutes);

@@ -20,6 +20,30 @@ class UserServices {
     return ResponseLogin.fromJson(jsonDecode(response.body)).user;
   }
 
+  Future<User?> getUsersById(String userId) async {
+  try {
+    final token = await secureStorage.readToken();
+    if (token == null) {
+      throw Exception('No token found');
+    }
+
+    final response = await http.get(
+      Uri.parse('${Environment.endpointApi}/get-user-by-id?userId=$userId'),
+      headers: {'Accept': 'application/json', 'xx-token': token},
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return ResponseLogin.fromJson(data).user;
+    } else {
+      throw Exception('Failed to fetch user: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error fetching user: $e');
+    return null;
+  }
+}
+
   Future<ResponseDefault> editProfile(String name, String lastname, String phone) async {
     final token = await secureStorage.readToken();
 

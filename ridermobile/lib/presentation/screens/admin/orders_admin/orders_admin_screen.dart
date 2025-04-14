@@ -47,21 +47,37 @@ class OrdersAdminScreen extends StatelessWidget {
         ),
         body: TabBarView(
           children: payType.map((e) 
-            => FutureBuilder<List<OrdersResponse>>(
-                future: ordersServices.getOrdersByStatus(e),
-                builder: (context, snapshot) 
-                  => ( !snapshot.hasData )
-                      ? Column(
-                          children: const [
-                            ShimmerFrave(),
-                            SizedBox(height: 10),
-                            ShimmerFrave(),
-                            SizedBox(height: 10),
-                            ShimmerFrave(),
-                          ],
-                        )
-                      :  _ListOrders(listOrders: snapshot.data!)
-            )
+            => // Inside your TabBarView's FutureBuilder
+FutureBuilder<List<OrdersResponse>>(
+  future: ordersServices.getOrdersByStatus(e),
+  builder: (context, snapshot) {
+    print('FutureBuilder state: ${snapshot.connectionState}');
+    print('Has data: ${snapshot.hasData}');
+    print('Has error: ${snapshot.hasError}');
+    if (snapshot.hasError) print('Error: ${snapshot.error}');
+    
+    if (snapshot.hasData) {
+      print('Data length: ${snapshot.data!.length}');
+      if (snapshot.data!.isEmpty) {
+        print('Data is empty list, but hasData is true');
+      } else {
+        print('First item ID: ${snapshot.data![0].id}');
+      }
+    }
+    
+    return (!snapshot.hasData)
+      ? Column(
+          children: const [
+            ShimmerFrave(),
+            SizedBox(height: 10),
+            ShimmerFrave(),
+            SizedBox(height: 10),
+            ShimmerFrave(),
+          ],
+        )
+      : _ListOrders(listOrders: snapshot.data!);
+  }
+)
           ).toList(),
         ),
       )
@@ -71,24 +87,28 @@ class OrdersAdminScreen extends StatelessWidget {
 
 
 class _ListOrders extends StatelessWidget {
-  
   final List<OrdersResponse> listOrders;
 
   const _ListOrders({required this.listOrders});
 
   @override
   Widget build(BuildContext context) {
+    print('Number of orders to display: ${listOrders.length}');
+    for (var order in listOrders) {
+      print('Order ID: ${order.id}, Client: ${order.userId.name}');
+    }
+    
     return ListView.builder(
       itemCount: listOrders.length,
-      itemBuilder: (context, i) 
-        => _CardOrders(orderResponse: listOrders[i]),
+      itemBuilder: (context, i) {
+        print('Building item at index $i');
+        return _CardOrders(orderResponse: listOrders[i]);
+      },
     );
   }
 }
 
-
 class _CardOrders extends StatelessWidget {
-
   final OrdersResponse orderResponse;
 
   const _CardOrders({required this.orderResponse});
@@ -102,40 +122,58 @@ class _CardOrders extends StatelessWidget {
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: [
           BoxShadow(color: Colors.blueGrey, blurRadius: 8, spreadRadius: -5)
-        ]
+        ],
       ),
       width: MediaQuery.of(context).size.width,
       child: InkWell(
-        onTap: () => Navigator.push(context, routeFrave(page: OrderDetailsScreen(order: orderResponse))),
+        onTap: () => Navigator.push(
+            context, routeFrave(page: OrderDetailsScreen(order: orderResponse))),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextCustom(text: 'ORDER ID: ${orderResponse.orderId}'),
+              TextCustom(text: 'ORDER ID: ${orderResponse.id}'),
               const Divider(),
               const SizedBox(height: 10.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const TextCustom(text: 'Date', fontSize: 16, color: ColorsFrave.secundaryColor),
-                  TextCustom(text: DateCustom.getDateOrder(orderResponse.currentDate.toString()), fontSize: 16),
+                  const TextCustom(
+                      text: 'Date',
+                      fontSize: 16,
+                      color: ColorsFrave.secundaryColor),
+                  TextCustom(
+                      text: DateCustom.getDateOrder(
+                          orderResponse.dateTime.toString()),
+                      fontSize: 16),
                 ],
               ),
               const SizedBox(height: 10.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const TextCustom(text: 'Client', fontSize:16, color: ColorsFrave.secundaryColor),
-                  TextCustom(text: orderResponse.cliente, fontSize: 16),
+                  const TextCustom(
+                      text: 'Client',
+                      fontSize: 16,
+                      color: ColorsFrave.secundaryColor),
+                  TextCustom(
+                      text: orderResponse.userId.name,
+                      fontSize: 16),
                 ],
               ),
               const SizedBox(height: 10.0),
-              const TextCustom(text: 'Address shipping', fontSize: 16, color: ColorsFrave.secundaryColor),
+              const TextCustom(
+                  text: 'Address shipping',
+                  fontSize: 16,
+                  color: ColorsFrave.secundaryColor),
               const SizedBox(height: 5.0),
               Align(
                 alignment: Alignment.centerRight,
-                child: TextCustom(text: orderResponse.reference, fontSize: 16, maxLine: 2)
+                child: TextCustom(
+                    text: orderResponse.address.id,
+                    fontSize: 16,
+                    maxLine: 2),
               ),
               const SizedBox(height: 5.0),
             ],

@@ -1,16 +1,20 @@
 const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
-  userId: { type: String, required: true },
-  items: { type: Array, required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Users', required: true },
+  items: [{
+    productId: { type: String, required: true },
+    name: { type: String, required: true },
+    price: { type: Number, required: true },
+    quantity: { type: Number, required: true },
+    image: { type: String },
+  }],
   amount: { type: Number, required: true },
-  address: { type: Object, required: true },
-  status: { type: String, default: "Cart Processing" },
-  date: { type: Date, default: Date.now() },
-  payment: { type: Boolean, default: false },
+  address: {
+    id: { type: String, required: true }, // e.g., "address1"
+  },
+  payment: { type: Boolean, required: true },
+  status: { type: String, required: true },
+  dateTime: { type: Date, required: true },
 });
-
-const orderModel =
-  mongoose.models.order || mongoose.model("order", orderSchema);
-
-module.exports = orderModel;
+module.exports = mongoose.model('order', orderSchema); // Capital 'O' for consistency

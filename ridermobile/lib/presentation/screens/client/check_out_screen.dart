@@ -78,23 +78,26 @@ class CheckOutScreen extends StatelessWidget {
                     BlocBuilder<PaymentsBloc, PaymentsState>(
                       builder: (context, state) 
                         => InkWell(
-                          onTap: (){
-                            orderBloc.add(
-                              OnAddNewOrdersEvent(
-                                userBloc.state.uidAddress,
-                                cartBloc.state.total,
-                                paymentBloc.state.typePaymentMethod,
-                                cartBloc.product
-                              )
-                            );
-
-                            // if( state.typePaymentMethod == 'CREDIT CARD' ){
-
-                            //   modalPaymentWithNewCard(ctx: context, amount: cartBloc.state.total.toString());
-
-                            // }
-                            
-                          },
+                         onTap: (){
+                          if (userBloc.state.uidAddress != null && userBloc.state.uidAddress.isNotEmpty) { 
+                            orderBloc.add( 
+                              OnAddNewOrdersEvent( 
+                                userBloc.state.uidAddress, 
+                                cartBloc.state.total, 
+                                paymentBloc.state.typePaymentMethod, 
+                                cartBloc.product 
+                              ) 
+                            ); 
+                          } else { 
+                            ScaffoldMessenger.of(context).showSnackBar( 
+                              SnackBar(content: TextCustom(text: 'Please select a delivery address', color: Colors.white)) 
+                            ); 
+                          }
+                          
+                          // if( state.typePaymentMethod == 'CREDIT CARD' ){
+                          //   modalPaymentWithNewCard(ctx: context, amount: cartBloc.state.total.toString());
+                          // }
+                        },
                           child: Container(
                             height: 55,
                             width: MediaQuery.of(context).size.width,

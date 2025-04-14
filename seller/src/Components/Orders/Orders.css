@@ -1,372 +1,440 @@
-/* Modern Purple-Themed Order Page Styling - Three Column Layout */
+/* Modern Purple-Themed Order Page Styling - Enhanced Design */
 
 :root {
   --primary: #6a5acd; /* Main purple */
   --primary-light: #8a7ddb;
-  --primary-dark: #5646b5;
+  --primary-dark: #4b3fa6;
   --secondary: #ff7043; /* Orange for action elements */
-  --text-dark: #2c2c2c;
-  --text-medium: #5a5a5a;
-  --text-light: #888888;
-  --background: #f9f8ff;
+  --text-dark: #1a1a1a;
+  --text-medium: #4a4a4a;
+  --text-light: #7a7a7a;
+  --background: #f5f4ff;
   --white: #ffffff;
-  --border-light: #e6e3f1;
-  --shadow: 0 6px 18px rgba(106, 90, 205, 0.1);
+  --border-light: #dcd9f1;
+  --shadow: 0 8px 24px rgba(106, 90, 205, 0.12);
+  --success: #28a745;
+  --warning: #ff9800;
+  --info: #2196f3;
 }
 
-/* Main container - sleek and modern */
+/* Base styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--background);
+  line-height: 1.6;
+}
+
+/* Main container - wider, modern, full-height */
 .order {
   box-sizing: border-box;
   width: 100%;
-  max-width: 1200px;
-  padding: 25px;
-  border-radius: 20px;
+  max-width: 1600px; /* Extended width */
+  height: 90vh; /* Fixed height: 90% of viewport height */
+  padding: clamp(20px, 3vw, 30px);
+  border-radius: 16px;
   background: var(--white);
   box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
+  overflow-y: auto; /* Prevent content from overflowing the container */
   transition: all 0.3s ease;
-  height: 750px;
-  overflow-y: auto;
+  position: relative;
+  left: 54%;
+  transform: translateX(-50%);
+  border: 1px solid var(--border-light);
   margin: 0 auto;
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 1px solid var(--border-light);
-}
-
-/* Custom scrollbar */
-.order::-webkit-scrollbar {
-  width: 6px;
-}
-
-.order::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
-
-.order::-webkit-scrollbar-thumb {
-  background: var(--primary-light);
-  border-radius: 10px;
-}
-
-.order::-webkit-scrollbar-thumb:hover {
-  background: var(--primary);
-}
-
-/* Section heading - modern typography */
-.order h3 {
-  margin: 0 0 20px 0;
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--primary);
-  position: relative;
-  padding-bottom: 8px;
-  text-align: center;
-  letter-spacing: 0.5px;
-}
-
-.order h3:after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 0;
-  height: 3px;
-  width: 60px;
-  background: linear-gradient(to right, var(--primary-light), var(--primary-dark));
-  border-radius: 10px;
-}
-
-/* Sort controls */
-.sort-controls {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 15px;
-  align-items: center;
-}
-
-.sort-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-medium);
-  margin-right: 8px;
-}
-
-.sort-select {
-  padding: 6px 10px;
-  border-radius: 10px;
-  border: 1px solid var(--border-light);
-  background-color: var(--white);
-  font-family: inherit;
-  font-size: 13px;
-  color: var(--text-dark);
-  cursor: pointer;
-  outline: none;
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236a5acd%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-  background-repeat: no-repeat;
-  background-position: right 8px top 50%;
-  background-size: 8px auto;
-  padding-right: 25px;
-  transition: all 0.3s ease;
-}
-
-.sort-select:focus, .sort-select:hover {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(106, 90, 205, 0.15);
-}
-
-/* Order list container - three column layout */
-.order-list {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  width: 100%;
-}
-
-/* Order item styling - card-like appearance */
-.order-item {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 15px;
-  border-radius: 12px;
-  background-color: var(--white);
-  box-shadow: 0 3px 8px rgba(106, 90, 205, 0.08);
-  font-size: 13px;
-  color: var(--text-medium);
-  transition: all 0.3s ease;
-  border: 1px solid var(--border-light);
-  height: 100%;
-}
-
-.order-item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(106, 90, 205, 0.15);
-  border-color: var(--primary-light);
-}
-
-/* Order item header section */
-.order-item-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.order-item-header img {
-  width: 45px;
-  height: 45px;
-  border-radius: 10px;
-  object-fit: cover;
-  transition: all 0.3s ease;
-  border: 2px solid var(--border-light);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
-}
-
-.order-item-header img:hover {
-  transform: scale(1.05);
-  border-color: var(--primary);
-}
-
-/* Order item content styling with improved typography */
-.order-item-food, .order-item-name {
-  font-weight: 600;
-  color: var(--text-dark);
-}
-
-.order-item-food {
-  font-size: 15px;
-  margin-bottom: 3px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: green;
-}
-
-.order-item-name {
-  margin-bottom: 4px;
-  font-size: 19px;
-}
-
-.order-item-address {
-  margin-bottom: 6px;
-  font-size: 12px;
-  line-height: 1.4;
-  color: var(--text-light);
-}
-
-.order-item-address p {
-  margin: 2px 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Order details section */
-.order-details {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-top: 6px;
-  padding-top: 10px;
-  border-top: 1px solid var(--border-light);
-}
-
-.order-detail-item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.detail-label {
-  font-size: 11px;
-  color: var(--text-light);
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.detail-value {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-dark);
-}
-
-.price-value {
-  color: var(--primary);
-  font-size: 14px;
-}
-
-/* Status select styling - more modern appearance */
-.order-status {
   margin-top: 10px;
 }
 
-.order-status select {
-  width: 100%;
-  padding: 8px 12px;
-  border-radius: 10px;
+/* Section heading - bold and modern */
+.order h3 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 30px;
+  text-align: center;
+  background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Sort controls - sleek and aligned */
+.sort-controls {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sort-label {
+  font-size: clamp(14px, 1.3vw, 16px);
+  font-weight: 600;
+  color: var(--text-medium);
+}
+
+.sort-select {
+  padding: 10px 32px 10px 16px;
+  border-radius: 12px;
   border: 1px solid var(--border-light);
   background-color: var(--white);
   font-family: inherit;
-  font-size: 13px;
+  font-size: clamp(14px, 1.2vw, 15px);
   color: var(--text-dark);
-  transition: all 0.3s ease;
   cursor: pointer;
   outline: none;
   appearance: none;
   background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236a5acd%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
   background-repeat: no-repeat;
   background-position: right 12px top 50%;
-  background-size: 10px auto;
-  padding-right: 25px;
+  background-size: 12px auto;
+  transition: all 0.3s ease;
+  min-width: 180px;
 }
 
-.order-status select:focus {
+.sort-select:focus,
+.sort-select:hover {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(106, 90, 205, 0.15);
+  box-shadow: 0 0 0 3px rgba(106, 90, 205, 0.2);
 }
 
-.order-status select:hover {
+/* Two-column grid layout */
+.order-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(15px, 2vw, 20px);
+  width: 100%;
+}
+
+/* Order item - card-like with clear identification */
+.order-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: clamp(15px, 2vw, 20px);
+  border-radius: 14px;
+  background-color: var(--white);
+  box-shadow: 0 4px 12px rgba(106, 90, 205, 0.1);
+  border: 1px solid var(--border-light);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.order-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(106, 90, 205, 0.15);
   border-color: var(--primary-light);
 }
 
-/* Status badges for different states */
+/* Order ID badge - Integrated into order-details */
+.order-id {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark)); /* Gradient background */
+  color: var(--white);
+  padding: 6px 12px;
+  border-radius: 20px; /* More rounded */
+  font-size: clamp(11px, 1vw, 12px);
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  cursor: pointer; /* Indicate it's clickable */
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(106, 90, 205, 0.3); /* Subtle shadow */
+  text-align: center;
+}
+
+.order-id:hover {
+  transform: scale(1.05); /* Slight scale on hover */
+  background: linear-gradient(135deg, var(--primary-light), var(--primary)); /* Reverse gradient on hover */
+  box-shadow: 0 4px 12px rgba(106, 90, 205, 0.4); /* Enhanced shadow on hover */
+}
+
+.order-id:active {
+  transform: scale(0.95); /* Slight scale down on click */
+}
+
+/* Order item header */
+.order-item-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.order-item-header img {
+  width: clamp(50px, 5vw, 60px);
+  height: clamp(50px, 5vw, 60px);
+  border-radius: 12px;
+  object-fit: cover;
+  border: 2px solid var(--border-light);
+  transition: all 0.3s ease;
+}
+
+.order-item-header img:hover {
+  transform: scale(1.08);
+  border-color: var(--primary);
+}
+
+/* Order item content */
+.order-item-food {
+  font-size: clamp(15px, 1.4vw, 17px);
+  font-weight: 700;
+  color: var(--success);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.order-item-name {
+  font-size: clamp(18px, 2vw, 20px);
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+}
+
+.order-item-address {
+  font-size: clamp(13px, 1.2vw, 14px);
+  color: var(--text-light);
+  line-height: 1.5;
+}
+
+.order-item-address p {
+  margin: 3px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Order details */
+.order-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+}
+
+.order-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.order-detail-item.order-id-container {
+  grid-column: span 2; /* Make the order-id span both columns */
+  display: flex;
+  justify-content: flex-start; /* Align to the left */
+  align-items: center;
+}
+
+.detail-label {
+  font-size: clamp(11px, 1vw, 12px);
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: clamp(13px, 1.2vw, 14px);
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.price-value {
+  color: var(--primary);
+  font-size: clamp(14px, 1.3vw, 15px);
+}
+
+/* Status select */
+.order-status select {
+  width: 100%;
+  padding: clamp(10px, 1.2vw, 12px);
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  background-color: var(--white);
+  font-family: inherit;
+  font-size: clamp(13px, 1.2vw, 14px);
+  color: var(--text-dark);
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236a5acd%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px top 50%;
+  background-size: 12px auto;
+  transition: all 0.3s ease;
+}
+
+.order-status select:focus,
+.order-status select:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(106, 90, 205, 0.2);
+}
+
+/* Status badges */
 .status-badge {
   display: inline-block;
-  padding: 4px 8px;
-  border-radius: 15px;
-  font-size: 11px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: clamp(11px, 1vw, 12px);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
-  white-space: nowrap;
+  letter-spacing: 0.5px;
 }
 
 .status-processing {
   background-color: #fff3e0;
-  color: #ff9800;
+  color: var(--warning);
 }
 
 .status-delivering {
   background-color: #e8f5e9;
-  color: #4caf50;
+  color: var(--success);
 }
 
 .status-delivered {
   background-color: #e3f2fd;
-  color: #2196f3;
+  color: var(--info);
 }
 
-/* Empty state styling */
+/* Empty state */
 .empty-orders {
-  grid-column: span 3;
-  padding: 30px;
+  grid-column: span 2;
+  padding: clamp(30px, 4vw, 40px);
   text-align: center;
   background-color: var(--background);
   border-radius: 16px;
+  border: 1px dashed var(--border-light);
 }
 
 .empty-orders p {
-  font-size: 15px;
+  font-size: clamp(16px, 1.5vw, 18px);
   color: var(--text-medium);
-  margin-bottom: 15px;
+  margin: 0;
 }
 
-/* Responsive styles */
-@media (max-width: 1024px) {
+/* Responsive design */
+@media (max-width: 1200px) {
+  .order {
+    max-width: 98%;
+  }
+}
+
+@media (max-width: 992px) {
   .order {
     padding: 20px;
-    max-width: 95%;
   }
-  
+
   .order-list {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 15px;
   }
-  
-  .empty-orders {
-    grid-column: span 2;
+
+  .order-item {
+    padding: 15px;
   }
 }
 
 @media (max-width: 768px) {
   .order {
-    padding: 18px;
+    margin: 20px auto;
+    padding: 15px;
+  }
+
+  .sort-controls {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .sort-select {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .order-item-name {
+    font-size: clamp(16px, 1.8vw, 18px);
+  }
+
+  .order-item-food {
+    font-size: clamp(14px, 1.3vw, 15px);
+  }
+}
+
+@media (max-width: 576px) {
+  .order {
+    padding: 12px;
     margin: 15px auto;
-    border-radius: 16px;
-    max-width: 95%;
   }
-  
-  .order h3 {
-    font-size: 22px;
+
+  .sort-controls {
+    flex-direction: column;
+    align-items: flex-start;
   }
-  
+
+  .sort-label {
+    margin-bottom: 8px;
+  }
+
   .order-list {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Switch to single column */
+    gap: 12px;
   }
-  
+
   .empty-orders {
     grid-column: span 1;
+  }
+
+  .order-item-header img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .order-id {
+    font-size: 11px;
+    padding: 5px 10px;
   }
 }
 
 @media (max-width: 480px) {
-  .order {
-    padding: 12px;
-    margin: 10px auto;
-    max-width: 98%;
-  }
-  
-  .order h3 {
-    font-size: 20px;
-  }
-  
-  .sort-controls {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
+  .order-status select,
   .sort-select {
-    width: 100%;
+    padding: 12px;
+    min-height: 48px;
+    font-size: 14px;
+  }
+
+  .order-item {
+    padding: 12px;
+  }
+
+  .order-item-name {
+    font-size: 16px;
+  }
+
+  .order-item-food {
+    font-size: 14px;
+  }
+
+  .order-id {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+}
+
+@media (min-width: 1800px) {
+  .order {
+    max-width: 1700px;
+  }
+
+  .order-list {
+    gap: 25px;
+  }
+
+  .order-item {
+    padding: 25px;
   }
 }

@@ -1,18 +1,17 @@
-/* List Product Styling - Matched with Add Product Blue Theme */
-
+/* List Product Styling - Formal and Clean Theme with Scrollable Small Screens */
 :root {
-  --primary: #5b7fa7; /* Main blue */
-  --primary-light: #7b9cc0;
-  --primary-dark: #486891;
-  --secondary: #4caf50; /* Green for success elements */
-  --text-dark: #333333;
-  --text-medium: #666666;
-  --text-light: #999999;
-  --background: #f7f7f7;
-  --white: #ffffff;
-  --border-light: #eeeeee;
-  --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  --danger: #dc3545; /* Red for delete button */
+  --primary: #2c5282; /* Deep formal blue */
+  --primary-light: #a0aec0; /* Light gray-blue */
+  --primary-dark: #1a3657; /* Darker blue */
+  --secondary: #38a169; /* Subtle green */
+  --text-dark: #1a202c; /* Deep gray */
+  --text-medium: #4a5568; /* Medium gray */
+  --text-light: #718096; /* Light gray */
+  --background: #edf2f7; /* Light neutral background */
+  --white: #ffffff; /* Pure white for cards */
+  --border-light: #e2e8f0; /* Soft border */
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+  --danger: #c53030; /* Formal red */
 }
 
 /* Main container */
@@ -20,325 +19,306 @@
   box-sizing: border-box;
   width: 95%;
   max-width: 1000px;
-  padding: 25px;
-  border-radius: 16px;
+  padding: 20px;
+  border-radius: 8px;
   background: var(--white);
   box-shadow: var(--shadow);
-  transition: all 0.3s ease;
-  height: auto;
-  overflow-y: visible;
-  margin: 0 auto;
+  margin: 20px auto;
+  border: 1px solid var(--border-light);
 }
 
-/* Section heading - with less bottom spacing */
+/* Section heading */
 .list-product h3 {
-  margin: 0 0 15px 0;
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 700;
-  color: var(--primary);
-  position: relative;
-  padding-bottom: 10px;
+  color: var(--text-color);
+  margin-bottom: 30px;
   text-align: center;
+  background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.list-product h3:after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 0;
-  height: 4px;
-  width: 60px;
-  background: var(--primary);
-  border-radius: 10px;
+/* Button container styling */
+.button {
+  display: flex;
+  flex-direction: column; /* Stack buttons vertically */
+  gap: 6px; /* Reduced gap between Edit and Delete buttons */
 }
 
 /* Buttons styling */
 .edit-button, .delete-button {
-  width: auto;
-  min-width: 70px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: none;
+  width: 80px; /* Adjusted width to match the image */
+  min-width: 70px; /* Adjusted min-width */
+  padding: 8px 12px; /* Adjusted padding to match the image */
+  border-radius: 10px; /* Keep the reduced radius */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle white border for definition */
   cursor: pointer;
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease;
-  margin-right: 20px; /* This already adds some spacing */
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
-  text-align: center;
+  color: var(--white);
+  font-size: 13px; /* Adjusted font size to match the image */
+  font-weight: 600; /* Slightly bolder for a modern look */
+  text-transform: none;
+  letter-spacing: 0.5px; /* Slight letter spacing for readability */
+  transition: all 0.3s ease; /* Smooth transition for all effects */
+  box-shadow: none;
+  background: #4CAF50; /* Default green for edit */
+  text-align: center; /* Ensure text is centered */
 }
 
-/* Adding more gap between the buttons */
 .edit-button {
-  background: #3d9140;
-  box-shadow: 0 3px 8px rgba(76, 175, 80, 0.3);
-  margin-right: 30px; /* Increased spacing between buttons */
-  margin-bottom: 5px;
-}
-
-.delete-button {
-  background: var(--danger);
-  box-shadow: 0 3px 8px rgba(220, 53, 69, 0.3);
+  background: #4CAF50; /* Green for edit */
 }
 
 .edit-button:hover {
-  background: #368138;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 12px rgba(76, 175, 80, 0.4);
+  background: #45a049; /* Slightly darker green on hover */
+  opacity: 0.9; /* Subtle opacity change */
+  transform: scale(1.05); /* Slight scale-up for modern effect */
+}
+
+.delete-button {
+  background: #F44336; /* Red for delete */
 }
 
 .delete-button:hover {
-  background: #c82333;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 12px rgba(220, 53, 69, 0.4);
+  background: #d32f2f; /* Slightly darker red on hover */
+  opacity: 0.9; /* Subtle opacity change */
+  transform: scale(1.05); /* Slight scale-up for modern effect */
 }
 
 .edit-button:active, .delete-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transform: scale(0.98); /* Slight scale-down on click for feedback */
+  opacity: 0.8; /* Subtle opacity change on click */
 }
 
-/* Product list grid */
+/* Product list container - Now includes header and rows */
+.listproduct-allproducts {
+  max-height: 450px;
+  overflow-y: auto;
+  width: 100%;
+  margin: 10px 0;
+  border-radius: 6px;
+  background: var(--white);
+  border: 1px solid var(--border-light);
+  overflow-x: auto; /* Enable horizontal scrolling */
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-light) var(--white);
+}
+
+.listproduct-allproducts::-webkit-scrollbar {
+  width: 6px; /* Vertical scrollbar */
+  height: 6px; /* Horizontal scrollbar */
+}
+
+.listproduct-allproducts::-webkit-scrollbar-thumb {
+  background: var(--primary-light);
+  border-radius: 3px;
+}
+
+.listproduct-allproducts::-webkit-scrollbar-track {
+  background: var(--white);
+}
+
+/* Product list grid - Header */
 .listproduct-format-main {
   display: grid;
-  grid-template-columns: 100px 2fr 1fr 1fr 1fr 1fr 1fr;
-  gap: 10px;
-  width: 100%;
-  height: 80px;
-  color: var(--text-dark);
-  font-size: 15px;
+  grid-template-columns: 80px 2fr 1fr 1fr 1fr 1fr 1fr; /* Full 7 columns */
+  gap: 12px;
+  padding: 10px;
+  color: var(--text-medium);
+  font-size: 14px;
   font-weight: 600;
-  margin-bottom: 5px;
-  margin-top: 5px;
+  background: var(--background);
+  border-bottom: 1px solid var(--border-light);
   align-items: center;
+  min-width: 700px; /* Ensures all columns fit */
+  position: sticky; /* Keeps header at the top */
+  top: 0; /* Sticks to the top of the container */
+  z-index: 1; /* Ensures it stays above rows */
 }
 
+/* Product row styling */
 .listproduct-format {
+  display: grid;
+  grid-template-columns: 80px 2fr 1fr 1fr 1fr 1fr 1fr; /* Full 7 columns */
+  gap: 12px;
+  padding: 12px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border-light);
   align-items: center;
+  transition: background 0.2s ease;
+  min-width: 700px; /* Ensures all columns fit */
+}
+
+.listproduct-format:hover {
+  background: #f7fafc; /* Subtle hover effect */
 }
 
 /* Product image styling */
 .listproduct-product-icon {
-  width: 80px;
-  height: 80px;
+  width: 70px;
+  height: 70px;
   object-fit: cover;
-  border-radius: 15px;
-  border: 2px dashed var(--primary-light);
-  padding: 5px;
-  background-color: #f0f5fa;
-  transition: all 0.3s ease;
+  border-radius: 6px;
+  border: 1px solid var(--border-light);
+  transition: border-color 0.2s ease;
 }
 
 .listproduct-product-icon:hover {
   border-color: var(--primary);
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(91, 127, 167, 0.2);
-}
-
-.listproduct-remove-icon {
-  cursor: pointer;
-  width: 24px;
-  height: 24px;
-  transition: all 0.3s ease;
-}
-
-.listproduct-remove-icon:hover {
-  transform: scale(1.1);
-}
-
-/* Product list container - INCREASED HEIGHT to utilize more space */
-.listproduct-allproducts {
-  max-height: 470px; /* Increased from 380px to use more vertical space */
-  overflow-y: auto;
-  width: 100%;
-  margin-top: 12px;
-  margin-bottom: 12px;
-  border-radius: 12px;
-  background-color: #f0f5fa;
-  padding: 10px;
-  border: 1px dashed rgba(91, 127, 167, 0.3);
 }
 
 /* Divider styling */
 hr {
   border: none;
   border-bottom: 1px solid var(--border-light);
-  margin: 8px 0;
+  margin: 5px 0;
 }
 
 /* Edit form styling */
 .edit-form {
-  box-sizing: border-box;
   width: 100%;
-  max-width: 500px;
+  max-width: 450px;
   padding: 20px;
-  margin: 15px auto;
-  border-radius: 16px;
+  margin: 20px auto;
+  border-radius: 8px;
   background: var(--white);
   box-shadow: var(--shadow);
-  transition: all 0.3s ease;
-  border: 1px dashed rgba(91, 127, 167, 0.3);
-  background-color: #f0f5fa;
+  border: 1px solid var(--border-light);
 }
 
 .edit-form h2 {
-  margin: 0 0 15px 0;
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 600;
   color: var(--primary);
-  position: relative;
-  padding-bottom: 10px;
+  margin: 0 0 15px;
   text-align: center;
 }
 
-.edit-form h2:after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 0;
-  height: 3px;
-  width: 50px;
-  background: var(--primary);
-  border-radius: 10px;
-}
-
-.edit-form input, 
+.edit-form input,
 .edit-form select {
   width: 100%;
-  padding: 12px 16px;
-  border-radius: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
   border: 1px solid var(--border-light);
-  background-color: var(--white);
-  font-family: inherit;
-  font-size: 15px;
+  background: var(--white);
+  font-size: 14px;
   color: var(--text-dark);
-  transition: all 0.3s ease;
-  margin-bottom: 10px;
+  transition: border-color 0.2s ease;
+  margin-bottom: 12px;
 }
 
-.edit-form input:focus, 
+.edit-form input:focus,
 .edit-form select:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(91, 127, 167, 0.15);
+  box-shadow: 0 0 0 2px rgba(44, 82, 130, 0.1);
   outline: none;
 }
 
 .edit-form button {
   width: 100%;
-  padding: 12px;
-  border-radius: 12px;
+  padding: 10px;
+  border-radius: 6px;
   background: var(--primary);
   border: none;
   cursor: pointer;
-  color: white;
-  font-size: 16px;
+  color: var(--white);
+  font-size: 15px;
   font-weight: 600;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease;
-  margin-top: 12px;
-  box-shadow: 0 4px 10px rgba(91, 127, 167, 0.3);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .edit-form button:hover {
   background: var(--primary-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(91, 127, 167, 0.4);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
 
-/* Responsive styles */
+/* Responsive Styles */
 @media (max-width: 1024px) {
   .list-product {
-    width: 92%;
-    padding: 20px;
+    width: 90%;
+    padding: 18px;
   }
-  
-  /* Keep product container tall on larger screens */
+
+  .listproduct-product-icon {
+    width: 60px;
+    height: 60px;
+  }
+
   .listproduct-allproducts {
-    max-height: 480px;
+    max-height: 420px;
   }
 }
 
 @media (max-width: 768px) {
   .list-product {
-    width: 90%;
-    padding: 18px;
-    margin: 12px auto;
-    border-radius: 12px;
+    width: 92%;
+    padding: 15px;
   }
-  
+
   .list-product h3 {
     font-size: 22px;
   }
-  
+
   .listproduct-product-icon {
-    width: 75px;
-    height: 75px;
+    width: 50px;
+    height: 50px;
   }
 
-  /* Still tall on tablets */
   .listproduct-allproducts {
-    max-height: 460px;
+    max-height: 400px;
   }
 
   .edit-form {
-    padding: 18px;
+    max-width: 400px;
+    padding: 15px;
   }
-  
+
   .edit-button, .delete-button {
-    padding: 7px 10px;
-    font-size: 13px;
-    min-width: 60px;
-    margin-right: 15px;
+    width: 70px; /* Adjusted width for consistency */
+    min-width: 60px; /* Adjusted for smaller screens */
+    padding: 6px 8px; /* Adjusted padding */
+    font-size: 12px; /* Adjusted font size */
+  }
+
+  .button {
+    gap: 5px; /* Adjusted gap for smaller screens */
   }
 }
 
-/* Enhanced small screen experience with horizontal scrolling for products */
 @media (max-width: 576px) {
   .list-product {
     width: 95%;
     padding: 12px;
   }
-  
+
   .list-product h3 {
     font-size: 20px;
   }
-  
-  /* Keep the container tall even on smaller screens */
+
+  .listproduct-product-icon {
+    width: 40px;
+    height: 40px;
+  }
+
   .listproduct-allproducts {
-    max-height: 440px;
-    padding: 8px;
+    max-height: 380px;
   }
-  
-  /* Enable horizontal scrolling for multiple products at once */
-  .listproduct-format-main {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    gap: 10px;
-    padding: 10px 5px;
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-    scroll-behavior: smooth;
-    white-space: nowrap;
-    height: auto;
-    min-height: 70px;
-  }
-  
-  /* Each product becomes a scroll snap item */
+
+  .listproduct-format-main,
   .listproduct-format {
-    flex: 0 0 auto;
-    width: 250px; /* Fixed width for each product item */
-    scroll-snap-align: start;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px;
-    background-color: rgba(255, 255, 255, 0.6);
-    border-radius: 8px;
-    border: 1px solid var(--border-light);
+    font-size: 13px;
+  }
+
+  .edit-button, .delete-button {
+    width: 60px; /* Adjusted width for consistency */
+    min-width: 50px; /* Adjusted for smaller screens */
+    padding: 5px 6px; /* Adjusted padding */
+    font-size: 11px; /* Adjusted font size */
+  }
+
+  .button {
+    gap: 4px; /* Adjusted gap for smaller screens */
   }
 }
 
@@ -346,38 +326,37 @@ hr {
   .list-product {
     width: 98%;
     padding: 10px;
-    margin: 8px auto;
   }
-  
-  /* Still maintaining good height on mobile */
-  .listproduct-allproducts {
-    max-height: 420px;
-  }
-  
-  .edit-form h2 {
-    font-size: 18px;
-  }
-  
-  .edit-form input, 
-  .edit-form select {
-    padding: 10px 14px;
-  }
-  
+
   .listproduct-product-icon {
-    height: 65px;
-    width: 65px;
+    width: 35px;
+    height: 35px;
   }
-  
-  /* Make product cards a bit smaller on very small screens */
-  .listproduct-format {
-    width: 220px;
+
+  .listproduct-allproducts {
+    max-height: 360px;
   }
-  
+
+  .edit-form {
+    max-width: 100%;
+    padding: 12px;
+  }
+
+  .edit-form input,
+  .edit-form select {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
   .edit-button, .delete-button {
-    padding: 5px 8px;
-    font-size: 12px;
-    min-width: 50px;
-    margin-right: 8px;
+    width: 55px; /* Adjusted width for consistency */
+    min-width: 45px; /* Adjusted for smaller screens */
+    padding: 4px 5px; /* Adjusted padding */
+    font-size: 10px; /* Adjusted font size */
+  }
+
+  .button {
+    gap: 3px; /* Adjusted gap for smaller screens */
   }
 }
 
@@ -385,22 +364,35 @@ hr {
   .list-product {
     width: 100%;
     padding: 8px;
-    border-radius: 10px;
+    border-radius: 6px;
   }
-  
-  /* Still good height on smallest screens */
-  .listproduct-allproducts {
-    max-height: 400px;
+
+  .list-product h3 {
+    font-size: 18px;
   }
-  
-  /* Even smaller product cards for smallest screens */
-  .listproduct-format {
-    width: 200px;
-  }
-  
+
   .listproduct-product-icon {
-    height: 60px;
-    width: 60px;
+    width: 30px;
+    height: 30px;
+  }
+
+  .listproduct-allproducts {
+    max-height: 340px;
+  }
+
+  .listproduct-format-main,
+  .listproduct-format {
+    font-size: 12px;
+  }
+
+  .edit-button, .delete-button {
+    width: 50px; /* Adjusted width for consistency */
+    min-width: 40px; /* Adjusted for smaller screens */
+    padding: 3px 4px; /* Adjusted padding */
+    font-size: 9px; /* Adjusted font size */
+  }
+
+  .button {
+    gap: 2px; /* Adjusted gap for smaller screens */
   }
 }
-

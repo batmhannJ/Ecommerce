@@ -380,166 +380,182 @@ const SLoginSignup = () => {
           </form>
         ) : (
           <form onSubmit={handleSignup}>
-            <div>
-              <label>Name:</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div>
-              <label>Shop Name:</label>
-              <input
-                type="text"
-                name="shopName"
-                value={formData.shopName}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div>
-              <label>Email:</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div>
-              <div className="password-container" style={{ position: 'relative' }}>
-              <label>Password:</label>
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
-                onChange={(e) => {
-                  let password = e.target.value;
-                  if (password.length > 20) {
-                    password = password.slice(0, 20);
-                  }
-
-                  handleChange({ target: { name: 'password', value: password } });
-
-                  const isValidPassword = validatePassword(password);
-                  if (!isValidPassword) {
-                    setPasswordError('Password must be between 8 and 20 characters and contain at least one uppercase letter.');
-                  } else {
-                    setPasswordError(''); 
-                  }
-                }}
-                required
-              />
-                <span
-                  className="eye-icon"
-                  onClick={togglePasswordVisibility}
-                  style={{
-                    cursor: 'pointer',
-                    position: 'absolute',
-                    right: '10px',
-                    top: '60%',
-                    transform: 'translateY(-50%)',
-                  }}
-                >
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
-                </span>
+            <div className="signup-form-columns">
+              {/* First Column - Basic Info */}
+              <div>
+                <div>
+                  <label>Name:</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <label>Shop Name:</label>
+                  <input
+                    type="text"
+                    name="shopName"
+                    value={formData.shopName}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <label>Email:</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <div className="password-container" style={{ position: 'relative' }}>
+                    <label>Password:</label>
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      value={formData.password}
+                      onChange={(e) => {
+                        let password = e.target.value;
+                        if (password.length > 20) {
+                          password = password.slice(0, 20);
+                        }
+                        handleChange({ target: { name: 'password', value: password } });
+                        const isValidPassword = validatePassword(password);
+                        if (!isValidPassword) {
+                          setPasswordError('Password must be between 8 and 20 characters and contain at least one uppercase letter.');
+                        } else {
+                          setPasswordError(''); 
+                        }
+                      }}
+                      required
+                    />
+                    <span
+                      className="eye-icon"
+                      onClick={togglePasswordVisibility}
+                      style={{
+                        cursor: 'pointer',
+                        position: 'absolute',
+                        right: '10px',
+                        top: '60%',
+                        transform: 'translateY(-50%)',
+                      }}
+                    >
+                      {showPassword ? <FaEyeSlash /> : <FaEye />}
+                    </span>
+                  </div>
+                  {passwordError && <p className="password-error">{passwordError}</p>}
+                </div>
               </div>
-              {passwordError && <p className="password-error">{passwordError}</p>}
-            </div>
-            <div>
-              <label>Valid ID/GOVERNMENT ISSUED:</label>
-              <input
-                type="file"
-                name="idPicture"
-                onChange={handleChange}
-                required
-              />
+
+              {/* Second Column - Additional Info */}
+<div>
+  <div className="file-input-container">
+    <label>Valid ID/GOVERNMENT ISSUED:</label>
+    <input
+      type="file"
+      id="idPicture"
+      name="idPicture"
+      onChange={(e) => {
+        handleChange(e); // Your existing handleChange function
+        const label = document.querySelector('.file-input-label');
+        if (e.target.files[0]) {
+          label.textContent = e.target.files[0].name;
+          label.classList.add('uploaded');
+        } else {
+          label.textContent = 'Choose a file...';
+          label.classList.remove('uploaded');
+        }
+      }}
+      required
+    />
+    <label htmlFor="idPicture" className="file-input-label">
+      <span>Choose a file...</span>
+      <span className="upload-icon">
+        <i className="fas fa-upload"></i> {/* Assuming Font Awesome is included */}
+      </span>
+    </label>
+  </div>
+
+  {/* Business Location Section */}
+  <div className="location-section">
+    <label>Business Location:</label>
+    <div className="location-field">
+      <select
+        name="region"
+        value={formData.businessLocation.region}
+        onChange={handleChange}
+        required
+        className="location-dropdown"
+      >
+        <option value="">Select Region</option>
+        {availableRegions.map((region) => (
+          <option key={region.region_code} value={region.region_code}>
+            {region.region_name}
+          </option>
+        ))}
+      </select>
+    </div>
+    <div className="location-field">
+      <select
+        name="province"
+        value={formData.businessLocation.province}
+        onChange={handleChange}
+        disabled={!formData.businessLocation.region}
+        required
+        className="location-dropdown"
+      >
+        <option value="">Select Province</option>
+        {provinces.map((province) => (
+          <option key={province.province_code} value={province.province_code}>
+            {province.province_name}
+          </option>
+        ))}
+      </select>
+    </div>
+    <div className="location-field">
+      <select
+        name="city"
+        value={formData.businessLocation.city}
+        onChange={handleChange}
+        disabled={!formData.businessLocation.province}
+        required
+        className="location-dropdown"
+      >
+        <option value="">Select City/Municipality</option>
+        {citiesList.map((city) => (
+          <option key={city.city_code} value={city.city_code}>
+            {city.city_name}
+          </option>
+        ))}
+      </select>
+    </div>
+    <div className="location-field">
+      <select
+        name="barangay"
+        value={formData.businessLocation.barangay}
+        onChange={handleChange}
+        disabled={!formData.businessLocation.city}
+        className="location-dropdown"
+      >
+        <option value="">Select Barangay (Optional)</option>
+        {barangaysList.map((barangay) => (
+          <option key={barangay.brgy_code} value={barangay.brgy_code}>
+            {barangay.brgy_name}
+          </option>
+        ))}
+      </select>
+    </div>
+  </div>
+</div>
             </div>
             
-            {/* Business Location Section with Cascading Dropdowns */}
-            <div className="location-section">
-              <label>Business Location:</label>
-              
-              {/* Region Dropdown */}
-              <div className="location-field">
-                <select
-                  name="region"
-                  value={formData.businessLocation.region}
-                  onChange={handleChange}
-                  required
-                  className="location-dropdown"
-                >
-                  <option value="">Select Region</option>
-                  {availableRegions.map((region) => (
-                    <option key={region.region_code} value={region.region_code}>
-                      {region.region_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              {/* Province Dropdown */}
-              <div className="location-field">
-                <select
-                  name="province"
-                  value={formData.businessLocation.province}
-                  onChange={handleChange}
-                  disabled={!formData.businessLocation.region}
-                  required
-                  className="location-dropdown"
-                >
-                  <option value="">Select Province</option>
-                  {provinces.map((province) => (
-                    <option key={province.province_code} value={province.province_code}>
-                      {province.province_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              {/* City/Municipality Dropdown */}
-              <div className="location-field">
-                <select
-                  name="city"
-                  value={formData.businessLocation.city}
-                  onChange={handleChange}
-                  disabled={!formData.businessLocation.province}
-                  required
-                  className="location-dropdown"
-                >
-                  <option value="">Select City/Municipality</option>
-                  {citiesList.map((city) => (
-                    <option key={city.city_code} value={city.city_code}>
-                      {city.city_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              {/* Barangay Dropdown (Optional) */}
-              <div className="location-field">
-                <select
-                  name="barangay"
-                  value={formData.businessLocation.barangay}
-                  onChange={handleChange}
-                  disabled={!formData.businessLocation.city}
-                  className="location-dropdown"
-                >
-                  <option value="">Select Barangay (Optional)</option>
-                  {barangaysList.map((barangay) => (
-                    <option key={barangay.brgy_code} value={barangay.brgy_code}>
-                      {barangay.brgy_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            
-            <button type="submit">Sign up</button>
+            <button type="submit" className="signup-button">Sign up</button>
             <p>Already registered? <span className="link" onClick={() => setIsLogin(true)}>Log in as a <b>Seller</b></span></p>
           </form>
         )}
@@ -547,5 +563,7 @@ const SLoginSignup = () => {
     </div>
   );
 };
+
+<script src="https://kit.fontawesome.com/your-kit-id.js" crossorigin="anonymous"></script>
 
 export default SLoginSignup;

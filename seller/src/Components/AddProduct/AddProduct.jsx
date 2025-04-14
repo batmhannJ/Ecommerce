@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "./AddProduct.css";
-import upload_area from "../../assets/upload_area.png";
 
 export const AddProduct = () => {
   const [image, setImage] = useState(null);
@@ -309,28 +308,31 @@ export const AddProduct = () => {
 
   return (
     <div className="add-product">
+      <h3>Add Product</h3>
+      
       <div className="addproduct-itemfield">
-        <h3>Add Product</h3>
         <p>Product Title</p>
         <input
           value={productDetails.name}
           onChange={changeHandler}
           type="text"
           name="name"
-          placeholder="Type Here"
+          placeholder="Enter product title"
         />
       </div>
+      
       <div className="addproduct-description">
         <p>Product Description</p>
         <textarea
           name="description"
-          rows="6"
-          placeholder="Write description here"
+          rows="5"
+          placeholder="Enter product description"
           value={productDetails.description}
           onChange={changeHandler}
           required
         ></textarea>
       </div>
+      
       <div className="addproduct-price">
         <div className="addproduct-itemfield">
           <p>Market Value Price</p>
@@ -339,11 +341,12 @@ export const AddProduct = () => {
             onChange={changeHandler}
             type="text"
             name="old_price"
-            placeholder="Type Here"
+            placeholder="Enter original price"
             onInput={(e) => (e.target.value = e.target.value.replace(/[^0-9]/g, ""))}
           />
           {errors.old_price && <span className="error-text">{errors.old_price}</span>}
         </div>
+        
         <div className="addproduct-itemfield">
           <p>Seller Offer Price</p>
           <input
@@ -351,12 +354,13 @@ export const AddProduct = () => {
             onChange={changeHandler}
             type="text"
             name="new_price"
-            placeholder="Type Here"
+            placeholder="Enter offer price"
             onInput={(e) => (e.target.value = e.target.value.replace(/[^0-9]/g, ""))}
           />
           {errors.new_price && <span className="error-text">{errors.new_price}</span>}
         </div>
       </div>
+      
       <div className="addproduct-price">
         <div className="addproduct-itemfield">
           <p>Product Category</p>
@@ -452,17 +456,17 @@ export const AddProduct = () => {
         )}
 
         {productDetails.category === "food" && (
-            <div className="addproduct-itemfield">
-              <p>Stock</p>
-              <input
-                type="number"
-                name="stock"
-                value={productDetails.stock}
-                onChange={changeHandler}
-                placeholder="Enter stock"
-              />
-            </div>
-          )}
+          <div className="addproduct-itemfield">
+            <p>Stock</p>
+            <input
+              type="number"
+              name="stock"
+              value={productDetails.stock}
+              onChange={changeHandler}
+              placeholder="Enter stock"
+            />
+          </div>
+        )}
       </div>
 
       <div className="addproduct-price">
@@ -472,7 +476,7 @@ export const AddProduct = () => {
             type="text"
             name="tags"
             value={productDetails.tags}
-            placeholder="Type Here"
+            placeholder="Enter tags (e.g. electronics, smartphone, accessories)"
             onChange={changeHandler}
           />
           {errors.tags && <span className="error-text">{errors.tags}</span>}
@@ -490,12 +494,19 @@ export const AddProduct = () => {
       <div className="addproduct-images">
         <div className="addproduct-itemfield">
           <p>Main Product Image</p>
-          <label htmlFor="file-input">
-            <img
-              src={image ? URL.createObjectURL(image) : upload_area}
-              className="addproduct-thumbnail-img"
-              alt="Main product"
-            />
+          <label htmlFor="file-input" className="addproduct-thumbnail-img">
+            {image ? (
+              <img
+                src={URL.createObjectURL(image)}
+                className="file-preview"
+                alt="Main product"
+              />
+            ) : (
+              <div className="upload-placeholder">
+                <div className="upload-icon">+</div>
+                <div className="upload-text">Upload Image</div>
+              </div>
+            )}
           </label>
           <input
             onChange={imageHandler}
@@ -511,14 +522,21 @@ export const AddProduct = () => {
           <div className="thumbnail-containers">
             {/* Thumbnail 1 */}
             <div className="thumbnail-container">
-              <label htmlFor="thumbnail1-input">
-                <img
-                  src={thumbnail1 ? URL.createObjectURL(thumbnail1) : upload_area}
-                  className="addproduct-thumbnail-img"
-                  alt="Thumbnail 1"
-                />
-                <span>Thumbnail 1</span>
+              <label htmlFor="thumbnail1-input" className="addproduct-thumbnail-img">
+                {thumbnail1 ? (
+                  <img
+                    src={URL.createObjectURL(thumbnail1)}
+                    className="file-preview"
+                    alt="Thumbnail 1"
+                  />
+                ) : (
+                  <div className="upload-placeholder">
+                    <div className="upload-icon">+</div>
+                    <div className="upload-text">View 1</div>
+                  </div>
+                )}
               </label>
+              <span>Front View</span>
               <input
                 onChange={(e) => thumbnailHandler(e, 1)}
                 type="file"
@@ -530,14 +548,21 @@ export const AddProduct = () => {
 
             {/* Thumbnail 2 */}
             <div className="thumbnail-container">
-              <label htmlFor="thumbnail2-input">
-                <img
-                  src={thumbnail2 ? URL.createObjectURL(thumbnail2) : upload_area}
-                  className="addproduct-thumbnail-img"
-                  alt="Thumbnail 2"
-                />
-                <span>Thumbnail 2</span>
+              <label htmlFor="thumbnail2-input" className="addproduct-thumbnail-img">
+                {thumbnail2 ? (
+                  <img
+                    src={URL.createObjectURL(thumbnail2)}
+                    className="file-preview"
+                    alt="Thumbnail 2"
+                  />
+                ) : (
+                  <div className="upload-placeholder">
+                    <div className="upload-icon">+</div>
+                    <div className="upload-text">View 2</div>
+                  </div>
+                )}
               </label>
+              <span>Side View</span>
               <input
                 onChange={(e) => thumbnailHandler(e, 2)}
                 type="file"
@@ -549,14 +574,21 @@ export const AddProduct = () => {
 
             {/* Thumbnail 3 */}
             <div className="thumbnail-container">
-              <label htmlFor="thumbnail3-input">
-                <img
-                  src={thumbnail3 ? URL.createObjectURL(thumbnail3) : upload_area}
-                  className="addproduct-thumbnail-img"
-                  alt="Thumbnail 3"
-                />
-                <span>Thumbnail 3</span>
+              <label htmlFor="thumbnail3-input" className="addproduct-thumbnail-img">
+                {thumbnail3 ? (
+                  <img
+                    src={URL.createObjectURL(thumbnail3)}
+                    className="file-preview"
+                    alt="Thumbnail 3"
+                  />
+                ) : (
+                  <div className="upload-placeholder">
+                    <div className="upload-icon">+</div>
+                    <div className="upload-text">View 3</div>
+                  </div>
+                )}
               </label>
+              <span>Detail View</span>
               <input
                 onChange={(e) => thumbnailHandler(e, 3)}
                 type="file"
@@ -570,7 +602,7 @@ export const AddProduct = () => {
       </div>
 
       <button onClick={Add_Product} className="addproduct-btn">
-        ADD
+        ADD PRODUCT
       </button>
     </div>
   );

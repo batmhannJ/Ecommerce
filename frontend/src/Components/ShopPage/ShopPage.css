@@ -128,12 +128,7 @@
     max-height: 200px;
   }
   
-  .shop-info {
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
+
   
   .shop-name {
     margin-top: 10px;

@@ -53,9 +53,6 @@ const Item = (props) => {
               </span>
             )}
           </div>
-          <div className="item_shipping">
-            <span className="shop-name">{props.shopName || "Shop Name"}</span>
-          </div> 
         </div>
       </Link>
     </div>

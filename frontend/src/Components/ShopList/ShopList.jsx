@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart } from "lucide-react";
-import "./ShopList.css";
-import { ShoppingCart } from 'lucide-react';
+import { Heart, Star, Clock, Bookmark, ChevronRight } from "lucide-react";
+import "./ShopList.css"; // We'll create a new CSS file but keep the same import
 
 const ShopList = ({ 
   id, 
@@ -14,12 +13,14 @@ const ShopList = ({
   rating = 0, 
   reviewCount, 
   freeDeliveryMinimum, 
-  idPicture 
+  idPicture,
+  isNew = false,
+  promotionText = null,
+  estimatedDelivery = "30-45 min"
 }) => {
-  const [activeCard, setActiveCard] = useState(false);
   const [favoriteStatus, setFavoriteStatus] = useState(false);
   const navigate = useNavigate();
-
+  
   const navigateToShop = () => {
     navigate(`/store/${id}`, {
       state: {
@@ -36,80 +37,99 @@ const ShopList = ({
       }
     });
   };
-
+  
   const toggleFavorite = (e) => {
     e.stopPropagation();
     setFavoriteStatus(!favoriteStatus);
   };
-
-  // Safe rating display
-  const safeRating = rating != null ? rating.toFixed(1) : 'N/A';
-
-  // Safe categories display
-  const safeCategories = Array.isArray(categories) 
-    ? categories.slice(0, 2).join(' • ') 
+  
+  // Format categories for display
+  const formattedCategories = Array.isArray(categories) 
+    ? categories.slice(0, 2).join(' · ') 
     : '';
-
-  // Safe minOrder display
-  const safeMinOrder = minOrder != null 
-    ? minOrder.toLocaleString() 
-    : '0';
-
+    
   return (
-    <div 
-      className={`shop-card ${activeCard ? 'shop-card-hovered' : ''}`}
-      onMouseEnter={() => setActiveCard(true)}
-      onMouseLeave={() => setActiveCard(false)}
-      onClick={navigateToShop}
-    >
-      <div className="shop-image-container">
-        <img 
-          src={image} 
-          alt={shopName} 
-          className="shop-image" 
-        />
-        <div className="shop-image-overlay">
-          <div className="shop-rating">
-            ⭐ {safeRating}
-          </div>
-          <button 
-            className={`favorite-btn ${favoriteStatus ? 'favorite-active' : ''}`}
-            onClick={toggleFavorite}
-          >
-            <Heart 
-              fill={favoriteStatus ? '#FF6B6B' : 'transparent'} 
-              stroke={favoriteStatus ? '#FF6B6B' : 'white'}
-              strokeWidth={2}
-            />
-          </button>
-        </div>
-      </div>
+    <div className="shop-card" onClick={navigateToShop}>
+      {isNew && <div className="new-tag">NEW</div>}
       
-      <div className="shop-info">
-        <div className="shop-header">
-          <h3 className="shop-name">{shopName}</h3>
-          <span className="shop-categories">
-            {safeCategories}
-          </span>
+      <div className="shop-card-main">
+        <div className="shop-image-container">
+          <img src={image} alt={shopName} className="shop-image" loading="lazy" />
         </div>
         
         <div className="shop-details">
-          <div className="shop-location">
-            🛒 {businessLocation}
+          <div className="shop-top-row">
+            <h3 className="shop-name">{shopName}</h3>
+            <button 
+              className={`favorite-button ${favoriteStatus ? 'is-favorite' : ''}`}
+              onClick={toggleFavorite}
+              aria-label={favoriteStatus ? "Remove from favorites" : "Add to favorites"}
+            >
+              <Heart size={16} />
+            </button>
           </div>
-          <div className="shop-now">
-            <ShoppingCart size={14} /> Shop Now
-          </div>
+          
+          {rating > 0 && (
+            <div className="shop-rating">
+              <Star size={14} className="rating-star" />
+              <span className="rating-value">{rating.toFixed(1)}</span>
+              {reviewCount && <span className="review-count">({reviewCount})</span>}
+            </div>
+          )}
+          
+          {formattedCategories && (
+            <div className="shop-categories">{formattedCategories}</div>
+          )}
+          
+          {businessLocation && (
+            <div className="shop-location">{businessLocation}</div>
+          )}
         </div>
       </div>
-
-      {activeCard && (
-        <div className="shop-hover-info">
-          <div className="hover-content">
-            VIEW SHOP 
-          </div>
+      
+      <div className="shop-card-footer">
+        <div className="delivery-info">
+          <Clock size={14} />
+          <span>{estimatedDelivery}</span>
         </div>
-      )}
+        
+        {promotionText && (
+          <div className="promotion-badge">
+            {promotionText}
+          </div>
+        )}
+        
+        <div className="view-shop-button">
+          <span>View Shop</span>
+          <ChevronRight size={16} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Wrapper component with container
+const ShopListContainer = ({ shops = [], title = "Popular Shops" }) => {
+  return (
+    <div className="shop-container">
+      <div className="section-header">
+        <div className="title-wrapper">
+          <Bookmark className="section-icon" size={20} />
+          <h2 className="section-title">{title}</h2>
+        </div>
+        <button className="view-all-button">Explore All</button>
+      </div>
+      
+      <div className="shop-grid">
+        {shops.map((shop, index) => (
+          <ShopList
+            key={shop.id || index}
+            {...shop}
+            isNew={index === 0 || index === 3} // Example for demonstration
+            promotionText={index % 4 === 0 ? "Free Delivery" : null} // Example promotion
+          />
+        ))}
+      </div>
     </div>
   );
 };

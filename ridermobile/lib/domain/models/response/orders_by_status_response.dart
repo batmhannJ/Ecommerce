@@ -1,4 +1,3 @@
-
 class OrdersByStatusResponse {
   final bool resp;
   final String msg;
@@ -11,8 +10,8 @@ class OrdersByStatusResponse {
   });
 
   factory OrdersByStatusResponse.fromJson(Map<String, dynamic> json) => OrdersByStatusResponse(
-    resp: json["resp"],
-    msg: json["msg"],
+    resp: json["resp"] ?? true,  // Provide default values when these fields are missing
+    msg: json["msg"] ?? "Success",
     ordersResponse: json["orders"] != null 
       ? List<OrdersResponse>.from(json["orders"].map((x) => OrdersResponse.fromJson(x))) 
       : [],
@@ -71,36 +70,42 @@ class OrdersResponse {
     required this.payType,
     //required this.amount,
     required this.currentDate,
-  });
-factory OrdersResponse.fromJson(Map<String, dynamic> json) => OrdersResponse(
-  id: json['_id'],
-  userId: UserId.fromJson(json['userId']),
-  items: (json['items'] as List).map((item) => Item.fromJson(item)).toList(),
-  amount: (json['amount'] as num).toDouble(),
-  address: Address.fromJson(json['address']),
-  payment: json['payment'],
-  status: json['status'],
-  dateTime: DateTime.parse(json['dateTime']),
-  orderId: json["order_id"] ?? 0,  // Add null check with default value
+  });factory OrdersResponse.fromJson(Map<String, dynamic> json) => OrdersResponse(
+  id: json['_id']?.toString() ?? '',
+  // Handle the case where userId might be a string, an object with just id, or a full user object
+  userId: json['userId'] != null ? UserId.fromJson(json['userId']) : UserId(id: '', name: '', phone: '', email: ''),
+  // Handle items array that might be missing
+  items: json['items'] != null 
+    ? List<Item>.from((json['items'] as List).map((item) => Item.fromJson(item))) 
+    : [],
+  // Convert numeric amount to double, with fallback to 0.0
+  amount: json['amount'] != null ? (json['amount'] as num).toDouble() : 0.0,
+  // Updated address handling using your existing Address.fromJson method
+  address: json['address'] != null ? Address.fromJson(json['address']) : Address(id: ''),
+  // Handle boolean with fallback
+  payment: json['payment'] ?? false,
+  status: json['status'] ?? '',
+  // Handle datetime with fallback
+  dateTime: json['dateTime'] != null ? DateTime.parse(json['dateTime']) : DateTime.now(),
+  orderId: json["order_id"] ?? 0,
   deliveryId: json["delivery_id"] ?? 0,
   delivery: json["delivery"] ?? '',
   deliveryImage: json["deliveryImage"] ?? '',
-  clientId: json["client_id"] ?? 0,  // Add null check with default value
-  cliente: json["cliente"] ?? '',  // Add null check with default value
-  clientImage: json["clientImage"] ?? '',  // Add null check with default value
+  clientId: json["client_id"] ?? 0,
+  cliente: json["cliente"] ?? '',
+  clientImage: json["clientImage"] ?? '',
   clientPhone: json["clientPhone"] ?? '',
-  addressId: json["address_id"] ?? 0,  // Add null check with default value
-  street: json["street"] ?? '',  // Add null check with default value
-  reference: json["reference"] ?? '',  // Add null check with default value
-  latitude: json["Latitude"] ?? '',  // Add null check with default value
-  longitude: json["Longitude"] ?? '',  // Add null check with default value
-  payType: json["pay_type"] ?? '',  // Add null check with default value
+  addressId: json["address_id"] ?? 0,
+  street: json["street"] ?? '',
+  reference: json["reference"] ?? '',
+  latitude: json["Latitude"] ?? '',
+  longitude: json["Longitude"] ?? '',
+  payType: json["pay_type"] ?? '',
   currentDate: json["currentDate"] != null 
     ? DateTime.parse(json["currentDate"]) 
-    : DateTime.now(),  // Add null check with default value
+    : DateTime.now(),
 );
 }
-
 class UserId {
   final String id;
   final String name;
@@ -114,12 +119,40 @@ class UserId {
     required this.email,
   });
 
-  factory UserId.fromJson(Map<String, dynamic> json) {
+  factory UserId.fromJson(dynamic json) {
+    // If userId is just a string or ObjectId, create a UserId with just the id
+    if (json is String) {
+      return UserId(
+        id: json,
+        name: '',
+        phone: '',
+        email: '',
+      );
+    }
+    // If userId is an Object with _id property but no other fields
+    else if (json is Map<String, dynamic> && json.containsKey('_id') && !json.containsKey('name')) {
+      return UserId(
+        id: json['_id'].toString(),
+        name: '',
+        phone: '',
+        email: '',
+      );
+    }
+    // Full object with all fields
+    else if (json is Map<String, dynamic>) {
+      return UserId(
+        id: json['_id'].toString(),
+        name: json['name'] ?? '',
+        phone: json['phone'] ?? '',
+        email: json['email'] ?? '',
+      );
+    }
+    // Fallback
     return UserId(
-      id: json['_id'],
-      name: json['name'],
-      phone: json['phone'],
-      email: json['email'],
+      id: '',
+      name: '',
+      phone: '',
+      email: '',
     );
   }
 }
@@ -158,7 +191,16 @@ class Address {
 
   Address({required this.id});
 
-  factory Address.fromJson(Map<String, dynamic> json) {
-    return Address(id: json['id']);
+  factory Address.fromJson(dynamic json) {
+    // If address is just a string (ID), use that directly
+    if (json is String) {
+      return Address(id: json);
+    }
+    // Otherwise, assume it's a map with an 'id' field
+    else if (json is Map<String, dynamic>) {
+      return Address(id: json['id'] ?? '');
+    }
+    // Fallback for null or other unexpected types
+    return Address(id: '');
   }
 }

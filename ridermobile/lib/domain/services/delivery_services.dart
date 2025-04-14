@@ -19,20 +19,30 @@ class DeliveryServices {
 
     return GetAllDeliveryResponse.fromJson(jsonDecode(resp.body)).delivery;
   }
-
-
-  Future<List<OrdersResponse>> getOrdersForDelivery(String statusOrder) async {
-
-    final token = await secureStorage.readToken();
-
-    final resp = await http.get(Uri.parse('${Environment.endpointApi}/get-all-orders-by-delivery/$statusOrder'),
-      headers: { 'Accept' : 'application/json', 'xx-token' : token! }
+Future<List<OrdersResponse>> getOrdersForDelivery(String statusOrder) async {
+  try {
+    final response = await http.get(
+      Uri.parse('${Environment.endpointApi}/get-all-orders-by-delivery/$statusOrder'),
+      headers: {'Accept': 'application/json'},
     );
 
-    return OrdersByStatusResponse.fromJson(jsonDecode(resp.body)).ordersResponse;
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      // Directly access the orders array from the response
+      if (data["orders"] != null) {
+        return List<OrdersResponse>.from(
+          data["orders"].map((x) => OrdersResponse.fromJson(x))
+        );
+      }
+      return [];
+    } else {
+      throw Exception('Failed to fetch orders: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error fetching orders: $e');
+    return [];
   }
-
-
+}
 
 }
 

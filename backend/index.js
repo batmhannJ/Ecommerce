@@ -2681,6 +2681,18 @@ app.get("/api/get-orders-by-status/:status", async (req, res) => {
     });
   }
 });
+
+app.get('/api/get-all-orders-by-delivery/:statusOrder', async (req, res) => {
+  try {
+    const { statusOrder } = req.params;
+    const orders = await order.find({ status: statusOrder }).lean();
+    res.status(200).json({ orders });
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Admin Routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/", adminRoutes);

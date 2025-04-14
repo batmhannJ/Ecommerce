@@ -91,24 +91,13 @@ router.patch("/:id/approve", async (req, res) => {
   }
 });
 
-// In your riderRoute.js
-router.get("/:id", authMiddleware, async (req, res) => {
+router.get("/rider", async (req, res) => {
   try {
-    // Check if the requested rider ID matches the authenticated rider's ID
-    if (req.params.id !== req.user.id) {
-      return res.status(403).json({ error: "Not authorized to access this profile" });
-    }
-    
-    const rider = await Rider.findById(req.params.id).select('-password');
-    
-    if (!rider) {
-      return res.status(404).json({ error: "Rider not found" });
-    }
-    
-    res.json(rider);
+    const users = await Rider.find({ isApproved: true });
+    res.json(users);
   } catch (error) {
-    console.error("Error fetching rider:", error);
-    res.status(500).json({ error: "Failed to fetch rider" });
+    console.error("Error fetching approved sellers:", error);
+    res.status(500).json({ error: "Failed to fetch approved sellers" });
   }
 });
 

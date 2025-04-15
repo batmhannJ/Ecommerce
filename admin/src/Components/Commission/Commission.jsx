@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Chart from "chart.js/auto";
 import "./Commission.css";
 
 const Commission = () => {
@@ -50,8 +51,8 @@ const Commission = () => {
         const newData = { ...data };
 
         // Ensure monthlyRevenue is always an array
-        newData.monthlyRevenue = Array.isArray(monthlyResponse.data.monthlyRevenue) 
-          ? monthlyResponse.data.monthlyRevenue 
+        newData.monthlyRevenue = Array.isArray(monthlyResponse.data.monthlyRevenue)
+          ? monthlyResponse.data.monthlyRevenue
           : [];
 
         if (!monthlyResponse.data.success) {
@@ -104,6 +105,86 @@ const Commission = () => {
     fetchCommissionData();
   }, []);
 
+  useEffect(() => {
+    if (data.monthlyRevenue.length > 0) {
+      const ctx = document.getElementById("monthlyCommissionChart").getContext("2d");
+
+      // Destroy existing chart if it exists to prevent overlap
+      if (window.monthlyCommissionChart instanceof Chart) {
+        window.monthlyCommissionChart.destroy();
+      }
+
+      // Compute max value for dynamic scaling
+      const maxCommission = Math.max(
+        ...data.monthlyRevenue.map((month) => month.seller + month.rider)
+      );
+      const suggestedMax = Math.ceil(maxCommission / 1000) * 1000;
+
+      window.monthlyCommissionChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: data.monthlyRevenue.map((month) => month.month),
+          datasets: [
+            {
+              label: "Seller Commission",
+              data: data.monthlyRevenue.map((month) => month.seller),
+              borderColor: "#2563eb",
+              backgroundColor: "rgba(37, 99, 235, 0.4)",
+              fill: true,
+              tension: 0.4,
+            },
+            {
+              label: "Rider Commission",
+              data: data.monthlyRevenue.map((month) => month.rider),
+              borderColor: "#16a34a",
+              backgroundColor: "rgba(22, 163, 74, 0.4)",
+              fill: true,
+              tension: 0.4,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              suggestedMax: suggestedMax,
+              ticks: {
+                callback: function (value) {
+                  return "₱" + value.toLocaleString();
+                },
+              },
+              title: {
+                display: true,
+                text: "Commission (₱)",
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: "Month",
+              },
+            },
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: "top",
+            },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  return `${context.dataset.label}: ₱${context.parsed.y.toLocaleString()}`;
+                },
+              },
+            },
+          },
+        },
+      });
+    }
+  }, [data.monthlyRevenue]);
+
   return (
     <div className="bg-gray-50 min-h-screen p-6">
       <div className="max-w-6xl mx-auto">
@@ -131,98 +212,17 @@ const Commission = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow p-6 mb-8">
-  <h2 className="text-xl font-semibold mb-4">Monthly Commission Income</h2>
-  <div className="h-64">
-    {data.monthlyRevenue.length > 0 ? (
-      <div className="relative w-full h-48">
-        {/* Y-axis labels */}
-        <div className="absolute left-0 top-0 h-full w-10 flex flex-col justify-between text-xs text-gray-500 pointer-events-none">
-          <span>₱5,000</span>
-          <span>₱4,000</span>
-          <span>₱3,000</span>
-          <span>₱2,000</span>
-          <span>₱1,000</span>
-          <span>₱0</span>
+          <h2 className="text-xl font-semibold mb-4">Monthly Commission Income</h2>
+          <div className="h-64">
+            {data.monthlyRevenue.length > 0 ? (
+              <canvas id="monthlyCommissionChart" className="w-full h-full"></canvas>
+            ) : (
+              <div className="h-64 flex items-center justify-center text-gray-500">
+                No monthly commission data available
+              </div>
+            )}
+          </div>
         </div>
-
-        {/* Area Chart SVG */}
-        <svg className="absolute left-10 top-0 w-[calc(100%-10px)] h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 1000 400">
-          <defs>
-            {/* Gradient for Rider (Dark Blue) */}
-            <linearGradient id="riderGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#3730a3" stopOpacity="0.9" />
-              <stop offset="100%" stopColor="#3730a3" stopOpacity="0.6" />
-            </linearGradient>
-            
-            {/* Gradient for Seller (Pastel Orange) */}
-            <linearGradient id="sellerGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#fb923c" stopOpacity="0.7" />
-              <stop offset="100%" stopColor="#fb923c" stopOpacity="0.4" />
-            </linearGradient>
-            
-            {/* Clipping path for smooth curves */}
-            <clipPath id="chartClip">
-              <rect x="0" y="0" width="1000" height="400" />
-            </clipPath>
-          </defs>
-          
-          {/* Total area (Rider + Seller) - Dark Blue */}
-          <path
-            d={`M0,${400 - ((data.monthlyRevenue[0]?.rider + data.monthlyRevenue[0]?.seller) / 5000) * 400} 
-                ${data.monthlyRevenue.map((month, index) => {
-                  const x = (index / (data.monthlyRevenue.length - 1)) * 1000;
-                  const y = 400 - ((month.rider + month.seller) / 5000) * 400;
-                  return `L${x},${y}`;
-                }).join(' ')}
-                L1000,400 L0,400 Z`}
-            fill="url(#riderGradient)"
-            className="area-chart-path"
-            clipPath="url(#chartClip)"
-          />
-          
-          {/* Seller area only - Pastel Orange */}
-          <path
-            d={`M0,${400 - (data.monthlyRevenue[0]?.seller / 5000) * 400} 
-                ${data.monthlyRevenue.map((month, index) => {
-                  const x = (index / (data.monthlyRevenue.length - 1)) * 1000;
-                  const y = 400 - (month.seller / 5000) * 400;
-                  return `L${x},${y}`;
-                }).join(' ')}
-                L1000,400 L0,400 Z`}
-            fill="url(#sellerGradient)"
-            className="area-chart-path"
-            clipPath="url(#chartClip)"
-          />
-        </svg>
-        
-        {/* X-axis labels (months) */}
-        <div className="absolute left-10 bottom-0 w-[calc(100%-10px)] flex justify-between text-xs text-gray-500 pt-2">
-          {data.monthlyRevenue.map((month, index) => (
-            <div key={index} className="text-center transform -translate-x-1/2" style={{ left: `${(index / (data.monthlyRevenue.length - 1)) * 100}%`, position: 'absolute' }}>
-              {month.month}
-            </div>
-          ))}
-        </div>
-      </div>
-    ) : (
-      <div className="h-48 flex items-center justify-center text-gray-500">
-        No monthly commission data available
-      </div>
-    )}
-    
-    {/* Legend */}
-    <div className="flex justify-center space-x-6 mt-6">
-      <div className="flex items-center">
-        <div className="w-3 h-3 rounded mr-2" style={{ backgroundColor: '#3730a3' }}></div>
-        <span className="text-xs">Rider Commission</span>
-      </div>
-      <div className="flex items-center">
-        <div className="w-3 h-3 rounded mr-2" style={{ backgroundColor: '#fb923c' }}></div>
-        <span className="text-xs">Seller Commission</span>
-      </div>
-    </div>
-  </div>
-</div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white rounded-lg shadow p-6">

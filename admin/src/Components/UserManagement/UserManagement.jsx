@@ -36,35 +36,35 @@ function UserManagement() {
   }, [users]);
 
   useEffect(() => {
-    console.log("Component mounted - fetching users...");
+    //console.log("Component mounted - fetching users...");
     fetchUsers();
     
     // Start interval to update working times every second (for more real-time updates)
     const interval = setInterval(() => {
-      console.log("Interval triggered - updating working times...");
+      //console.log("Interval triggered - updating working times...");
       updateWorkingTimesLocally();
       
       // Every 10 seconds, sync with server
       if (Date.now() % 10000 < 1000) {
-        console.log("Syncing with server...");
+        //console.log("Syncing with server...");
         updateWorkingTimesFromServer();
       }
     }, 1000);
     
     // Clean up interval on component unmount
     return () => {
-      console.log("Component unmounting - clearing interval");
+      //console.log("Component unmounting - clearing interval");
       clearInterval(interval);
     };
   }, []); // Empty dependency array ensures this only runs once on mount
 
   const fetchUsers = async () => {
     setLoading(true);
-    console.log("Fetching users from API...");
+    //console.log("Fetching users from API...");
     try {
       const response = await axios.get("http://localhost:4000/api/users");
       const userData = Array.isArray(response.data) ? response.data : [];
-      console.log(`Fetched ${userData.length} users`);
+      //console.log(`Fetched ${userData.length} users`);
   
       const enhancedUsers = userData.map((user) => ({
         ...user,
@@ -80,8 +80,8 @@ function UserManagement() {
       // Initial update of working times
       updateWorkingTimesFromServer(enhancedUsers);
     } catch (error) {
-      console.error("Error fetching users:", error.message);
-      console.error("Error details:", error.response ? error.response.data : error);
+      //console.error("Error fetching users:", error.message);
+      //console.error("Error details:", error.response ? error.response.data : error);
       toast.error("Failed to fetch users. Please check the server.");
     } finally {
       setLoading(false);
@@ -149,7 +149,7 @@ function UserManagement() {
         return;
       }
       
-      console.log(`Updating working times for ${activeUsers.length} active users`);
+      //console.log(`Updating working times for ${activeUsers.length} active users`);
       
       // Create a copy of the current users to update
       const updatedUsers = [...currentUsers];
@@ -158,7 +158,7 @@ function UserManagement() {
       await Promise.all(activeUsers.map(async (user) => {
         try {
           const response = await axios.get(`http://localhost:4000/api/users/${user._id}/working-time`);
-          console.log(`Got working time for user ${user._id}: ${response.data.formattedTime}`);
+          //console.log(`Got working time for user ${user._id}: ${response.data.formattedTime}`);
           
           // Find user in our array and update their working time
           const userIndex = updatedUsers.findIndex(u => u._id === user._id);
@@ -177,7 +177,7 @@ function UserManagement() {
       
       // Only update state if component is still mounted and we have users
       if (updatedUsers.length > 0) {
-        console.log("Setting updated users state");
+        //console.log("Setting updated users state");
         setUsers(updatedUsers);
       }
     } catch (error) {
@@ -294,12 +294,12 @@ function UserManagement() {
   // Debug current state
   useEffect(() => {
     if (users.length > 0) {
-      console.log("Users state updated with", users.length, "users");
+      //console.log("Users state updated with", users.length, "users");
       const activeUsers = users.filter(u => u.status === "Active");
-      console.log("Active users:", activeUsers.length);
+      /*console.log("Active users:", activeUsers.length);
       if (activeUsers.length > 0) {
         console.log("Sample active user working time:", activeUsers[0].workingTime);
-      }
+      }*/
     }
   }, [users]);
 

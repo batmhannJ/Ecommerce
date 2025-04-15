@@ -43,12 +43,12 @@ export const Sidebar = () => {
             <p>Product List</p>
           </div>
         </Link>
-        <Link to='/admin/orderproduct' style={{ textDecoration: 'none' }}>
+        {/*<Link to='/admin/orderproduct' style={{ textDecoration: 'none' }}>
           <div className="sidebar-item">
             <img src={order_product_icon} alt="Orders List Icon" />
             <p>Orders List</p>
           </div>
-        </Link>
+        </Link>*/}
         <Link to='/admin/usermanagement' style={{ textDecoration: 'none' }}>
           <div className="sidebar-item">
             <img src={user_management_icon} alt="User Management Icon" />

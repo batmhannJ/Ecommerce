@@ -130,33 +130,34 @@ const Orders = () => {
   const statusHandler = async (event, transactionId) => {
     const newStatus = event.target.value;
 
+    // Show confirmation dialog before updating status
     if (window.confirm(`Are you sure you want to change the status to "${newStatus}"?`)) {
       try {
-        const sellerToken = localStorage.getItem('admin_token');
-        
-        const response = await axios.patch(
+        const response = await fetch(
           `http://localhost:4000/api/transactions/${transactionId}`,
-          { status: newStatus },
           {
+            method: "PATCH", // Using PATCH to update
             headers: {
-              Authorization: `Bearer ${sellerToken}`,
               "Content-Type": "application/json",
-            }
+            },
+            body: JSON.stringify({ status: newStatus }), // Send new status
           }
         );
 
-        if (response.data.success) {
-          setOrders(prevOrders =>
-            prevOrders.map(order =>
-              order.transactionId === transactionId
-                ? { ...order, status: newStatus }
-                : order
-            )
-          );
-          toast.success("Order status updated successfully!");
-        } else {
+        if (!response.ok) {
           throw new Error("Failed to update status");
         }
+
+        // Update local state to reflect the status change
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order.transactionId === transactionId
+              ? { ...order, status: newStatus }
+              : order
+          )
+        );
+
+        toast.success("Order status updated successfully!");
       } catch (error) {
         console.error("Error updating order status:", error);
         toast.error("Error updating order status");

@@ -491,6 +491,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 1.5rem;
+  margin-top: 200px;
 }
 
 .shopcategory-products.list-view {
@@ -506,7 +507,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  max-height: 360px;
+  height: 100%; /* Ensure the card takes up full height in grid */
 }
 
 .product-card:hover {
@@ -1018,6 +1019,7 @@
   
   .product-card {
     max-height: 340px;
+    margin-top: 500px;
   }
   .product-image-container {
     max-height: 120px;

@@ -5,6 +5,7 @@ import { io } from "socket.io-client";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import axios from "axios";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import notificationSoundFile from '../../assets/audio/happy_notif.wav';  // Adjust path as needed
 
 function RiderDashboard() {
   const [pendingPickups, setPendingPickups] = useState([]);
@@ -16,7 +17,8 @@ function RiderDashboard() {
     id: '',
     status: '',
     rating: 0
-  });  const [currentLocation, setCurrentLocation] = useState(null);
+  });
+  const [currentLocation, setCurrentLocation] = useState(null);
   const [sortBy, setSortBy] = useState('date');
   const [dateFilter, setDateFilter] = useState('today');
   const [searchTerm, setSearchTerm] = useState('');
@@ -26,23 +28,24 @@ function RiderDashboard() {
   const [dailyOrderCount, setDailyOrderCount] = useState(0);
   const [pendingNewOrders, setPendingNewOrders] = useState([]);
 
-  const [notifications, setNotifications] = useState([
-    { id: 1, message: "New order has been assigned to you", time: "10 mins ago", read: false },
-    { id: 2, message: "Your weekly performance report is available", time: "2 hours ago", read: false },
-  ]);
+  // Notifications with proper state management
+  const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  
+  // Audio reference for notification sound
+  const notificationSound = useRef(null);
   
   // Create a socket.io reference using useRef to prevent multiple connections
   const [socket, setSocket] = useState(null);
 
-    // New state for swipe functionality between Orders and Earnings
-    const [touchStart, setTouchStart] = useState(null);
-    const [touchEnd, setTouchEnd] = useState(null);
-    const [activeGraph, setActiveGraph] = useState('orders'); // 'orders' or 'earnings'
-    const graphContainerRef = useRef(null);
-    
-    // State for earnings data
-    const [earningsStats, setEarningsStats] = useState([]);
+  // New state for swipe functionality between Orders and Earnings
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  const [activeGraph, setActiveGraph] = useState('orders'); // 'orders' or 'earnings'
+  const graphContainerRef = useRef(null);
+  
+  // State for earnings data
+  const [earningsStats, setEarningsStats] = useState([]);
 
   const getRiderIdFromToken = () => {
     const riderToken = localStorage.getItem("rider_token");
@@ -57,6 +60,45 @@ function RiderDashboard() {
     }
     return null;
   };
+
+  // Initialize notification sound on component mount
+  useEffect(() => {
+    // Create an audio element for notifications
+    notificationSound.current = new Audio(notificationSoundFile);
+    
+    // As a fallback, we'll create a basic audio using the Web Audio API
+    if (!notificationSound.current) {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+        
+        // Create a simple beep sound
+        const createBeepSound = () => {
+          const oscillator = audioCtx.createOscillator();
+          const gainNode = audioCtx.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+          
+          oscillator.type = 'sine';
+          oscillator.frequency.value = 800;
+          gainNode.gain.value = 0.5;
+          
+          oscillator.start();
+          
+          // Stop after 0.3 seconds
+          setTimeout(() => {
+            oscillator.stop();
+          }, 300);
+        };
+        
+        // Assign the function to play the sound
+        notificationSound.current = { play: createBeepSound };
+      } catch (error) {
+        console.error('Web Audio API not supported:', error);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (!isLoading) {
@@ -151,6 +193,56 @@ function RiderDashboard() {
     return (total / count).toFixed(2);
   };
 
+  // Function to play notification sound
+  const playNotificationSound = () => {
+    if (notificationSound.current) {
+      try {
+        // If it's already playing, stop it first
+        notificationSound.current.pause();
+        notificationSound.current.currentTime = 0;
+        
+        // Play the sound
+        notificationSound.current.play().catch(err => {
+          console.error('Error playing notification sound:', err);
+          // Try alternative method if browser policy prevents autoplay
+          document.addEventListener('click', () => {
+            notificationSound.current.play();
+          }, { once: true });
+        });
+      } catch (error) {
+        console.error('Error playing notification sound:', error);
+      }
+    }
+  };
+
+  // Function to add a new notification
+  const addNotification = (message, isImportant = false) => {
+    const newNotification = {
+      id: Date.now(),
+      message: message,
+      time: "Just now",
+      read: false,
+      important: isImportant
+    };
+    
+    setNotifications(prev => [newNotification, ...prev]);
+    
+    // If it's an important notification, play sound and show toast
+    if (isImportant) {
+      playNotificationSound();
+      toast.info(message, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    }
+    
+    return newNotification;
+  };
+
   useEffect(() => {
     const fetchRiderData = async () => {
       const riderToken = localStorage.getItem("rider_token");
@@ -212,15 +304,10 @@ function RiderDashboard() {
         );
         
         if (!exists) {
-          toast.info("New order available!");
-          // Add to notifications
-          const newNotification = {
-            id: Date.now(),
-            message: "New order is available for pickup",
-            time: "Just now",
-            read: false
-          };
-          setNotifications(prev => [newNotification, ...prev]);
+          // Create notification with sound for new order
+          const notificationMsg = `New order #${(newOrder._id || newOrder.transactionId)?.substring(0, 8)} is available for pickup!`;
+          addNotification(notificationMsg, true);
+          
           return [...prevOrders, newOrder];
         }
         return prevOrders;
@@ -236,11 +323,17 @@ function RiderDashboard() {
           (order._id !== orderId) && (order.transactionId !== orderId)
         )
       );
+      
+      // Add notification that order was taken by another rider
+      addNotification(`Order #${orderId.substring(0, 8)} was accepted by another rider`, false);
     });
 
     // Listen for updates from the server via Socket.IO
     socket.on("orderUpdated", (updatedOrder) => {
       console.log("Order updated:", updatedOrder);
+      const orderId = updatedOrder._id || updatedOrder.transactionId;
+      const orderShortId = orderId?.substring(0, 8);
+      
       // Update the appropriate list based on status
       if (updatedOrder.status === "Cart Processing") {
         // Update pending pickups list
@@ -250,6 +343,8 @@ function RiderDashboard() {
           );
           
           if (!exists) {
+            // Add notification for new order ready for pickup
+            addNotification(`Order #${orderShortId} is ready for pickup`, true);
             return [...prevOrders, updatedOrder];
           }
           
@@ -281,6 +376,8 @@ function RiderDashboard() {
           );
           
           if (!exists) {
+            // Add notification for order now out for delivery
+            addNotification(`Order #${orderShortId} is now out for delivery`, false);
             return [...prevOrders, updatedOrder];
           }
           
@@ -305,6 +402,8 @@ function RiderDashboard() {
           );
           
           if (!exists) {
+            // Add notification for successfully delivered order
+            addNotification(`Order #${orderShortId} has been successfully delivered!`, false);
             return [...prevOrders, updatedOrder];
           }
           
@@ -396,6 +495,14 @@ function RiderDashboard() {
       console.log('To be delivered:', sortedDelivering);
       console.log('Delivered items:', sortedCompleted);
       console.log('Today\'s total orders:', todayOrders);
+      
+      // Add initial notifications for any pending orders
+      if (sortedPendingNewOrders.length > 0) {
+        // Only notify if this is the first load (not on filter changes)
+        if (pendingNewOrders.length === 0) {
+          addNotification(`You have ${sortedPendingNewOrders.length} new order(s) available!`, true);
+        }
+      }
       
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -493,6 +600,9 @@ function RiderDashboard() {
           
           // Add to to-be-delivered
           setToBeDelivered(prevOrders => [...prevOrders, {...order, status: newStatus}]);
+          
+          // Add notification
+          addNotification(`Order #${(order._id || order.transactionId)?.substring(0, 8)} is now out for delivery`, false);
         } else if (newStatus === "Delivered") {
           // Remove from to-be-delivered
           setToBeDelivered(prevOrders => 
@@ -503,6 +613,9 @@ function RiderDashboard() {
           
           // Add to delivered items
           setDeliveredItems(prevOrders => [...prevOrders, {...order, status: newStatus}]);
+          
+          // Add notification with sound for completed delivery
+          addNotification(`Order #${(order._id || order.transactionId)?.substring(0, 8)} has been delivered successfully!`, true);
         }
   
         toast.success("Order status updated successfully!");
@@ -542,6 +655,9 @@ function RiderDashboard() {
         }
   
         toast.success("Order accepted successfully!");
+        
+        // Add notification for accepted order
+        addNotification(`You've accepted order #${(order._id || order.transactionId)?.substring(0, 8)}`, true);
         
         // Remove from pending new orders
         setPendingNewOrders(prevOrders => 
@@ -594,6 +710,9 @@ function RiderDashboard() {
       if (data) {
         setRiderInfo({...riderInfo, status: newStatus});
         toast.success(`Status updated to ${newStatus}`);
+        
+        // Add notification for status change
+        addNotification(`Your status has been updated to ${newStatus}`, false);
       }
     } catch (error) {
       console.error('Error updating rider status:', error);
@@ -631,6 +750,16 @@ function RiderDashboard() {
     setNotifications(notifications.map(notif => ({...notif, read: true})));
   };
 
+  const markNotificationAsRead = (notificationId) => {
+    setNotifications(notifications.map(notif => 
+      notif.id === notificationId ? {...notif, read: true} : notif
+    ));
+  };
+
+  const deleteNotification = (notificationId) => {
+    setNotifications(notifications.filter(notif => notif.id !== notificationId));
+  };
+
   const calculateDeliveryTime = (order) => {
     // Calculate estimated delivery time based on distance
     // This would typically use a mapping API in a real application
@@ -665,7 +794,16 @@ function RiderDashboard() {
           />
         </div>
         <div className="rider-controls">
-          <div className="notification-icon" onClick={() => setShowNotifications(!showNotifications)}>
+          <div 
+            className="notification-icon" 
+            onClick={() => {
+              setShowNotifications(!showNotifications);
+              // If notifications are being opened, mark as seen (not necessarily read)
+              if (!showNotifications) {
+                // You could mark notifications as seen here if needed
+              }
+            }}
+          >
             <span className="material-icons">notifications</span>
             {countUnreadNotifications() > 0 && <span className="notification-badge">{countUnreadNotifications()}</span>}
           </div>

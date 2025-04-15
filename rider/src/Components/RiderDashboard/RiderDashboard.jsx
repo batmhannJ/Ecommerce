@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './RiderDashboard.css';
 import { toast } from "react-toastify";
-import { io } from "socket.io-client"; // Import Socket.IO client
+import { io } from "socket.io-client";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import axios from "axios";
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 function RiderDashboard() {
   const [pendingPickups, setPendingPickups] = useState([]);
@@ -34,6 +35,15 @@ function RiderDashboard() {
   // Create a socket.io reference using useRef to prevent multiple connections
   const [socket, setSocket] = useState(null);
 
+    // New state for swipe functionality between Orders and Earnings
+    const [touchStart, setTouchStart] = useState(null);
+    const [touchEnd, setTouchEnd] = useState(null);
+    const [activeGraph, setActiveGraph] = useState('orders'); // 'orders' or 'earnings'
+    const graphContainerRef = useRef(null);
+    
+    // State for earnings data
+    const [earningsStats, setEarningsStats] = useState([]);
+
   const getRiderIdFromToken = () => {
     const riderToken = localStorage.getItem("rider_token");
     if (riderToken) {
@@ -46,6 +56,99 @@ function RiderDashboard() {
       }
     }
     return null;
+  };
+
+  useEffect(() => {
+    if (!isLoading) {
+      fetchEarningsStats();
+    }
+  }, [dateFilter, isLoading]);
+
+  const fetchEarningsStats = async () => {
+    try {
+      let periodParam = '';
+      if (dateFilter === 'today') {
+        periodParam = '?period=today';
+      } else if (dateFilter === 'week') {
+        periodParam = '?period=week';
+      } else if (dateFilter === 'month') {
+        periodParam = '?period=month';
+      }
+  
+      const response = await fetch(`http://localhost:4000/api/transactions/earnings${periodParam}`);
+      if (!response.ok) throw new Error("Failed to fetch earnings statistics");
+      const data = await response.json();
+  
+      let chartData = [];
+      if (dateFilter === 'today') {
+        chartData = data.map(item => ({
+          time: item.hour.toString(), // Use "0", "1", ..., "23"
+          label: `${item.hour}:00`, // Display label for XAxis
+          earnings: item.earnings || 0
+        }));
+      } else if (dateFilter === 'week') {
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        chartData = data.map(item => ({
+          time: item.dayOfWeek.toString(), // Use "0", "1", ..., "6"
+          label: days[item.dayOfWeek] || `Day ${item.dayOfWeek}`, // Display label
+          earnings: item.earnings || 0
+        }));
+      } else if (dateFilter === 'month') {
+        chartData = data.map(item => ({
+          time: item.weekOfMonth.toString(), // Use "0", "1", ..., "4"
+          label: `Week ${item.weekOfMonth}`, // Display label
+          earnings: item.earnings || 0
+        }));
+      }
+  
+      setEarningsStats(chartData);
+    } catch (error) {
+      console.error('Error fetching earnings statistics:', error);
+      toast.error("Error fetching earnings statistics");
+      setEarningsStats([]);
+    }
+  };
+
+  // Handle swipe events between orders and earnings graphs
+  const handleTouchStart = (e) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const minSwipeDistance = 50; // minimum distance for a swipe
+    
+    if (Math.abs(distance) > minSwipeDistance) {
+      // If swiping left or right, toggle between orders and earnings
+      setActiveGraph(activeGraph === 'orders' ? 'earnings' : 'orders');
+    }
+    
+    // Reset touch points
+    setTouchStart(null);
+    setTouchEnd(null);
+  };
+
+  // Toggle between orders and earnings graphs
+  const toggleGraphType = () => {
+    setActiveGraph(activeGraph === 'orders' ? 'earnings' : 'orders');
+  };
+
+  // Calculate total earnings
+  const calculateTotalEarnings = () => {
+    return earningsStats.reduce((sum, item) => sum + (item.earnings || 0), 0).toFixed(2);
+  };
+
+  // Calculate average earnings
+  const calculateAvgEarnings = () => {
+    const total = earningsStats.reduce((sum, item) => sum + (item.earnings || 0), 0);
+    const count = earningsStats.length || 1;
+    return (total / count).toFixed(2);
   };
 
   useEffect(() => {
@@ -645,38 +748,127 @@ function RiderDashboard() {
         )}
         </div>
 
-        
-
-        {/* Orders Line Graph - Now using real backend data */}
-        <div className="orders-graph-container">
-          <h2>Orders Summary</h2>
-          <div className="orders-tabs">
-            <button className={`orders-tab ${dateFilter === 'today' ? 'active' : ''}`} onClick={() => setDateFilter('today')}>Today</button>
-            <button className={`orders-tab ${dateFilter === 'week' ? 'active' : ''}`} onClick={() => setDateFilter('week')}>This Week</button>
-            <button className={`orders-tab ${dateFilter === 'month' ? 'active' : ''}`} onClick={() => setDateFilter('month')}>This Month</button>
-          </div>
-          <div className="orders-graph">
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={orderStats} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="time" label={{ value: getTimeLabel(), position: 'insideBottomRight', offset: 0 }} />
-                <YAxis label={{ value: 'Orders', angle: -90, position: 'insideLeft' }} />
-                <Tooltip />
-                <Line type="monotone" dataKey="orders" stroke="#8884d8" activeDot={{ r: 8 }} strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="orders-stats">
-            <div className="orders-stat">
-              <span>Total Orders</span>
-              <span>{orderStats.reduce((sum, item) => sum + item.orders, 0)}</span>
+          {/* Swipable Orders/Earnings Graph Container */}
+        <div 
+          className="orders-graph-container"
+          ref={graphContainerRef}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          <div className="graph-header">
+            <h2>Orders Summary</h2>
+            <div className="toggle-view">
+              <div className="graph-indicators">
+                <div 
+                  className={`graph-indicator ${activeGraph === 'orders' ? 'active' : ''}`}
+                  onClick={() => setActiveGraph('orders')}
+                />
+                <div 
+                  className={`graph-indicator ${activeGraph === 'earnings' ? 'active' : ''}`}
+                  onClick={() => setActiveGraph('earnings')}
+                />
+              </div>
+              <span className="view-label">{activeGraph === 'orders' ? 'Orders' : 'Earnings'}</span>
             </div>
-            <div className="orders-stat">
-              <span>Average</span>
-              <span>{(orderStats.reduce((sum, item) => sum + item.orders, 0) / (orderStats.length || 1)).toFixed(1)}/
-                {dateFilter === 'today' ? 'hour' : dateFilter === 'week' ? 'day' : 'week'}
-              </span>
+            <div className="orders-tabs">
+              <button 
+                className={`orders-tab ${dateFilter === 'today' ? 'active' : ''}`} 
+                onClick={() => setDateFilter('today')}
+              >
+                Today
+              </button>
+              <button 
+                className={`orders-tab ${dateFilter === 'week' ? 'active' : ''}`} 
+                onClick={() => setDateFilter('week')}
+              >
+                This Week
+              </button>
+              <button 
+                className={`orders-tab ${dateFilter === 'month' ? 'active' : ''}`} 
+                onClick={() => setDateFilter('month')}
+              >
+                This Month
+              </button>
             </div>
+          </div>
+          
+          <div className="graphs-wrapper">
+            {/* Orders Graph - Shown when activeGraph is 'orders' */}
+            <div className={`graph-panel ${activeGraph === 'orders' ? 'active' : ''}`}>
+              <div className="orders-graph">
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={orderStats} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="time" label={{ value: getTimeLabel(), position: 'insideBottomRight', offset: 0 }} />
+                    <YAxis label={{ value: 'Orders', angle: -90, position: 'insideLeft' }} />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="orders" stroke="#8884d8" activeDot={{ r: 8 }} strokeWidth={2} />
+                  </LineChart>
+                </ResponsiveContainer>
+                <div className="orders-stats">
+                  <div className="orders-stat">
+                    <span>Total Orders</span>
+                    <span>{orderStats.reduce((sum, item) => sum + item.orders, 0)}</span>
+                  </div>
+                  <div className="orders-stat">
+                    <span>Average</span>
+                    <span>
+                      {(orderStats.reduce((sum, item) => sum + item.orders, 0) / (orderStats.length || 1)).toFixed(1)}/
+                      {dateFilter === 'today' ? 'hour' : dateFilter === 'week' ? 'day' : 'week'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Earnings Graph - Shown when activeGraph is 'earnings' */}
+            <div className={`graph-panel ${activeGraph === 'earnings' ? 'active' : ''}`}>
+              <div className="earnings-graph">
+                <ResponsiveContainer width="100%" height={200}>
+                <LineChart
+                  data={earningsStats}
+                  margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
+                  isAnimationActive={true}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="time"
+                    tickFormatter={(value) => earningsStats.find(item => item.time === value)?.label || value}
+                    label={{ value: getTimeLabel(), position: 'insideBottomRight', offset: 0 }}
+                  />
+                  <YAxis label={{ value: 'Earnings (₱)', angle: -90, position: 'insideLeft' }} />
+                  <Tooltip formatter={(value) => [`₱${value}`, 'Earnings']} />
+                  <Line
+                    type="monotone"
+                    dataKey="earnings"
+                    stroke="#4CAF50"
+                    activeDot={{ r: 8 }}
+                    strokeWidth={2}
+                    isAnimationActive={true}
+                    animationDuration={300}
+                  />
+                </LineChart>
+                </ResponsiveContainer>
+                <div className="earnings-stats">
+                  <div className="earnings-stat">
+                    <span>Total Earnings</span>
+                    <span>₱{calculateTotalEarnings()}</span>
+                  </div>
+                  <div className="earnings-stat">
+                    <span>Average</span>
+                    <span>
+                      ₱{calculateAvgEarnings()}/
+                      {dateFilter === 'today' ? 'hour' : dateFilter === 'week' ? 'day' : 'week'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="swipe-indicator">
+            <p>Swipe to see {activeGraph === 'orders' ? 'earnings' : 'orders'} data</p>
           </div>
         </div>
       </div>

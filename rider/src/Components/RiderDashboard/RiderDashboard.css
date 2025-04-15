@@ -730,67 +730,173 @@ body {
     }
   }
 
-  /* Add these styles to your RiderDashboard.css file */
-
+/* Graph container styling */
 .orders-graph-container {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 16px;
-  flex: 1;
-  min-width: 320px;
-  margin-left: 24px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  width: 100%;
+  max-width: 650px;
+  overflow: hidden;
+  position: relative;
+  touch-action: pan-y; /* Enable horizontal swiping */
 }
 
+.graph-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.graph-header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.toggle-view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.graph-indicators {
+  display: flex;
+  gap: 8px;
+}
+
+.graph-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #ccc;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.graph-indicator.active {
+  background-color: #4caf50;
+  width: 18px;
+  border-radius: 4px;
+}
+
+.view-label {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+/* Orders tabs styling */
 .orders-tabs {
   display: flex;
-  margin-bottom: 16px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 12px;
 }
 
 .orders-tab {
-  padding: 8px 16px;
   background: none;
   border: none;
-  cursor: pointer;
+  padding: 8px 15px;
   font-size: 14px;
-  font-weight: 500;
-  color: #666;
+  cursor: pointer;
+  color: #777;
+  transition: all 0.2s;
+  flex: 1;
+  text-align: center;
+}
+
+.orders-tab:hover {
+  color: #555;
 }
 
 .orders-tab.active {
-  color: #5e72e4;
-  border-bottom: 2px solid #5e72e4;
+  color: #4caf50;
+  border-bottom: 2px solid #4caf50;
+  font-weight: 500;
 }
 
-.orders-graph {
-  height: 200px;
-  margin-bottom: 16px;
+/* Graphs wrapper and panels */
+.graphs-wrapper {
+  position: relative;
+  height: 260px; /* Fixed height to prevent layout shifts */
+  overflow: hidden;
 }
 
-.orders-stats {
+.graph-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.graph-panel.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: all;
+}
+
+/* Earnings graph specific styles */
+.earnings-graph {
+  height: 100%;
+}
+
+/* Orders stats and earnings stats */
+.orders-stats, .earnings-stats {
   display: flex;
-  justify-content: space-between;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #e0e0e0;
+  justify-content: space-around;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #f0f2f5;
 }
 
-.orders-stat {
+.orders-stat, .earnings-stat {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.orders-stat span:first-child {
-  font-size: 12px;
-  color: #666;
+.orders-stat span:first-child, .earnings-stat span:first-child {
+  font-size: 14px;
+  color: #777;
 }
 
-.orders-stat span:last-child {
-  font-size: 18px;
+.orders-stat span:last-child, .earnings-stat span:last-child {
+  font-size: 16px;
   font-weight: 600;
   color: #333;
+}
+
+.earnings-stat span:last-child {
+  color: #4CAF50;
+}
+
+/* Swipe indicator */
+.swipe-indicator {
+  text-align: center;
+  padding: 10px 0 0;
+  font-size: 12px;
+  color: #999;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dashboard-top-row {
+    flex-direction: column;
+  }
+  
+  .orders-graph-container {
+    max-width: 100%;
+    margin-top: 15px;
+  }
 }
 
 /* New Orders Pending Acceptance Styling */

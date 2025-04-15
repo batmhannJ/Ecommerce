@@ -545,6 +545,124 @@ router.get('/stats', async (req, res) => {
   }
 });
 
+// In your routes file (e.g., routes/transactions.js or routes/api.js)
+router.get('/earnings', async (req, res) => {
+  try {
+    const { period = 'today' } = req.query;
+    const riderId = req.rider ? req.rider.id : 'unassigned'; // Assuming rider info is in req object after auth middleware
+    
+    // Get current date
+    const now = new Date();
+    let startDate, endDate;
+    let groupByField;
+    
+    // Set up date range based on period
+    if (period === 'today') {
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+      groupByField = { $hour: '$date' };
+    } else if (period === 'week') {
+      // Start from Sunday of current week
+      const day = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+      startDate = new Date(now);
+      startDate.setDate(now.getDate() - day);
+      startDate.setHours(0, 0, 0, 0);
+      
+      endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 6);
+      endDate.setHours(23, 59, 59, 999);
+      
+      groupByField = { $dayOfWeek: '$date' }; // 1 (Sunday) through 7 (Saturday)
+    } else if (period === 'month') {
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+      
+      // For month, we'll group by week of month
+      groupByField = { 
+        $floor: { 
+          $divide: [{ $subtract: [{ $dayOfMonth: '$date' }, 1] }, 7] 
+        } 
+      };
+    }
+
+    // Database query to fetch and group earnings data
+    const earningsData = await Transaction.aggregate([
+      {
+        $match: {
+          date: { $gte: startDate, $lte: endDate },
+          riderId: riderId,
+          status: "Delivered" // Only count completed deliveries
+        }
+      },
+      {
+        $project: {
+          date: 1,
+          earnings: { $subtract: ["$deliveryFee", "$deliveryComm"] },
+          hour: { $hour: "$date" },
+          dayOfWeek: { $subtract: [{ $dayOfWeek: "$date" }, 1] }, // Adjust to 0-6 format
+          dayOfMonth: { $dayOfMonth: "$date" }
+        }
+      },
+      {
+        $group: {
+          _id: period === 'today' ? "$hour" : 
+               period === 'week' ? "$dayOfWeek" : 
+               { $floor: { $divide: [{ $subtract: ["$dayOfMonth", 1] }, 7] } },
+          earnings: { $sum: "$earnings" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          [period === 'today' ? 'hour' : 
+            period === 'week' ? 'dayOfWeek' : 'weekOfMonth']: "$_id",
+          earnings: 1
+        }
+      },
+      { $sort: { [period === 'today' ? 'hour' : 
+                period === 'week' ? 'dayOfWeek' : 'weekOfMonth']: 1 } }
+    ]);
+
+    // Fill in any missing periods with zero earnings
+    let result = [];
+    
+    if (period === 'today') {
+      // Fill in all 24 hours
+      for (let hour = 0; hour < 24; hour++) {
+        const found = earningsData.find(item => item.hour === hour);
+        result.push({
+          hour,
+          earnings: found ? found.earnings : 0
+        });
+      }
+    } else if (period === 'week') {
+      // Fill in all 7 days of the week (0 = Sunday, 6 = Saturday)
+      for (let day = 0; day < 7; day++) {
+        const found = earningsData.find(item => item.dayOfWeek === day);
+        result.push({
+          dayOfWeek: day,
+          earnings: found ? found.earnings : 0
+        });
+      }
+    } else if (period === 'month') {
+      // Assuming roughly 4-5 weeks per month
+      const weeksInMonth = Math.ceil(endDate.getDate() / 7);
+      for (let week = 0; week < weeksInMonth; week++) {
+        const found = earningsData.find(item => item.weekOfMonth === week);
+        result.push({
+          weekOfMonth: week,
+          earnings: found ? found.earnings : 0
+        });
+      }
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error fetching earnings data:', error);
+    res.status(500).json({ message: 'Error fetching earnings data' });
+  }
+});
+
   
 // GET specific transaction route
 router.get("/:id", async (req, res) => {

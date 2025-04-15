@@ -1555,6 +1555,227 @@ app.get("/api/monthly-commissions", async (req, res) => {
     });
   }
 });
+
+app.get('/api/top-sellers', async (req, res) => {
+  try {
+    // Verify collection names
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    const collectionNames = collections.map(c => c.name);
+    console.log('Available collections:', collectionNames);
+
+    // Log total transactions
+    const transactionCount = await Transaction.countDocuments();
+    console.log(`Total transactions found: ${transactionCount}`);
+
+    // Log sample transaction items
+    const sampleTransactions = await Transaction.find({}, { item: 1 }).limit(3);
+    console.log('Sample transaction items:', JSON.stringify(sampleTransactions, null, 2));
+
+    // Log total products
+    const productCount = await Product.countDocuments();
+    console.log(`Total products found: ${productCount}`);
+
+    // Log sample product names
+    const sampleProducts = await Product.find({}, { name: 1, sellerId: 1 }).limit(3);
+    console.log('Sample product names:', JSON.stringify(sampleProducts, null, 2));
+
+    // Get actual collection names from mongoose
+    const productCollectionName = Product.collection.name;
+    const sellerCollectionName = mongoose.model('Seller').collection.name;
+    console.log(`Using collections: products=${productCollectionName}, sellers=${sellerCollectionName}`);
+
+    // Step 1: Normalize transaction items
+    const pipeline = [
+      // Split comma-separated items and trim
+      {
+        $set: {
+          items: {
+            $map: {
+              input: { $split: [{ $trim: { input: '$item' } }, ','] },
+              as: 'splitItem',
+              in: { $trim: { input: '$$splitItem' } },
+            },
+          },
+          amount: '$amount',
+          markupValue: '$markupValue',
+        },
+      },
+      // Unwind items array
+      {
+        $unwind: {
+          path: '$items',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      // Debug: Log before product lookup
+      {
+        $addFields: {
+          debugBeforeLookup: {
+            item: '$items',
+            itemLower: { $toLower: '$items' },
+          },
+        },
+      },
+      // Improved product lookup with exact matching
+      {
+        $lookup: {
+          from: productCollectionName,
+          let: { itemName: { $toLower: '$items' } },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [{ $toLower: '$name' }, '$$itemName'],
+                },
+              },
+            },
+          ],
+          as: 'productInfo',
+        },
+      },
+      // Log after product lookup
+      {
+        $addFields: {
+          debugProductLookup: {
+            item: '$items',
+            productCount: { $size: '$productInfo' },
+            productIds: '$productInfo._id',
+            productNames: '$productInfo.name',
+            sellerIds: '$productInfo.sellerId',
+          },
+        },
+      },
+      // Unwind productInfo
+      {
+        $unwind: {
+          path: '$productInfo',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      // Group by sellerId
+      {
+        $group: {
+          _id: '$productInfo.sellerId',
+          totalSales: { $sum: '$amount' },
+          totalCommission: { $sum: { $ifNull: ['$markupValue', 0] } },
+          debugItems: { $addToSet: '$items' },
+        },
+      },
+      // Join with sellers collection
+      {
+        $lookup: {
+          from: sellerCollectionName,
+          localField: '_id',
+          foreignField: '_id',
+          as: 'sellerInfo',
+        },
+      },
+      // Unwind sellerInfo
+      {
+        $unwind: {
+          path: '$sellerInfo',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      // Project desired fields
+      {
+        $project: {
+          id: '$_id',
+          name: { $ifNull: ['$sellerInfo.name', 'Unknown Seller'] },
+          shopName: { $ifNull: ['$sellerInfo.shopName', 'Unknown Shop'] },
+          sales: '$totalSales',
+          commission: '$totalCommission',
+          debugItems: '$debugItems',
+        },
+      },
+      // Sort by sales descending
+      {
+        $sort: { sales: -1 },
+      },
+      // Limit to top 3
+      { $limit: 3 },
+    ];
+
+    const topSellers = await Transaction.aggregate(pipeline);
+    console.log('Final top sellers:', JSON.stringify(topSellers, null, 2));
+
+    // Log unmatched items for diagnosis
+    const unmatchedItems = await Transaction.aggregate([
+      {
+        $set: {
+          items: {
+            $map: {
+              input: { $split: [{ $trim: { input: '$item' } }, ','] },
+              as: 'splitItem',
+              in: { $trim: { input: '$$splitItem' } },
+            },
+          },
+        },
+      },
+      { $unwind: '$items' },
+      {
+        $lookup: {
+          from: productCollectionName,
+          let: { itemName: { $toLower: '$items' } },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $or: [
+                    // Exact match (case insensitive)
+                    { $eq: [{ $toLower: '$name' }, '$$itemName'] },
+                    // Contains match (case insensitive)
+                    { $regexMatch: {
+                      input: { $toLower: '$name' },
+                      regex: '$$itemName',
+                      options: 'i'
+                    }},
+                    // Transaction item contains product name
+                    { $regexMatch: {
+                      input: '$$itemName',
+                      regex: { $toLower: '$name' },
+                      options: 'i'
+                    }}
+                  ]
+                }
+              }
+            }
+          ],
+          as: 'productInfo',
+        },
+      },
+      {
+        $match: {
+          productInfo: { $size: 0 },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          unmatchedItems: { $addToSet: '$items' },
+        },
+      },
+    ]);
+    console.log('Unmatched items:', JSON.stringify(unmatchedItems, null, 2));
+
+    res.json({
+      success: true,
+      topSellers,
+      debug: {
+        collectionNames,
+        unmatchedItems: unmatchedItems.length > 0 ? unmatchedItems[0].unmatchedItems : []
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching top sellers:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch top sellers',
+      error: error.message
+    });
+  }
+});
+
 app.post("/api/login-role", async (req, res) => {
   console.log("Login request received:", req.body);
   const { email, password } = req.body;

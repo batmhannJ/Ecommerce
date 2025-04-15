@@ -55,6 +55,9 @@ const UserSchema = new mongoose.Schema(
     lastLogin: { // Add the lastLogin field here
       type: Date,
     },
+    lastLogout: { type: Date },
+    sessionStart: { type: Date },
+    totalWorkingSeconds: { type: Number, default: 0 },
     role: { // Add role field if needed (optional, based on your frontend)
       type: String,
       default: "User",

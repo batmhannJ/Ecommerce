@@ -431,8 +431,6 @@ app.post("/signup", async (req, res) => {
   const token = jwt.sign(data, "secret_ecom");
   res.json({ success: true, token });
 });
-
-// Creating Endpoint for User Login
 app.post("/login", async (req, res) => {
   try {
     // Find user by email
@@ -441,9 +439,17 @@ app.post("/login", async (req, res) => {
       // Compare password (Note: This is plain text comparison; consider using bcrypt for security)
       const passCompare = req.body.password === user.password;
       if (passCompare) {
+        const now = new Date();
+
         // Update lastLogin field with current timestamp
-        user.lastLogin = new Date();
+        user.lastLogin = now;
         user.status = "Active"; // Set status to Active
+        user.sessionStart = now; // Start the new session
+        
+        // Reset current session working time but keep total time in database
+        // We're adding currentSessionSeconds which will be 0 initially
+        user.currentSessionSeconds = 0;
+        
         await user.save(); // Save the updated user document
 
         // Prepare JWT data
@@ -459,8 +465,10 @@ app.post("/login", async (req, res) => {
           success: true, 
           token, 
           userId: user._id,
-          lastLogin: user.lastLogin, // Optional: Include lastLogin in response for debugging
-          status: user.status, // Include status in response
+          lastLogin: user.lastLogin,
+          status: user.status,
+          sessionStart: user.sessionStart,
+          currentSessionSeconds: user.currentSessionSeconds // Add this to response
         });
       } else {
         res.json({ success: false, errors: "Error: Wrong Password" });
@@ -473,6 +481,8 @@ app.post("/login", async (req, res) => {
     res.status(500).json({ success: false, errors: "Server error during login" });
   }
 });
+
+// Modify the status update endpoint to update currentSessionSeconds
 app.patch("/api/users/:id/status", async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
@@ -490,16 +500,75 @@ app.patch("/api/users/:id/status", async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
+    // If user is logging out (status changing to Offline)
+    if (status === "Offline" && user.status === "Active" && user.sessionStart) {
+      const now = new Date();
+      user.lastLogout = now;
+      
+      // Calculate session duration
+      const sessionDuration = Math.floor((now - user.sessionStart) / 1000); // in seconds
+      
+      // Add to total working time in database (for historical purposes)
+      user.totalWorkingSeconds = (user.totalWorkingSeconds || 0) + sessionDuration;
+      
+      // Store this session duration separately
+      user.currentSessionSeconds = sessionDuration;
+      
+      console.log(`User ${id} logged out. Session duration: ${sessionDuration}s. Total: ${user.totalWorkingSeconds}s`);
+    }
+
     user.status = status;
     await user.save();
 
     console.log("Status updated for user:", id, "to:", status);
-    res.status(200).json({ message: "Status updated successfully" });
+    res.status(200).json({ 
+      message: "Status updated successfully",
+      totalWorkingSeconds: user.totalWorkingSeconds,
+      currentSessionSeconds: user.currentSessionSeconds
+    });
   } catch (error) {
     console.error("Error updating status:", error);
     res.status(500).json({ error: "Server error" });
   }
 });
+
+// Modify the working time endpoint to return only current session time
+app.get("/api/users/:id/working-time", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await Users.findById(id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Start with current session seconds (will be 0 at login)
+    let currentWorkingSeconds = user.currentSessionSeconds || 0;
+    
+    // If user is active, calculate the time for THIS session only
+    if (user.status === "Active" && user.sessionStart) {
+      const now = new Date();
+      const currentSessionTime = Math.floor((now - user.sessionStart) / 1000);
+      currentWorkingSeconds = currentSessionTime; // Not adding to previous, just using this session's time
+    }
+
+    // Format the time as HH:MM:SS
+    const hours = Math.floor(currentWorkingSeconds / 3600).toString().padStart(2, '0');
+    const minutes = Math.floor((currentWorkingSeconds % 3600) / 60).toString().padStart(2, '0');
+    const seconds = Math.floor(currentWorkingSeconds % 60).toString().padStart(2, '0');
+    
+    const formattedTime = `${hours}:${minutes}:${seconds}`;
+
+    res.json({ 
+      totalSeconds: currentWorkingSeconds,
+      formattedTime: formattedTime
+    });
+  } catch (error) {
+    console.error("Error getting working time:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 // Creating Endpoint for NewCollection Data
 app.get("/newcollections", async (req, res) => {
   try {

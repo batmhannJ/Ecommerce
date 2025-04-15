@@ -113,6 +113,7 @@ const Navbar = () => {
       fetchUserData();
     }
   }, []);
+// In your Navbar.js component, update the handleLogout function:
 
 // Handle logout with status update
 const handleLogout = async () => {
@@ -126,6 +127,7 @@ const handleLogout = async () => {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("auth-token")}`,
           },
           body: JSON.stringify({ status: "Offline" }),
         }
@@ -136,7 +138,11 @@ const handleLogout = async () => {
         console.error("Failed to update status:", response.status, errorData);
         alert(`Failed to update status: ${errorData.error || response.statusText}`);
       } else {
+        const data = await response.json();
         console.log("Status updated successfully");
+        console.log("Total working time:", data.totalWorkingSeconds ? 
+          `${Math.floor(data.totalWorkingSeconds / 3600)}h ${Math.floor((data.totalWorkingSeconds % 3600) / 60)}m ${data.totalWorkingSeconds % 60}s` : 
+          "Not available");
       }
     } catch (error) {
       console.error("Error updating status:", error);
@@ -151,6 +157,7 @@ const handleLogout = async () => {
   localStorage.removeItem("auth-token");
   window.location.replace("/");
 };
+
   const isLoggedIn = !!localStorage.getItem("auth-token");
 
   return (

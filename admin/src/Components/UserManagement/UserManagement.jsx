@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import UserSearchBar from "../SearchBar/SearchBar";
 import { toast } from "react-toastify";
@@ -26,29 +26,59 @@ function UserManagement() {
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 8;
+  
+  // Use useRef to keep track of latest users state for interval function
+  const usersRef = useRef([]);
+  
+  // Update ref whenever users state changes
+  useEffect(() => {
+    usersRef.current = users;
+  }, [users]);
 
   useEffect(() => {
+    console.log("Component mounted - fetching users...");
     fetchUsers();
-  }, []);
+    
+    // Start interval to update working times every second (for more real-time updates)
+    const interval = setInterval(() => {
+      console.log("Interval triggered - updating working times...");
+      updateWorkingTimesLocally();
+      
+      // Every 10 seconds, sync with server
+      if (Date.now() % 10000 < 1000) {
+        console.log("Syncing with server...");
+        updateWorkingTimesFromServer();
+      }
+    }, 1000);
+    
+    // Clean up interval on component unmount
+    return () => {
+      console.log("Component unmounting - clearing interval");
+      clearInterval(interval);
+    };
+  }, []); // Empty dependency array ensures this only runs once on mount
 
   const fetchUsers = async () => {
     setLoading(true);
+    console.log("Fetching users from API...");
     try {
       const response = await axios.get("http://localhost:4000/api/users");
       const userData = Array.isArray(response.data) ? response.data : [];
-
+      console.log(`Fetched ${userData.length} users`);
+  
       const enhancedUsers = userData.map((user) => ({
         ...user,
         status: user.status || "Offline", // Use database status, default to "Offline" if missing
-        workingTime: `00:${Math.floor(Math.random() * 60)
-          .toString()
-          .padStart(2, "0")}:${Math.floor(Math.random() * 60)
-          .toString()
-          .padStart(2, "0")}`,
+        workingTime: "00:00:00", // Will be updated by updateWorkingTimes
         lastLogin: user.lastLogin || null, // Use database value or null
+        totalWorkingSeconds: 0, // Initialize working seconds for THIS SESSION only
+        currentSessionSeconds: user.currentSessionSeconds || 0, // Use the new field
+        lastUpdateTime: Date.now(), // Track when we last updated
       }));
-
+  
       setUsers(enhancedUsers);
+      // Initial update of working times
+      updateWorkingTimesFromServer(enhancedUsers);
     } catch (error) {
       console.error("Error fetching users:", error.message);
       console.error("Error details:", error.response ? error.response.data : error);
@@ -57,14 +87,103 @@ function UserManagement() {
       setLoading(false);
     }
   };
-
-  const updateOnlineStatus = () => {
-    setUsers((prevUsers) =>
-      prevUsers.map((user) => ({
-        ...user,
-        status: Math.random() > 0.5 ? "Active" : "Offline",
-      }))
-    );
+  
+  // Update the updateWorkingTimesLocally function in UserManagement.jsx
+  const updateWorkingTimesLocally = () => {
+    if (!usersRef.current.length) return;
+    
+    const now = Date.now();
+    const updatedUsers = usersRef.current.map(user => {
+      // Only update active users
+      if (user.status === "Active") {
+        // For active users, calculate time since session start
+        // not based on previous totalWorkingSeconds
+        if (user.sessionStart) {
+          const sessionStartTime = new Date(user.sessionStart).getTime();
+          const currentSessionSeconds = Math.floor((now - sessionStartTime) / 1000);
+          
+          // Format the time
+          const hours = Math.floor(currentSessionSeconds / 3600);
+          const minutes = Math.floor((currentSessionSeconds % 3600) / 60);
+          const seconds = Math.floor(currentSessionSeconds % 60);
+          
+          const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+          
+          return {
+            ...user,
+            currentSessionSeconds: currentSessionSeconds, // Track current session time
+            workingTime: formattedTime,
+            lastUpdateTime: now,
+          };
+        }
+      }
+      return user;
+    });
+    
+    setUsers(updatedUsers);
+  };
+  
+  // Update the getWorkingTimePercentage function in UserManagement.jsx
+  const getWorkingTimePercentage = (user) => {
+    // Calculate percentage based on current session seconds (8 hours = 100%)
+    const eightHoursInSeconds = 8 * 60 * 60; // 8 hours in seconds
+    const percentage = ((user.currentSessionSeconds || 0) / eightHoursInSeconds) * 100;
+    return Math.min(percentage, 100); // Cap at 100%
+  };
+  
+  // Update updateWorkingTimesFromServer function in UserManagement.jsx
+  const updateWorkingTimesFromServer = async (userList = null) => {
+    try {
+      // Use the provided userList or get the current state
+      const currentUsers = userList || usersRef.current;
+      
+      if (!currentUsers.length) {
+        console.log("No users to update working times for");
+        return;
+      }
+      
+      const activeUsers = currentUsers.filter(user => user.status === "Active");
+      
+      if (!activeUsers.length) {
+        console.log("No active users to update working times for");
+        return;
+      }
+      
+      console.log(`Updating working times for ${activeUsers.length} active users`);
+      
+      // Create a copy of the current users to update
+      const updatedUsers = [...currentUsers];
+      
+      // Update active users' working time in parallel
+      await Promise.all(activeUsers.map(async (user) => {
+        try {
+          const response = await axios.get(`http://localhost:4000/api/users/${user._id}/working-time`);
+          console.log(`Got working time for user ${user._id}: ${response.data.formattedTime}`);
+          
+          // Find user in our array and update their working time
+          const userIndex = updatedUsers.findIndex(u => u._id === user._id);
+          if (userIndex !== -1) {
+            updatedUsers[userIndex] = {
+              ...updatedUsers[userIndex],
+              workingTime: response.data.formattedTime,
+              currentSessionSeconds: response.data.totalSeconds, // Use current session time
+              lastUpdateTime: Date.now(),
+            };
+          }
+        } catch (err) {
+          console.error(`Error updating working time for user ${user._id}:`, err);
+        }
+      }));
+      
+      // Only update state if component is still mounted and we have users
+      if (updatedUsers.length > 0) {
+        console.log("Setting updated users state");
+        setUsers(updatedUsers);
+      }
+    } catch (error) {
+      console.error("Error updating working times from server:", error);
+      // Don't update state on error to preserve current data
+    }
   };
 
   const handleEditUser = (index) => {
@@ -141,16 +260,17 @@ function UserManagement() {
       const enhancedUsers = userData.map((user) => ({
         ...user,
         status: user.status || "Offline", // Use database status, default to "Offline" if missing
-        workingTime: `00:${Math.floor(Math.random() * 60)
-          .toString()
-          .padStart(2, "0")}:${Math.floor(Math.random() * 60)
-          .toString()
-          .padStart(2, "0")}`,
+        workingTime: "00:00:00", // Will be populated by updateWorkingTimes
         lastLogin: user.lastLogin || null, // Use database value or null
+        totalWorkingSeconds: 0, // Initialize working seconds
+        lastUpdateTime: Date.now(), // Track when we last updated
       }));
 
       setUsers(enhancedUsers);
       setCurrentPage(1);
+      
+      // Update working times for the search results
+      updateWorkingTimesFromServer(enhancedUsers);
     } catch (error) {
       console.error("Error searching users:", error.message);
       console.error("Error details:", error.response ? error.response.data : error);
@@ -170,6 +290,18 @@ function UserManagement() {
   const totalPages = Math.ceil(users.length / usersPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Debug current state
+  useEffect(() => {
+    if (users.length > 0) {
+      console.log("Users state updated with", users.length, "users");
+      const activeUsers = users.filter(u => u.status === "Active");
+      console.log("Active users:", activeUsers.length);
+      if (activeUsers.length > 0) {
+        console.log("Sample active user working time:", activeUsers[0].workingTime);
+      }
+    }
+  }, [users]);
 
   return (
     <div className="user-management-wrapper">
@@ -194,7 +326,7 @@ function UserManagement() {
               <div className="view-column">VIEW</div>
               <div className="username-column">USERNAME</div>
               <div className="status-column">STATUS</div>
-              <div className="working-time-column">WORKING TIME</div>
+              <div className="working-time-column">USAGE TIME</div>
               <div className="assignee-column">PROFILE</div>
             </div>
 
@@ -219,10 +351,10 @@ function UserManagement() {
                     <div className="time-progress">
                       <div
                         className="time-bar"
-                        style={{ width: `${Math.random() * 100}%` }}
+                        style={{ width: `${getWorkingTimePercentage(user)}%` }}
                       ></div>
                     </div>
-                    <span>{user.workingTime}</span>
+                    <span>{user.workingTime || "00:00:00"}</span>
                   </div>
                   <div className="assignee-column">
                     <div className="user-avatar">

@@ -29,4 +29,19 @@ router.get("/products", async (req, res) => {
   }
 });
 
+router.get('/products/seller/:sellerId', async (req, res) => {
+  try {
+    const sellerId = req.params.sellerId;
+    const products = await Product.find({ sellerId: sellerId });
+    res.json(products);
+  } catch (error) {
+    console.error('Error fetching seller products:', error);
+    res.status(500).json({
+      success: false, 
+      message: 'Failed to fetch seller products',
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;

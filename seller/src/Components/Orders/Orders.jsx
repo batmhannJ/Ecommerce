@@ -2,63 +2,161 @@ import React, { useState, useEffect } from "react";
 import "./Orders.css";
 import { toast } from "react-toastify";
 import parcel_icon from "../../assets/parcel_icon.png";
-import { io } from "socket.io-client"; // Import Socket.IO client
+import { io } from "socket.io-client";
+import axios from "axios";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [sortOption, setSortOption] = useState("newest");
-  const socket = io("http://localhost:4000"); // Connect to Socket.IO server
+  const [sellerId, setSellerId] = useState(null);
+  const [shopName, setShopName] = useState("");
+  const socket = io("http://localhost:4000");
 
-  // Fetch all orders (transactions)
-  const fetchAllOrders = async () => {
-    try {
-      const response = await fetch("http://localhost:4000/api/transactions"); // Fetch transaction data
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
+  const getUserIdFromToken = () => {
+    const authToken = localStorage.getItem("admin_token");
+    if (authToken) {
+      try {
+        const payload = JSON.parse(atob(authToken.split(".")[1]));
+        return payload.id;
+      } catch (error) {
+        console.error("Error decoding token:", error);
+        return null;
       }
-      const data = await response.json();
-      const filteredOrders = data
-        .filter((order) => order.status !== "pending")
-        .sort((a, b) => new Date(b.date) - new Date(a.date)); // Default sort from latest to oldest
-      setOrders(filteredOrders); // Ensure data is an array
+    }
+    return null;
+  };
+  
+  useEffect(() => {
+    const fetchSellerInfo = async () => {
+      const authToken = localStorage.getItem("admin_token");
+      const userId = getUserIdFromToken();
+
+      if (!authToken || !userId) {
+        console.error("No token or user ID found");
+        toast.error("You are not logged in");
+        return;
+      }
+
+      try {
+        const response = await axios.get(`http://localhost:4000/api/seller/approved/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+        
+        // Check if the response contains seller data
+        if (response.data) {
+          const seller = response.data;
+          setSellerId(seller._id);
+          setShopName(seller.shopName || "Your Shop");
+          
+          // Now fetch orders specific to this seller
+          fetchSellerOrders(seller._id);
+        } else {
+          toast.error("Invalid seller session. Please login again.");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        toast.error("Error fetching seller information");
+      }
+    };
+
+    fetchSellerInfo();
+  }, []);
+
+  // Fetch orders specific to the current seller
+  const fetchSellerOrders = async (sellerIdParam) => {
+    try {
+      const sellerToken = localStorage.getItem('admin_token');
+      
+      // Step 1: First get all transactions
+      const transactionResponse = await axios.get("http://localhost:4000/api/transactions", {
+        headers: {
+          Authorization: `Bearer ${sellerToken}`
+        }
+      });
+      
+      // Step 2: Get all products associated with this seller
+      const productsResponse = await axios.get(`http://localhost:4000/api/products/seller/${sellerIdParam}`, {
+        headers: {
+          Authorization: `Bearer ${sellerToken}`
+        }
+      });
+      
+      const sellerProducts = productsResponse.data;
+      console.log("Seller products:", sellerProducts);
+      
+      // Get an array of exact product names for this seller (case insensitive)
+      const sellerProductNames = sellerProducts.map(product => 
+        product.name.toLowerCase().trim()
+      );
+      
+      console.log("Seller product names:", sellerProductNames);
+      
+      // Step 3: Now filter transactions by matching items to exact product names
+      const sellerOrders = transactionResponse.data.filter(transaction => {
+        // If transaction already has sellerId that matches our seller, include it
+        if (transaction.sellerId === sellerIdParam) {
+          return true;
+        }
+        
+        // Skip if no item data
+        if (!transaction.item) {
+          return false;
+        }
+        
+        // Split comma-separated items and trim whitespace
+        const items = transaction.item.split(',').map(item => item.trim().toLowerCase());
+        
+        // Check if any of the items EXACTLY match any of the seller's product names
+        return items.some(item => sellerProductNames.includes(item));
+      });
+      
+      console.log("Filtered seller orders:", sellerOrders);
+      
+      // Filter out pending orders and sort by date
+      const filteredOrders = sellerOrders
+        .filter(order => order.status !== "pending")
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      console.log("Final filtered orders:", filteredOrders);
+      setOrders(filteredOrders);
     } catch (error) {
-      console.error("Error fetching orders:", error);
-      toast.error("Error fetching orders");
+      console.error("Error fetching seller orders:", error);
+      toast.error("Error fetching your orders");
     }
   };
-
   // Handle status change
   const statusHandler = async (event, transactionId) => {
     const newStatus = event.target.value;
 
-    // Show confirmation dialog before updating status
     if (window.confirm(`Are you sure you want to change the status to "${newStatus}"?`)) {
       try {
-        const response = await fetch(
+        const sellerToken = localStorage.getItem('admin_token');
+        
+        const response = await axios.patch(
           `http://localhost:4000/api/transactions/${transactionId}`,
+          { status: newStatus },
           {
-            method: "PATCH", // Using PATCH to update
             headers: {
+              Authorization: `Bearer ${sellerToken}`,
               "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ status: newStatus }), // Send new status
+            }
           }
         );
 
-        if (!response.ok) {
+        if (response.data.success) {
+          setOrders(prevOrders =>
+            prevOrders.map(order =>
+              order.transactionId === transactionId
+                ? { ...order, status: newStatus }
+                : order
+            )
+          );
+          toast.success("Order status updated successfully!");
+        } else {
           throw new Error("Failed to update status");
         }
-
-        // Update local state to reflect the status change
-        setOrders((prevOrders) =>
-          prevOrders.map((order) =>
-            order.transactionId === transactionId
-              ? { ...order, status: newStatus }
-              : order
-          )
-        );
-
-        toast.success("Order status updated successfully!");
       } catch (error) {
         console.error("Error updating order status:", error);
         toast.error("Error updating order status");
@@ -141,29 +239,32 @@ const Orders = () => {
   };
 
   useEffect(() => {
-    fetchAllOrders(); // Initial fetch of orders
-
     // Listen for updates from the server via Socket.IO
     socket.on("orderUpdated", (updatedOrder) => {
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order.transactionId === updatedOrder.transactionId
-            ? { ...order, status: updatedOrder.status }
-            : order
-        )
-      );
+      // Only update state if the order belongs to this seller
+      if (sellerId && (updatedOrder.sellerId === sellerId || 
+          updatedOrder.products?.some(product => product.sellerId === sellerId))) {
+        
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order.transactionId === updatedOrder.transactionId
+              ? { ...order, status: updatedOrder.status }
+              : order
+          )
+        );
+      }
     });
 
     // Cleanup on component unmount
     return () => {
-      socket.disconnect(); // Disconnect the socket
+      socket.disconnect();
     };
-  }, []); // Empty dependency array to run only once on mount
+  }, [sellerId]);
 
   return (
     <div className="container">
       <div className="order add">
-        <h3>Order Management</h3>
+        <h3>{shopName ? `${shopName} - Orders` : 'Order Management'}</h3>
         
         {/* Sort controls */}
         <div className="sort-controls">
@@ -183,11 +284,11 @@ const Orders = () => {
           </select>
         </div>
         
-        {/* Order list - two column layout */}
+        {/* Display shop-specific orders */}
         <div className="order-list">
           {orders.length === 0 ? (
             <div className="empty-orders">
-              <p>No orders available</p>
+              <p>No orders available for your shop</p>
             </div>
           ) : (
             orders.map((order, index) => (

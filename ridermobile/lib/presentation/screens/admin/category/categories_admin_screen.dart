@@ -89,7 +89,7 @@ class _ListCategories extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 20.0),
-                TextCustom(text: listCategory[i].category),
+                TextCustom(text: listCategory[i].name),
               ],
             ),
           ),

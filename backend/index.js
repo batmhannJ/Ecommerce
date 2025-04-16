@@ -199,6 +199,7 @@ const Admin = require("./models/adminUserModel");
 const Rider = require("./models/riderModel");
 const Seller = require("./models/sellerModels");
 const Cart = require('./models/cartModel'); 
+const Category = require('./models/category'); 
 
 const Transaction = require("./models/transactionModel");
 
@@ -3079,6 +3080,50 @@ app.get('/api/get-all-orders-by-delivery/:statusOrder', async (req, res) => {
   } catch (error) {
     console.error('Error fetching orders:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/get-all-categories', async (req, res) => {
+  try {
+    const categories = await Category.find().select('name description'); // Fetch only the name field (add more fields if needed)
+    res.status(200).json(categories);
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/add-categories', async (req, res) => {
+  try {
+    console.log('Received request body:', req.body); // Log the entire body
+    console.log('Request headers:', req.headers['content-type']); // Check content type
+    
+    const { name, description } = req.body;
+    
+    console.log(`Parsed values - Name: "${name}", Description: "${description}"`);
+
+    // Validate input
+    if (!name || name.trim() === '') {
+      return res.status(400).json({ error: 'Name is required' });
+    }
+
+    // Create new category
+    const newCategory = new Category({
+      name: name.trim(),
+      description: description ? description.trim() : '',
+    });
+
+    // Save to MongoDB
+    const savedCategory = await newCategory.save();
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Category added successfully',
+      category: savedCategory,
+    });
+  } catch (error) {
+    console.error('Error adding category:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 

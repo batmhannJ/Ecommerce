@@ -69,7 +69,7 @@ class ClientDetailsOrderScreen extends StatelessWidget {
           Expanded(
             flex: 2,
             child: FutureBuilder<List<DetailsOrder>>(
-              future: ordersServices.gerOrderDetailsById('${orderClient.id}'),
+              future: ordersServices.getOrderDetailsById('${orderClient.id}'),
               builder: (context, snapshot) => (!snapshot.hasData)
                   ? Column(
                       children: const [
@@ -189,9 +189,9 @@ class _ListProductsDetails extends StatelessWidget {
             Expanded(
               child: Container(
                 alignment: Alignment.centerRight,
-                child: TextCustom(text: '\$${listProductDetails[i].total.toStringAsFixed(2)}'),
-              ),
-            ),
+                child: TextCustom(text: 'PHP ${listProductDetails[i].total}'),
+              )
+            )
           ],
         ),
       ),

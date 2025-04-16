@@ -18,35 +18,30 @@ class OrderDetailsResponse {
   );
 }
 
+// First, make sure your DetailsOrder model matches the API response format:
 class DetailsOrder {
-
-  final int id;
-  final int orderId;
-  final int productId;
+  final String id;
   final String nameProduct;
   final String picture;
+  final double price;
   final int quantity;
-  final double total;
+  final String total;
 
   DetailsOrder({
     required this.id,
-    required this.orderId,
-    required this.productId,
     required this.nameProduct,
     required this.picture,
+    required this.price,
     required this.quantity,
     required this.total,
   });
-    
 
   factory DetailsOrder.fromJson(Map<String, dynamic> json) => DetailsOrder(
     id: json["id"],
-    orderId: json["order_id"],
-    productId: json["product_id"],
     nameProduct: json["nameProduct"],
     picture: json["picture"],
+    price: json["price"] is int ? json["price"].toDouble() : json["price"],
     quantity: json["quantity"],
-    total: json["total"].toDouble(),
+    total: json["total"],
   );
-
 }

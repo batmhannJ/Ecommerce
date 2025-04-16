@@ -58,7 +58,7 @@ class OrderDetailsScreen extends StatelessWidget {
             Expanded(
               flex: 2,
               child: FutureBuilder<List<DetailsOrder>>(
-                future: ordersServices.gerOrderDetailsById('${order.transactionId}'),
+                future: ordersServices.getOrderDetailsById('${order.transactionId}'),
                 builder: (context, snapshot) 
                   => ( !snapshot.hasData )
                       ? Column(
@@ -179,8 +179,7 @@ class _ListProductsDetails extends StatelessWidget {
                 width: 45,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: NetworkImage('${Environment.endpointBase}${listProductDetails[i].picture}')
-                  )
+                    image: NetworkImage('http://localhost:4000/upload/images/${listProductDetails[i].picture}')                  )
                 ),
               ),
               const SizedBox(width: 15.0),

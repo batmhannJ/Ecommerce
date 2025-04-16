@@ -2980,7 +2980,6 @@ app.get('/api/client-order', async (req, res) => {
   }
 });*/
 
-// GET Endpoint to fetch order details by ID
 app.get('/api/get-details-order-by-id/:id', async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -2997,28 +2996,26 @@ app.get('/api/get-details-order-by-id/:id', async (req, res) => {
       return res.status(404).json({ error: 'Order not found' });
     }
 
-    // Format response to match OrdersResponse model
-    const response = {
-      _id: transaction._id.toString(),
-      date: transaction.date.toISOString(),
-      name: transaction.name,
-      contact: transaction.contact,
-      item: transaction.item,
-      quantity: transaction.quantity,
-      amount: transaction.amount,
-      address: transaction.address,
-      transactionId: transaction.transactionId,
-      status: transaction.status,
-      userId: transaction.userId,
-      riderId: transaction.riderId,
-      markupValue: transaction.markupValue,
-      deliveryFee: transaction.deliveryFee,
-      deliveryComm: transaction.deliveryComm,
-    };
+    // Find the product associated with the transaction
+    const product = await Product.findOne({ name: transaction.item });
 
-    res.status(200).json(response);
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // Format response to match the DetailsOrder model expected by your Flutter app
+    const orderDetails = [{
+      id: product._id.toString(),
+      nameProduct: product.name,
+      picture: product.image, // Assuming this is the image path
+      quantity: transaction.quantity,
+      total: transaction.amount.toFixed(2),
+      price: product.markup_price || product.new_price
+    }];
+
+    res.status(200).json(orderDetails);
   } catch (error) {
-    console.error('Error fetching order:', error);
+    console.error('Error fetching order details:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

@@ -90,7 +90,7 @@ class _OrdersDetailsDeliveryScreenState extends State<OrdersDetailsDeliveryScree
             Expanded(
               flex: 2,
               child: FutureBuilder<List<DetailsOrder>>(
-                future: ordersServices.gerOrderDetailsById(widget.order.id.toString()), // Changed from orderId to id
+              future: ordersServices.getOrderDetailsById(widget.order.id.toString()),
                 builder: (context, snapshot) 
                   => (!snapshot.hasData)
                       ? Column(
@@ -229,7 +229,7 @@ class _ListProductsDetails extends StatelessWidget {
                 width: 45,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: NetworkImage('${Environment.endpointBase}${listProductDetails[i].picture}')
+                    image: NetworkImage('http://localhost:4000/upload/images/${listProductDetails[i].picture}')
                   )
                 ),
               ),
@@ -245,7 +245,7 @@ class _ListProductsDetails extends StatelessWidget {
               Expanded(
                 child: Container(
                   alignment: Alignment.centerRight,
-                  child: TextCustom(text: '\$ ${listProductDetails[i].total}'),
+                  child: TextCustom(text: '\₱ ${listProductDetails[i].total}'),
                 )
               )
             ],

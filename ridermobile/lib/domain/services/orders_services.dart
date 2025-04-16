@@ -81,16 +81,20 @@ Future<List<OrdersResponse>> getOrdersByStatus(String status) async {
   }
 }
 
-  Future<List<DetailsOrder>> gerOrderDetailsById(String idOrder) async {
+  // In your ordersServices.dart file
+Future<List<DetailsOrder>> getOrderDetailsById(String orderId) async {
+  final response = await http.get(
+    Uri.parse('${Environment.endpointApi}/get-details-order-by-id/$orderId'),
+    headers: {'Content-Type': 'application/json'},
+  );
 
-    final token = await secureStorage.readToken();
-
-    final resp = await http.get(Uri.parse('${Environment.endpointApi}/get-details-order-by-id/$idOrder'),
-      headers: {'Accept' : 'application/json', 'xx-token' : token!},
-    );
-    return OrderDetailsResponse.fromJson( jsonDecode(resp.body)).detailsOrder;
+  if (response.statusCode == 200) {
+    List<dynamic> data = json.decode(response.body);
+    return data.map((item) => DetailsOrder.fromJson(item)).toList();
+  } else {
+    throw Exception('Failed to load order details');
   }
-
+}
 
   Future<ResponseDefault> updateStatusOrderToDispatched(String idOrder, String idDelivery) async {
 

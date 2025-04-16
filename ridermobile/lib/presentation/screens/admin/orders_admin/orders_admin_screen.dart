@@ -95,7 +95,7 @@ class _ListOrders extends StatelessWidget {
   Widget build(BuildContext context) {
     print('Number of orders to display: ${listOrders.length}');
     for (var order in listOrders) {
-      print('Order ID: ${order.id}, Client: ${order.userId.name}');
+      print('Order ID: ${order.id}, Client: ${order.name}');
     }
     
     return ListView.builder(
@@ -145,7 +145,7 @@ class _CardOrders extends StatelessWidget {
                       color: ColorsFrave.secundaryColor),
                   TextCustom(
                       text: DateCustom.getDateOrder(
-                          orderResponse.dateTime.toString()),
+                          orderResponse.date.toString()),
                       fontSize: 16),
                 ],
               ),
@@ -158,7 +158,7 @@ class _CardOrders extends StatelessWidget {
                       fontSize: 16,
                       color: ColorsFrave.secundaryColor),
                   TextCustom(
-                      text: orderResponse.userId.name,
+                      text: orderResponse.name,
                       fontSize: 16),
                 ],
               ),
@@ -171,7 +171,7 @@ class _CardOrders extends StatelessWidget {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextCustom(
-                    text: orderResponse.address.id,
+                    text: orderResponse.address,
                     fontSize: 16,
                     maxLine: 2),
               ),

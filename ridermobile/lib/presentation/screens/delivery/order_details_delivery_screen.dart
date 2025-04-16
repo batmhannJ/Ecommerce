@@ -12,20 +12,15 @@ import 'package:restaurant/presentation/helpers/helpers.dart';
 import 'package:restaurant/presentation/screens/delivery/map_delivery_screen.dart';
 import 'package:restaurant/presentation/themes/colors_frave.dart';
 
-
 class OrdersDetailsDeliveryScreen extends StatefulWidget {
-
   final OrdersResponse order;
-
   const OrdersDetailsDeliveryScreen({ required this.order });
 
   @override
   _OrdersDetailsDeliveryScreenState createState() => _OrdersDetailsDeliveryScreenState();
 }
 
-
 class _OrdersDetailsDeliveryScreenState extends State<OrdersDetailsDeliveryScreen> {
-
   late MylocationmapBloc mylocationmapBloc;
 
   @override
@@ -41,9 +36,7 @@ class _OrdersDetailsDeliveryScreenState extends State<OrdersDetailsDeliveryScree
     super.dispose();
   }
 
-
   void accessGps( PermissionStatus status, BuildContext context ){
-
     switch (status){
       case PermissionStatus.granted:
         Navigator.pushReplacement(context, routeFrave(page: MapDeliveryScreen(order: widget.order)));
@@ -59,164 +52,156 @@ class _OrdersDetailsDeliveryScreenState extends State<OrdersDetailsDeliveryScree
 
   @override
   Widget build(BuildContext context){
-
     final orderBloc = BlocProvider.of<OrdersBloc>(context);
 
     return BlocListener<OrdersBloc, OrdersState>(
       listener: (context, state) {
-        
         if( state is LoadingOrderState ){
-
           modalLoading(context);
-
         }else if( state is SuccessOrdersState ){
-
           Navigator.pop(context);
           modalSuccess(context, 'ON WAY', () async => accessGps( await Permission.location.request(), context)); 
-
-        
         }else if ( state is FailureOrdersState ){
-
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: TextCustom(text: state.error, color: Colors.white), backgroundColor: Colors.red));
-
         }
       },
       child: Scaffold(
         backgroundColor: Colors.white,
-          appBar: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            title: TextCustom(text: 'ORDER N# ${widget.order.orderId}', fontWeight: FontWeight.w500 ),
-            centerTitle: true,
-            leadingWidth: 80,
-            leading: InkWell(
-              onTap: () => Navigator.pop(context),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(Icons.arrow_back_ios_new_rounded, size: 17, color: ColorsFrave.primaryColor ),
-                  TextCustom(text: 'Back', color: ColorsFrave.primaryColor, fontSize: 17)
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          title: TextCustom(text: 'ORDER N# ${widget.order.transactionId}', fontWeight: FontWeight.w500 ), // Changed from orderId to transactionId
+          centerTitle: true,
+          leadingWidth: 80,
+          leading: InkWell(
+            onTap: () => Navigator.pop(context),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Icon(Icons.arrow_back_ios_new_rounded, size: 17, color: ColorsFrave.primaryColor ),
+                TextCustom(text: 'Back', color: ColorsFrave.primaryColor, fontSize: 17)
+              ],
+            ),
+          ),
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              flex: 2,
+              child: FutureBuilder<List<DetailsOrder>>(
+                future: ordersServices.gerOrderDetailsById(widget.order.id.toString()), // Changed from orderId to id
+                builder: (context, snapshot) 
+                  => (!snapshot.hasData)
+                      ? Column(
+                        children: const [
+                          ShimmerFrave(),
+                          SizedBox(height: 10.0),
+                          ShimmerFrave(),
+                          SizedBox(height: 10.0),
+                          ShimmerFrave(),
+                        ],
+                      )
+                    : _ListProductsDetails(listProductDetails: snapshot.data!)
+              )
+            ),
+            Container(
+              padding: const EdgeInsets.all(10.0),
+              width: MediaQuery.of(context).size.width,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextCustom(text: 'TOTAL', color: ColorsFrave.primaryColor, fontSize: 18, fontWeight: FontWeight.w500),
+                      TextCustom(text: 'PHP ${widget.order.amount.toStringAsFixed(2)}', fontSize: 22, fontWeight: FontWeight.w500), // Changed from dollars to PHP
+                    ],
+                  ),
+                  SizedBox(height: 10.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextCustom(text: 'PAYMENT', color: ColorsFrave.primaryColor, fontSize: 17, fontWeight: FontWeight.w500),
+                      TextCustom(text: 'Cash', fontSize: 16), // Since you don't have payType, hardcoded to Cash
+                    ],
+                  ),
+                  const Divider(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const TextCustom(text: 'CLIENT', color: ColorsFrave.primaryColor, fontSize: 17, fontWeight: FontWeight.w500),
+                      Row(
+                        children: [
+                          Container(
+                            height: 35,
+                            width: 35,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: ColorsFrave.primaryColor.withOpacity(0.2),
+                            ),
+                             child: Center(
+                                child: Icon(Icons.person, color: ColorsFrave.primaryColor, size:
+                                20),
+                              ),
+                          ),
+                          const SizedBox(width: 10.0),
+                          TextCustom(text: widget.order.name), // Changed from cliente to name
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const TextCustom(text: 'DATE', color: ColorsFrave.primaryColor, fontSize: 17, fontWeight: FontWeight.w500),
+                      TextCustom(text: DateCustom.getDateOrder(widget.order.date.toString()), fontSize: 16), // Changed from currentDate to date
+                    ],
+                  ),
+                  const SizedBox(height: 10.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const TextCustom(text: 'ADDRESS', color: ColorsFrave.primaryColor, fontSize: 17, fontWeight: FontWeight.w500),
+                      TextCustom(text: widget.order.address, maxLine: 1, fontSize: 15), // Changed from reference to address
+                    ],
+                  ),
+                  const SizedBox(height: 15.0)
                 ],
               ),
             ),
-          ),
-        body: Column(
-            children: [
-              Expanded(
-                flex: 2,
-                child: FutureBuilder<List<DetailsOrder>>(
-                  future: ordersServices.gerOrderDetailsById( widget.order.orderId.toString() ),
-                  builder: (context, snapshot) 
-                    => ( !snapshot.hasData )
-                        ? Column(
-                          children: const [
-                            ShimmerFrave(),
-                            SizedBox(height: 10.0),
-                            ShimmerFrave(),
-                            SizedBox(height: 10.0),
-                            ShimmerFrave(),
-                          ],
-                        )
-                      : _ListProductsDetails(listProductDetails: snapshot.data!)
-                  
-                )
-              ),
-              Container(
+            (widget.order.status != 'Delivered') // Changed from DELIVERED to Delivered to match your status string
+            ? Container(
                 padding: const EdgeInsets.all(10.0),
                 width: MediaQuery.of(context).size.width,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        TextCustom(text: 'TOTAL', color: ColorsFrave.primaryColor, fontSize: 18, fontWeight: FontWeight.w500),
-                        TextCustom(text: '\$ ${widget.order.amount}0', fontSize: 22, fontWeight: FontWeight.w500),
-                      ],
-                    ),
-                    SizedBox(height: 10.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        TextCustom(text: 'PAYMENT', color: ColorsFrave.primaryColor, fontSize: 17, fontWeight: FontWeight.w500),
-                        TextCustom(text: widget.order.payType, fontSize: 16),
-                      ],
-                    ),
-                    const Divider(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const TextCustom(text: 'CLIENT', color: ColorsFrave.primaryColor, fontSize: 17, fontWeight: FontWeight.w500),
-                        Row(
-                          children: [
-                            Container(
-                              height: 35,
-                              width: 35,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image: NetworkImage( (widget.order.clientImage != '') ? '${Environment.endpointBase}${widget.order.clientImage}' : '${Environment.endpointBase}without-image.png')
-                                )
-                              ),
-                            ),
-                            const SizedBox(width: 10.0),
-                            TextCustom(text: '${widget.order.cliente}'),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const TextCustom(text: 'DATE', color: ColorsFrave.primaryColor, fontSize: 17, fontWeight: FontWeight.w500),
-                        TextCustom(text: DateCustom.getDateOrder(widget.order.currentDate.toString()), fontSize: 16),
-                      ],
-                    ),
-                    const SizedBox(height: 10.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const TextCustom(text: 'ADDRESS', color: ColorsFrave.primaryColor, fontSize: 17, fontWeight: FontWeight.w500),
-                        TextCustom(text: widget.order.reference, maxLine: 1, fontSize: 15),
-                      ],
-                    ),
-                    const SizedBox(height: 15.0)
+                    BlocBuilder<MylocationmapBloc, MylocationmapState>(
+                      builder: (context, state) 
+                        => BtnFrave(
+                        text: widget.order.status == 'DISPATCHED' ? 'START DELIVERY' : 'GO TO MAP',
+                        color: widget.order.status == 'DISPATCHED' ? Color(0xff0C6CF2) : Colors.indigo,
+                        fontWeight: FontWeight.w500,
+                        onPressed: (){
+                          if(widget.order.status == 'DISPATCHED'){
+                            if(state.location != null){
+                              orderBloc.add(OnUpdateStatusOrderOnWayEvent(widget.order.id.toString(), state.location!)); // Changed from orderId to id
+                            }
+                          }
+                          if(widget.order.status == 'ON WAY'){
+                            Navigator.push(context, routeFrave(page: MapDeliveryScreen(order: widget.order)));
+                          }
+                        },
+                      ),
+                    ) 
                   ],
                 ),
-              ),
-              ( widget.order.status != 'DELIVERED')
-              ? Container(
-                  padding: const EdgeInsets.all(10.0),
-                  width: MediaQuery.of(context).size.width,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      BlocBuilder<MylocationmapBloc, MylocationmapState>(
-                        builder: (context, state) 
-                          =>  BtnFrave(
-                          text:  widget.order.status == 'DISPATCHED' ? 'START DELIVERY' : 'GO TO MAP',
-                          color: widget.order.status == 'DISPATCHED' ? Color(0xff0C6CF2) : Colors.indigo,
-                          fontWeight: FontWeight.w500,
-                          onPressed: (){
-                            if( widget.order.status == 'DISPATCHED' ){
-                              if( state.location != null ){
-                                orderBloc.add( OnUpdateStatusOrderOnWayEvent(widget.order.orderId.toString(), state.location! ));
-                              }
-                            }
-                            if( widget.order.status == 'ON WAY' ){
-                              Navigator.push(context, routeFrave(page: MapDeliveryScreen(order: widget.order)));
-                            }
-                          },
-                        ),
-                      ) 
-                    ],
-                  ),
-                )
-              : const SizedBox()
-            ],
-          ),
+              )
+            : const SizedBox()
+          ],
+        ),
       ),
     );
   }

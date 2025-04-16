@@ -19,31 +19,31 @@ class DeliveryServices {
 
     return GetAllDeliveryResponse.fromJson(jsonDecode(resp.body)).delivery;
   }
+
 Future<List<OrdersResponse>> getOrdersForDelivery(String statusOrder) async {
   try {
     final response = await http.get(
-      Uri.parse('${Environment.endpointApi}/get-all-orders-by-delivery/$statusOrder'),
+      Uri.parse('${Environment.endpointApi}/get-transactions-by-status/$statusOrder'),
       headers: {'Accept': 'application/json'},
     );
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      // Directly access the orders array from the response
-      if (data["orders"] != null) {
+      // Access the transactions array from the response
+      if (data["transactions"] != null) {
         return List<OrdersResponse>.from(
-          data["orders"].map((x) => OrdersResponse.fromJson(x))
+          data["transactions"].map((x) => OrdersResponse.fromJson(x))
         );
       }
       return [];
     } else {
-      throw Exception('Failed to fetch orders: ${response.statusCode}');
+      throw Exception('Failed to fetch transactions: ${response.statusCode}');
     }
   } catch (e) {
-    print('Error fetching orders: $e');
+    print('Error fetching transactions: $e');
     return [];
   }
 }
-
 }
 
 final deliveryServices = DeliveryServices();

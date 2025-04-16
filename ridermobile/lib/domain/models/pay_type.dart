@@ -1,3 +1,3 @@
 library restaurant.paytype;
 
-final List<String> payType = [ 'PAID', 'DISPATCHED', 'ON WAY', 'DELIVERED' ];
+final List<String> payType = [ 'Pending', 'Cart Processing', 'Out for Delivery', 'Delivered' ];

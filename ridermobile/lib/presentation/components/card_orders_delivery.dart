@@ -5,57 +5,56 @@ import 'package:restaurant/presentation/helpers/date_custom.dart';
 import 'package:restaurant/presentation/themes/colors_frave.dart';
 
 class CardOrdersDelivery extends StatelessWidget {
-
   final OrdersResponse orderResponse;
-  final VoidCallback? onPressed;
+  final Function() onPressed;
 
-  const CardOrdersDelivery({required this.orderResponse, this.onPressed});
+  const CardOrdersDelivery({
+    required this.orderResponse,
+    required this.onPressed
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(15.0),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(10.0),
-        boxShadow: [
-          BoxShadow(color: Colors.grey, blurRadius: 10, spreadRadius: -5)
-        ]
-      ),
-      width: MediaQuery.of(context).size.width,
+    return Card(
+      margin: const EdgeInsets.all(10.0),
+      elevation: 1.0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       child: InkWell(
         onTap: onPressed,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextCustom(text: 'ORDER ID: ${orderResponse.orderId}'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextCustom(text: 'Order ID: ${orderResponse.transactionId}'),
+                  TextCustom(text: 'PHP ${orderResponse.amount.toStringAsFixed(2)}', color: ColorsFrave.primaryColor),
+                ],
+              ),
               const Divider(),
-              const SizedBox(height: 10.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const TextCustom(text: 'Date', fontSize: 16, color: ColorsFrave.secundaryColor),
-                  TextCustom(text: DateCustom.getDateOrder(orderResponse.currentDate.toString()), fontSize: 16),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const TextCustom(text: 'Client', fontSize:16, color: ColorsFrave.secundaryColor),
-                  TextCustom(text: orderResponse.cliente, fontSize: 16),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              const TextCustom(text: 'Address shipping', fontSize: 16, color: ColorsFrave.secundaryColor),
+              TextCustom(text: 'Customer: ${orderResponse.name}'),
               const SizedBox(height: 5.0),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextCustom(text: orderResponse.reference, fontSize: 16, maxLine: 2)
-              ),
+              TextCustom(text: 'Contact: ${orderResponse.contact}'),
               const SizedBox(height: 5.0),
+              TextCustom(text: 'Address: ${orderResponse.address}', maxLine: 2),
+              const SizedBox(height: 5.0),
+              TextCustom(text: 'Item: ${orderResponse.item} (${orderResponse.quantity}x)'),
+              const SizedBox(height: 5.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                    decoration: BoxDecoration(
+                      color: ColorsFrave.primaryColor.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(5.0)
+                    ),
+                    child: TextCustom(text: orderResponse.status),
+                  ),
+                ],
+              )
             ],
           ),
         ),

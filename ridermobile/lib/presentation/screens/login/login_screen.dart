@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:restaurant/domain/bloc/blocs.dart';
 import 'package:restaurant/presentation/components/components.dart';
 import 'package:restaurant/presentation/helpers/helpers.dart';
+import 'package:restaurant/presentation/screens/admin/admin_home_screen.dart';
 import 'package:restaurant/presentation/screens/client/client_home_screen.dart';
+import 'package:restaurant/presentation/screens/delivery/delivery_home_screen.dart';
 import 'package:restaurant/presentation/screens/home/select_role_screen.dart';
 import 'package:restaurant/presentation/screens/intro/intro_screen.dart';
 import 'package:restaurant/presentation/screens/login/forgot_password_screen.dart';
@@ -62,14 +64,17 @@ class _LoginScreenState extends State<LoginScreen> {
       userBloc.add(OnGetUserEvent(state.user!));
       Navigator.pop(context);
 
-      if (state.rolId == '2' || state.rolId == '3') {
-        print("Redirecting to SelectRoleScreen");
-        Navigator.pushAndRemoveUntil(context, routeFrave(page: SelectRoleScreen()), (route) => false);
+      if (state.rolId == '3') {
+          print("Redirecting to DeliveryHomeScreen");
+          Navigator.pushAndRemoveUntil(context, routeFrave(page: DeliveryHomeScreen()), (route) => false);
+      } else if (state.rolId == '2') {
+          print("Redirecting to AdminHomeScreen");
+          Navigator.pushAndRemoveUntil(context, routeFrave(page: AdminHomeScreen()), (route) => false);
       } else if (state.rolId == '1') {
-        print("Redirecting to ClientHomeScreen");
-        Navigator.pushAndRemoveUntil(context, routeFrave(page: ClientHomeScreen()), (route) => false);
+          print("Redirecting to ClientHomeScreen");
+          Navigator.pushAndRemoveUntil(context, routeFrave(page: ClientHomeScreen()), (route) => false);
       } else {
-        print("No navigation for rolId: ${state.rolId}");
+          print("No navigation for rolId: ${state.rolId}");
       }
     }
   },

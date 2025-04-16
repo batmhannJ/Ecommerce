@@ -1861,9 +1861,9 @@ app.post("/api/login-role", async (req, res) => {
           token, 
           userId: rider._id,
           roleId: 3,
-          firstName: user.name.split(' ')[0],
-          lastName: user.name.split(' ').slice(1).join(' '),
-          phone: user.contactNumber
+          firstName: rider.name.split(' ')[0],
+          lastName: rider.name.split(' ').slice(1).join(' '),
+          phone: rider.contactNumber
         });
       }
       console.log("Password mismatch for rider:", rider._id);
@@ -2939,7 +2939,7 @@ app.get('/api/client-order', async (req, res) => {
   }
 });
 
-app.get('/api/get-details-order-by-id/:id', async (req, res) => {
+/*app.get('/api/get-details-order-by-id/:id', async (req, res) => {
   try {
     const orderId = req.params.id;
 
@@ -2978,7 +2978,52 @@ app.get('/api/get-details-order-by-id/:id', async (req, res) => {
       message: 'Failed to fetch order details: ' + error.message,
     });
   }
+});*/
+
+// GET Endpoint to fetch order details by ID
+app.get('/api/get-details-order-by-id/:id', async (req, res) => {
+  try {
+    const orderId = req.params.id;
+
+    // Validate ObjectID
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(400).json({ error: 'Invalid order ID' });
+    }
+
+    // Find transaction by ID
+    const transaction = await Transaction.findById(orderId);
+
+    if (!transaction) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    // Format response to match OrdersResponse model
+    const response = {
+      _id: transaction._id.toString(),
+      date: transaction.date.toISOString(),
+      name: transaction.name,
+      contact: transaction.contact,
+      item: transaction.item,
+      quantity: transaction.quantity,
+      amount: transaction.amount,
+      address: transaction.address,
+      transactionId: transaction.transactionId,
+      status: transaction.status,
+      userId: transaction.userId,
+      riderId: transaction.riderId,
+      markupValue: transaction.markupValue,
+      deliveryFee: transaction.deliveryFee,
+      deliveryComm: transaction.deliveryComm,
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
+
+
 app.get("/api/get-orders-by-status/:status", async (req, res) => {
   try {
     const status = req.params.status;
@@ -3015,6 +3060,17 @@ app.get("/api/get-orders-by-status/:status", async (req, res) => {
       msg: 'Server Error while retrieving orders',
       orders: [],
     });
+  }
+});
+
+app.get('/api/get-transactions-by-status/:status', async (req, res) => {
+  try {
+    const { status } = req.params;
+    const transactions = await Transaction.find({ status: status }).lean();
+    res.status(200).json({ transactions });
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 

@@ -116,14 +116,11 @@ class _MapDeliveryScreenState extends State<MapDeliveryScreen> with WidgetsBindi
 }
 
 class _InformationBottom extends StatelessWidget {
-
   final OrdersResponse order;
-
   const _InformationBottom({required this.order});
 
   @override
   Widget build(BuildContext context) {
-    
     final orderBloc = BlocProvider.of<OrdersBloc>(context);
 
     return Container(
@@ -147,7 +144,7 @@ class _InformationBottom extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const TextCustom(text: 'Delivery Address', fontSize: 15, color: Colors.grey),
-                  TextCustom(text: order.reference, fontSize: 16, maxLine: 2),
+                  TextCustom(text: order.address, fontSize: 16, maxLine: 2), // Changed from reference to address
                 ],
               )
             ],
@@ -160,16 +157,17 @@ class _InformationBottom extends StatelessWidget {
                 width: 45,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  image: DecorationImage(
-                    image: NetworkImage('${Environment.endpointBase}${order.clientImage}')
-                  )
-                ), 
+                  color: ColorsFrave.primaryColor.withOpacity(0.2),
+                ),
+                child: Center( // Move this out of decoration
+                  child: Icon(Icons.person, color: ColorsFrave.primaryColor),
+                ),
               ),
               const SizedBox(width: 10.0),
-              TextCustom(text: order.cliente),
+              TextCustom(text: order.name), // Changed from cliente to name
               const Spacer(),
               InkWell(
-                onTap: () async => await urlLauncherFrave.makePhoneCall('tel:${order.clientPhone}'),
+                onTap: () async => await urlLauncherFrave.makePhoneCall('tel:${order.contact}'), // Changed from clientPhone to contact
                 child: Container(
                   height: 45,
                   width: 45,
@@ -191,21 +189,25 @@ class _InformationBottom extends StatelessWidget {
               fontWeight: FontWeight.w500,
               onPressed: (){
           
+                // For now, just use the current location since we don't have coordinates
+                // You'll need to update your Transaction model to include latitude and longitude
+                // Or use a geocoding service to get coordinates from the address
+                
+                // This is temporary - you should add latitude/longitude to your model
+                double orderLat = 0.0; // Replace with actual latitude from your model
+                double orderLng = 0.0; // Replace with actual longitude from your model
+                
                 final distanceDelivery = Geolocator.distanceBetween(
                   state.location!.latitude, 
                   state.location!.longitude, 
-                  double.parse(order.latitude), 
-                  double.parse(order.longitude)
+                  orderLat, 
+                  orderLng
                 );
           
                 if( distanceDelivery <= 150 ){
-          
-                  orderBloc.add( OnUpdateStatusOrderDeliveredEvent(order.orderId.toString()) );
-          
+                  orderBloc.add( OnUpdateStatusOrderDeliveredEvent(order.id.toString()) ); // Changed from orderId to id
                 } else {
-          
                   modalInfoFrave(context, 'Its still far away');
-          
                 }
               },
             ),
@@ -216,28 +218,27 @@ class _InformationBottom extends StatelessWidget {
   }
 }
 
-
 class _MapDelivery extends StatelessWidget {
-
   final OrdersResponse order;
-
   const _MapDelivery({required this.order});
   
   @override
   Widget build(BuildContext context) {
-  
     final mapDelivery = BlocProvider.of<MapdeliveryBloc>(context);
     final myLocationDeliveryBloc = BlocProvider.of<MylocationmapBloc>(context);
     
     return BlocBuilder<MylocationmapBloc, MylocationmapState>(
       builder: (_, state){
-
         if( state.location != null ){
-          mapDelivery.add( OnMarkertsDeliveryEvent( state.location!, LatLng(double.parse(order.latitude), double.parse(order.longitude))) );
-          mapDelivery.add( OnEmitLocationDeliveryEvent(order.orderId.toString(), myLocationDeliveryBloc.state.location!) );
+          // Again, you'll need to add latitude/longitude to your model
+          double orderLat = 0.0; // Replace with actual latitude from your model
+          double orderLng = 0.0; // Replace with actual longitude from your model
+          
+          mapDelivery.add( OnMarkertsDeliveryEvent( state.location!, LatLng(orderLat, orderLng) ));
+          mapDelivery.add( OnEmitLocationDeliveryEvent(order.id.toString(), myLocationDeliveryBloc.state.location!) ); // Changed from orderId to id
         } 
 
-        return  ( state.existsLocation ) 
+        return ( state.existsLocation ) 
           ? GoogleMap(
               initialCameraPosition: CameraPosition(target: state.location!, zoom: 17.5),
               zoomControlsEnabled: false,
@@ -284,36 +285,32 @@ class _BtnLocation extends StatelessWidget {
     );
   }
 }
-
-
 class _BtnGoogleMap extends StatelessWidget {
-  
   final OrdersResponse order;
-
   const _BtnGoogleMap({required this.order});
 
   @override
   Widget build(BuildContext context) {
+    // Same issue - you need latitude/longitude in your model
+    double orderLat = 0.0; // Replace with actual latitude from your model
+    double orderLng = 0.0; // Replace with actual longitude from your model
+    
     return Container(
-        margin: EdgeInsets.only(right: 10.0),
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(color: Colors.grey[300]!, blurRadius: 10, spreadRadius: -5)
-          ]
-        ),
-        child: CircleAvatar(
-          backgroundColor: Colors.white,
-          maxRadius: 25,
-          child: InkWell(
-            onTap: () async => await urlLauncherFrave.openMapLaunch(order.latitude, order.longitude),
-            child: Image.asset('Assets/google-map.png', height: 30)
-          )
-        ),
-      );
+      margin: EdgeInsets.only(right: 10.0),
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(color: Colors.grey[300]!, blurRadius: 10, spreadRadius: -5)
+        ]
+      ),
+      child: CircleAvatar(
+        backgroundColor: Colors.white,
+        maxRadius: 25,
+        child: InkWell(
+          onTap: () async => await urlLauncherFrave.openMapLaunch('$orderLat', '$orderLng'), // Converting to string
+          child: Image.asset('Assets/google-map.png', height: 30)
+        )
+      ),
+    );
   }
-
-
-
-} 
-
+}
 

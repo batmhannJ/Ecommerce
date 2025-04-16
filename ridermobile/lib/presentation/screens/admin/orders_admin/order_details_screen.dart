@@ -39,7 +39,7 @@ class OrderDetailsScreen extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
-          title: TextCustom(text: 'Order N° ${order.orderId}'),
+          title: TextCustom(text: 'Order N° ${order.transactionId}'),
           centerTitle: true,
           leadingWidth: 80,
           leading: InkWell(
@@ -58,7 +58,7 @@ class OrderDetailsScreen extends StatelessWidget {
             Expanded(
               flex: 2,
               child: FutureBuilder<List<DetailsOrder>>(
-                future: ordersServices.gerOrderDetailsById('${order.orderId}'),
+                future: ordersServices.gerOrderDetailsById('${order.transactionId}'),
                 builder: (context, snapshot) 
                   => ( !snapshot.hasData )
                       ? Column(
@@ -93,7 +93,7 @@ class OrderDetailsScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const TextCustom(text: 'Cliente:', color: ColorsFrave.secundaryColor, fontSize: 16),
-                        TextCustom(text: '${order.cliente}'),
+                        TextCustom(text: '${order.name}'),
                       ],
                     ),
                     const SizedBox(height: 10.0),
@@ -101,13 +101,13 @@ class OrderDetailsScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const TextCustom(text: 'Date:', color: ColorsFrave.secundaryColor, fontSize: 16),
-                        TextCustom(text: DateCustom.getDateOrder(order.currentDate.toString()), fontSize: 16),
+                        TextCustom(text: DateCustom.getDateOrder(order.date.toString()), fontSize: 16),
                       ],
                     ),
                     const SizedBox(height: 10.0),
                     const TextCustom(text: 'Address shipping:', color: ColorsFrave.secundaryColor, fontSize: 16),
                     const SizedBox(height: 5.0),
-                    TextCustom(text: order.reference, maxLine: 2, fontSize: 16),
+                    TextCustom(text: order.address, maxLine: 2, fontSize: 16),
                     const SizedBox(height: 5.0),
                     (order.status == 'DISPATCHED')
                     ? Row(
@@ -120,13 +120,13 @@ class OrderDetailsScreen extends StatelessWidget {
                               height: 40,
                               width: 40,
                               decoration: BoxDecoration(
-                                image: DecorationImage(
+                                /*image: DecorationImage(
                                   image: NetworkImage('${Environment.endpointBase}${order.deliveryImage}')
-                                )
+                                )*/
                               ),
                             ),
                             const SizedBox(width: 10.0),
-                            TextCustom(text: order.delivery, fontSize: 17)
+                            TextCustom(text: order.riderId, fontSize: 17)
                           ],
                         )
                       ],
@@ -145,7 +145,7 @@ class OrderDetailsScreen extends StatelessWidget {
                   BtnFrave(
                     text: 'SELECT DELIVERY',
                     fontWeight: FontWeight.w500,
-                    onPressed: () => modalSelectDelivery(context, order.orderId.toString()),
+                    onPressed: () => modalSelectDelivery(context, order.transactionId.toString()),
                   ) 
                 ],
               ),

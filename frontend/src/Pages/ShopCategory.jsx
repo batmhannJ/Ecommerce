@@ -615,13 +615,6 @@ const ShopCategory = (props) => {
                       <span className="current-price">₱{item.markup_price}</span>
                     )}
                   </div>
-
-                  {/* Shop Name and Address */}
-                  <div className="shop-info mt-2 text-sm"> 
-                    <div className="shop-name font-medium">
-                      {item.shopName || "Shop Name"}
-                    </div>
-                  </div>
                   
                   {/* Additional Specs (for gadgets) */}
                   {props.category === 'gadgets' && (

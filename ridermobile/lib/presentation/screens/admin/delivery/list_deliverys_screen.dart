@@ -11,31 +11,24 @@ import 'package:restaurant/presentation/screens/admin/delivery/add_new_delivery_
 import 'package:restaurant/presentation/themes/colors_frave.dart';
 
 class ListDeliverysScreen extends StatefulWidget {
-
   @override
   State<ListDeliverysScreen> createState() => _ListDeliverysScreenState();
 }
 
 class _ListDeliverysScreenState extends State<ListDeliverysScreen> {
-
-  
   @override
   Widget build(BuildContext context) {
-
     return BlocListener<UserBloc, UserState>(
       listener: (context, state) {
-        if(state is LoadingUserState ){
+        if (state is LoadingUserState) {
           modalLoading(context);
-        }
-        if(state is SuccessUserState ){
+        } else if (state is SuccessUserState) {
           Navigator.pop(context);
           modalSuccess(context, 'Delivery Deleted', () {
             Navigator.pop(context);
             setState(() {});
           });
-
-        }
-        if(state is FailureUserState ){
+        } else if (state is FailureUserState) {
           Navigator.pop(context);
           errorMessageSnack(context, state.error);
         }
@@ -44,7 +37,7 @@ class _ListDeliverysScreenState extends State<ListDeliverysScreen> {
         backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: Colors.white,
-          title: const TextCustom(text: 'List Delivery men'),
+          title: const TextCustom(text: 'List Delivery Men'),
           centerTitle: true,
           leadingWidth: 80,
           leading: InkWell(
@@ -52,39 +45,61 @@ class _ListDeliverysScreenState extends State<ListDeliverysScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
-                Icon(Icons.arrow_back_ios_new_rounded, color: ColorsFrave.primaryColor, size: 17),
-                TextCustom(text: 'Back', fontSize: 17, color: ColorsFrave.primaryColor,)
+                Icon(Icons.arrow_back_ios_new_rounded,
+                    color: ColorsFrave.primaryColor, size: 17),
+                TextCustom(
+                    text: 'Back',
+                    fontSize: 17,
+                    color: ColorsFrave.primaryColor),
               ],
             ),
           ),
-          elevation: 0,
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.push(context, routeFrave(page: AddNewDeliveryScreen())), 
-              child: const TextCustom(text: 'Add', color: ColorsFrave.primaryColor, fontSize: 17)
-            )
-          ],
         ),
-        body: FutureBuilder<List<Delivery>?>(
+        body: FutureBuilder<List<Delivery>>(
           future: deliveryServices.getAlldelivery(),
-          builder: (context, snapshot) 
-            => ( !snapshot.hasData )
-              ? Column(
-                  children: const [
-                    ShimmerFrave(),
-                    SizedBox(height: 10.0),
-                    ShimmerFrave(),
-                    SizedBox(height: 10.0),
-                    ShimmerFrave(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Column(
+                children: const [
+                  ShimmerFrave(),
+                  SizedBox(height: 10.0),
+                  ShimmerFrave(),
+                  SizedBox(height: 10.0),
+                  ShimmerFrave(),
+                ],
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: TextCustom(
+                  text: 'Error: ${snapshot.error}',
+                  color: Colors.red,
+                  fontSize: 18,
+                ),
+              );
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset('Assets/no-data.svg', height: 290),
+                    const SizedBox(height: 20.0),
+                    const TextCustom(
+                      text: 'No Delivery Men Available',
+                      color: ColorsFrave.primaryColor,
+                      fontSize: 20,
+                    ),
                   ],
-                )
-              : _ListDelivery(listDelivery: snapshot.data! )
+                ),
+              );
+            } else {
+              return _ListDelivery(listDelivery: snapshot.data!);
+            }
+          },
         ),
       ),
     );
   }
 }
-
 class _ListDelivery extends StatelessWidget {
   
   final List<Delivery> listDelivery;
@@ -129,7 +144,7 @@ class _ListDelivery extends StatelessWidget {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         image: DecorationImage(
-                          image: NetworkImage('${Environment.endpointBase}${listDelivery[i].image}')
+                          image: NetworkImage('${Environment.endpointBase}upload/images/${listDelivery[i].image}')
                         )
                       ),
                     ),

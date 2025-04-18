@@ -9,17 +9,29 @@ import 'package:restaurant/domain/models/response/orders_by_status_response.dart
 class DeliveryServices {
 
 
-  Future<List<Delivery>> getAlldelivery() async {
-
+Future<List<Delivery>> getAlldelivery() async {
+  try {
     final token = await secureStorage.readToken();
-
-    final resp = await http.get(Uri.parse('${Environment.endpointApi}/get-all-delivery'),
-      headers: { 'Accept' : 'application/json', 'xx-token' : token! }
+    final resp = await http.get(
+      Uri.parse('${Environment.endpointApi}/get-all-delivery'),
+      headers: {'Accept': 'application/json', 'xx-token': token ?? ''},
     );
 
-    return GetAllDeliveryResponse.fromJson(jsonDecode(resp.body)).delivery;
-  }
+    print('Response Status: ${resp.statusCode}');
+    print('Response Body: ${resp.body}');
 
+    if (resp.statusCode == 200) {
+      final response = GetAllDeliveryResponse.fromJson(jsonDecode(resp.body));
+      return response.delivery;
+    } else {
+      print('Error: Server returned status ${resp.statusCode}');
+      return [];
+    }
+  } catch (e) {
+    print('Exception in getAlldelivery: $e');
+    return [];
+  }
+}
 Future<List<OrdersResponse>> getOrdersForDelivery(String statusOrder) async {
   try {
     final response = await http.get(

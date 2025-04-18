@@ -3489,6 +3489,25 @@ app.post('/upload-base64', async (req, res) => {
   }
 });
 
+app.get('/api/get-all-delivery', async (req, res) => {
+  try {
+    const riders = await Rider.find({ isApproved: true }); // Filter by isApproved: true
+    const deliveries = riders.map(rider => ({
+      person_id: rider._id.toString(), // Use MongoDB _id as person_id
+      nameDelivery: rider.name, // Map 'name' to 'nameDelivery'
+      phone: rider.phone || 'N/A', // Provide a default if phone is missing
+      image: rider.idPicture || '', // Map 'idPicture' to 'image'
+      notification_token: rider.notification_token || '' // Provide a default if missing
+    }));
+    res.json({
+      resp: true,
+      msg: 'Deliveries retrieved successfully',
+      delivery: deliveries
+    });
+  } catch (error) {
+    res.status(500).json({ resp: false, msg: 'Server error', delivery: [] });
+  }
+});
 
 // Admin Routes
 app.use("/api/admin", adminRoutes);

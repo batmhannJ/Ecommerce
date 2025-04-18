@@ -18,7 +18,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<CheckLoginEvent>(_onCheckLogin);
     on<LogOutEvent>(_onLogOut);
   }
-Future<void> _onLogin(LoginEvent event, Emitter<AuthState> emit) async {
+  
+Future _onLogin(LoginEvent event, Emitter emit) async {
   try {
     emit(LoadingAuthState());
     
@@ -28,19 +29,35 @@ Future<void> _onLogin(LoginEvent event, Emitter<AuthState> emit) async {
       await secureStorage.deleteSecureStorage();
       await secureStorage.persistenToken(data.token);
       
+      // Check if user is a seller with isApproved status
+      if (data.user.rolId.toString() == '2' && data.user.isSeller == true && !data.user.isApproved) {
+        emit(FailureAuthState('Your seller account is pending approval'));
+        return;
+      }
+      
       // Fetch complete user details
       final userDetails = await userServices.getUserDetails(data.user.uid);
       
       if (userDetails.resp) {
         final String roleIdString = userDetails.user.rolId.toString();
-        emit(SuccessAuthState(user: userDetails.user, rolId: roleIdString));
+        emit(SuccessAuthState(
+          user: userDetails.user, 
+          rolId: roleIdString,
+          isSeller: userDetails.user.isSeller ?? false,
+          shopName: userDetails.user.shopName
+        ));
         
         // Pass the user to UserBloc
-        final userBloc = BlocProvider.of<UserBloc>(event.context); // Pass context from LoginEvent
+        final userBloc = BlocProvider.of<UserBloc>(event.context);
         userBloc.add(OnGetUserEvent(userDetails.user));
       } else {
         final String roleIdString = data.user.rolId.toString();
-        emit(SuccessAuthState(user: data.user, rolId: roleIdString));
+        emit(SuccessAuthState(
+          user: data.user, 
+          rolId: roleIdString,
+          isSeller: data.user.isSeller ?? false,
+          shopName: data.user.shopName
+        ));
         
         // Pass the basic user data to UserBloc if detailed fetch fails
         final userBloc = BlocProvider.of<UserBloc>(event.context);

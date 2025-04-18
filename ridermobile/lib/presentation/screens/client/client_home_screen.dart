@@ -202,25 +202,25 @@ class ClientHomeScreen extends StatelessWidget {
                           itemBuilder: (context, i) => InkWell(
                             splashColor: Colors.transparent,
                             highlightColor: Colors.transparent,
-onTap: () {
-  // Try to parse the ID to int
-  int categoryId;
-  try {
-    categoryId = int.parse(category[i].id);
-  } catch (e) {
-    // Handle parsing error
-    print('Error parsing category ID: ${category[i].id}');
-    categoryId = 0; // Default value
-  }
-  
-  Navigator.push(
-    context, 
-    routeFrave(page: SearchForCategoryScreen(
-      idCategory: categoryId, 
-      category: category[i].name
-    ))
-  );
-},
+                              onTap: () {
+                                // Try to parse the ID to int
+                                int categoryId;
+                                try {
+                                  categoryId = int.parse(category[i].id);
+                                } catch (e) {
+                                  // Handle parsing error
+                                  print('Error parsing category ID: ${category[i].id}');
+                                  categoryId = 0; // Default value
+                                }
+                                
+                                Navigator.push(
+                                  context, 
+                                  routeFrave(page: SearchForCategoryScreen(
+                                    idCategory: categoryId, 
+                                    category: category[i].name
+                                  ))
+                                );
+                              },
                             child: Container(
                               alignment: Alignment.center,
                               margin: const EdgeInsets.only(right: 10.0),

@@ -16,7 +16,12 @@ class LoadingAuthState extends AuthState {
 class SuccessAuthState extends AuthState {
   final User? user;
   final String rolId;
-  const SuccessAuthState({this.user, required this.rolId});
+
+  final bool isSeller;
+  final String? shopName;
+  const SuccessAuthState({this.user, required this.rolId, 
+    this.isSeller = false, 
+    this.shopName});
 }
 
 class FailureAuthState extends AuthState {

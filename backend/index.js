@@ -1777,7 +1777,7 @@ app.get('/api/top-sellers', async (req, res) => {
   }
 });
 
-app.post("/api/login-role", async (req, res) => {
+/*app.post("/api/login-role", async (req, res) => {
   console.log("Login request received:", req.body);
   const { email, password } = req.body;
 
@@ -1815,33 +1815,182 @@ app.post("/api/login-role", async (req, res) => {
       return res.json({ success: false, errors: "Error: Wrong Password" });
     }
 
-     // Check Admins table
-     console.log("Checking Admins table for email:", email);
-     let admin = await Admin.findOne({ email });
-     if (admin) {
-       console.log("User found in Admins table:", admin._id);
-       if (password === admin.password) {
-         const data = {
-           user: {
-             id: admin.id,
-             role_id: 2 // Admins table
-           }
-         };
-         const token = jwt.sign(data, "secret_ecom");
-         console.log("Login successful for admin:", admin._id, "Role ID: 2");
-         return res.json({ 
-           success: true, 
-           token, 
-           userId: admin._id,
-           roleId: 2,
-           firstName: admin.name.split(' ')[0],  // Changed from user.name to admin.name
-           lastName: admin.name.split(' ').slice(1).join(' '),  // Changed from user.name to admin.name
-           phone: admin.phone  // Changed from user.phone to admin.phone
-         });
-       }
-       console.log("Password mismatch for admin:", admin._id);
-       return res.json({ success: false, errors: "Error: Wrong Password" });
-     }
+    // Check Admins table
+    console.log("Checking Admins table for email:", email);
+    let admin = await Admin.findOne({ email });
+    if (admin) {
+      console.log("User found in Admins table:", admin._id);
+      if (password === admin.password) {
+        const data = {
+          user: {
+            id: admin.id,
+            role_id: 2 // Admins table
+          }
+        };
+        const token = jwt.sign(data, "secret_ecom");
+        console.log("Login successful for admin:", admin._id, "Role ID: 2");
+        return res.json({ 
+          success: true, 
+          token, 
+          userId: admin._id,
+          roleId: 2,
+          firstName: admin.name.split(' ')[0],
+          lastName: admin.name.split(' ').slice(1).join(' '),
+          phone: admin.phone
+        });
+      }
+      console.log("Password mismatch for admin:", admin._id);
+      return res.json({ success: false, errors: "Error: Wrong Password" });
+    }
+
+    // Check Sellers table (NEW)
+    console.log("Checking Sellers table for email:", email);
+    let seller = await Seller.findOne({ email });
+    if (seller) {
+      console.log("User found in Sellers table:", seller._id);
+      // If the seller account is not approved yet
+      if (!seller.isApproved) {
+        console.log("Seller account not approved yet:", seller._id);
+        return res.json({ success: false, errors: "Your seller account is pending approval" });
+      }
+      
+      if (password === seller.password) {
+        const data = {
+          user: {
+            id: seller.id,
+            role_id: 2 // Same role as Admin (role_id: 2)
+          }
+        };
+        const token = jwt.sign(data, "secret_ecom");
+        console.log("Login successful for seller:", seller._id, "Role ID: 2");
+        return res.json({ 
+          success: true, 
+          token, 
+          userId: seller._id,
+          roleId: 2, // Same role as Admin
+          firstName: seller.name.split(' ')[0],
+          lastName: seller.name.split(' ').slice(1).join(' '),
+          phone: seller.phone,
+          shopName: seller.shopName, // Include shop name for sellers
+          isSeller: true // Flag to identify as seller vs admin
+        });
+      }
+      console.log("Password mismatch for seller:", seller._id);
+      return res.json({ success: false, errors: "Error: Wrong Password" });
+    }
+
+    // Check Riders table
+    console.log("Checking Riders table for email:", email);
+    let rider = await Rider.findOne({ email });
+    if (rider) {
+      console.log("User found in Riders table:", rider._id);
+      if (password === rider.password) {
+        const data = {
+          user: {
+            id: rider.id,
+            role_id: 3 // Riders table
+          }
+        };
+        const token = jwt.sign(data, "secret_ecom");
+        console.log("Login successful for rider:", rider._id, "Role ID: 3");
+        return res.json({ 
+          success: true, 
+          token, 
+          userId: rider._id,
+          roleId: 3,
+          firstName: rider.name.split(' ')[0],
+          lastName: rider.name.split(' ').slice(1).join(' '),
+          phone: rider.contactNumber
+        });
+      }
+      console.log("Password mismatch for rider:", rider._id);
+      return res.json({ success: false, errors: "Error: Wrong Password" });
+    }
+
+    // If no match found in any table
+    console.log("No user found with email:", email);
+    res.status(404).json({ success: false, errors: "Error: Wrong Email Address" });
+    
+  } catch (error) {
+    console.error("Server error during login:", error);
+    res.status(500).json({ success: false, errors: "Server Error" });
+  }
+});*/
+
+
+app.post("/api/login-role", async (req, res) => {
+  console.log("Login request received:", req.body);
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    console.log("Missing email or password in request");
+    return res.status(400).json({ success: false, errors: "Email and password are required" });
+  }
+
+  try {
+    // Check Admins table
+    console.log("Checking Admins table for email:", email);
+    let admin = await Admin.findOne({ email });
+    if (admin) {
+      console.log("User found in Admins table:", admin._id);
+      if (password === admin.password) {
+        const data = {
+          user: {
+            id: admin.id,
+            role_id: 2 // Admins table
+          }
+        };
+        const token = jwt.sign(data, "secret_ecom");
+        console.log("Login successful for admin:", admin._id, "Role ID: 2");
+        return res.json({ 
+          success: true, 
+          token, 
+          userId: admin._id,
+          roleId: 2,
+          firstName: admin.name.split(' ')[0],
+          lastName: admin.name.split(' ').slice(1).join(' '),
+          phone: admin.phone
+        });
+      }
+      console.log("Password mismatch for admin:", admin._id);
+      return res.json({ success: false, errors: "Error: Wrong Password" });
+    }
+
+    // Check Sellers table (NEW)
+    console.log("Checking Sellers table for email:", email);
+    let seller = await Seller.findOne({ email });
+    if (seller) {
+      console.log("User found in Sellers table:", seller._id);
+      // If the seller account is not approved yet
+      if (!seller.isApproved) {
+        console.log("Seller account not approved yet:", seller._id);
+        return res.json({ success: false, errors: "Your seller account is pending approval" });
+      }
+      
+      if (password === seller.password) {
+        const data = {
+          user: {
+            id: seller.id,
+            role_id: 2 // Same role as Admin (role_id: 2)
+          }
+        };
+        const token = jwt.sign(data, "secret_ecom");
+        console.log("Login successful for seller:", seller._id, "Role ID: 2");
+        return res.json({ 
+          success: true, 
+          token, 
+          userId: seller._id,
+          roleId: 2, // Same role as Admin
+          firstName: seller.name.split(' ')[0],
+          lastName: seller.name.split(' ').slice(1).join(' '),
+          phone: seller.phone,
+          shopName: seller.shopName, // Include shop name for sellers
+          isSeller: true // Flag to identify as seller vs admin
+        });
+      }
+      console.log("Password mismatch for seller:", seller._id);
+      return res.json({ success: false, errors: "Error: Wrong Password" });
+    }
 
     // Check Riders table
     console.log("Checking Riders table for email:", email);
@@ -2473,7 +2622,54 @@ app.get("/api/user-details/:userId", async (req, res) => {
       });
     }
     
-    // If not found in Users, try Admins
+    // If not found in Users, try Sellers
+    let seller = await Seller.findById(userId);
+    if (seller) {
+      console.log("User found in Sellers collection:", seller.name);
+      // Split the name into first and last name components
+      const nameParts = seller.name.split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(' ');
+      
+      return res.json({
+        resp: true,
+        msg: "Seller details retrieved successfully",
+        user: {
+          uid: seller._id,
+          firstName: firstName,
+          lastName: lastName,
+          email: seller.email,
+          phone: seller.phone || '',
+          image: seller.image || '',
+          rolId: 2,
+          isSeller: true,
+          isApproved: seller.isApproved,
+          shopName: seller.shopName || '',
+          businessLocation: seller.businessLocation || '',
+          address: seller.address ? {
+            country: seller.address.country || '',
+            street: seller.address.street || '',
+            region: seller.address.region || '',
+            province: seller.address.province || '',
+            municipality: seller.address.municipality || '',
+            barangay: seller.address.barangay || '',
+            zip: seller.address.zip || ''
+          } : {
+            country: '',
+            street: '',
+            region: '',
+            province: '',
+            municipality: '',
+            barangay: '',
+            zip: ''
+          },
+          notificationToken: ''
+        },
+        token: req.header('xx-token') || ''
+      });
+    }
+    
+    // If not found in Sellers, try Admins
     let admin = await Admin.findById(userId);
     if (admin) {
       console.log("User found in Admins collection:", admin.name);
@@ -2493,6 +2689,7 @@ app.get("/api/user-details/:userId", async (req, res) => {
           phone: admin.phone || '',
           image: admin.image || '',
           rolId: 2,
+          isSeller: false,
           address: admin.address ? {
             country: admin.address.country || '',
             street: admin.address.street || '',

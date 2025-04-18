@@ -55,18 +55,11 @@ void modalSelectionCategory(BuildContext ctx){
                         itemBuilder: (context, i) 
                           => InkWell(
 onTap: () {
-  // Try to parse the ID to int, or provide a default value if it fails
-  int categoryId;
-  try {
-    categoryId = int.parse(category[i].id);
-  } catch (e) {
-    // Handle the case where the ID isn't a valid integer
-    print('Error parsing category ID: ${category[i].id}');
-    categoryId = 0; // Or some default value
-  }
+  // Use the ID directly as a string
+  String categoryId = category[i].id;
   
   productBloc.add(OnSelectCategoryEvent(categoryId, category[i].name));
-},                            child: Container(
+},                           child: Container(
                                 height: 40,
                                 color: Colors.white,
                                 child: Row(

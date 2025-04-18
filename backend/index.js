@@ -11,6 +11,7 @@ const nodemailer = require("nodemailer");
 const otpGenerator = require("otp-generator");
 const helmet = require("helmet");
 const server = require("http").createServer(app);
+const fs = require('fs');
 
 // import routes
 const superAdminRoutes = require("./routes/superAdminRoute");
@@ -3323,6 +3324,171 @@ app.post('/api/add-categories', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+app.get('/api/list-products-seller', async (req, res) => {
+  try {
+    const sellerId = req.query.sellerId; // Get sellerId from query parameter
+    console.log('Fetching products for seller ID:', sellerId);
+
+    // Validate sellerId
+    if (!sellerId) {
+      return res.status(400).json({ resp: false, msg: 'sellerId is required' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(sellerId)) {
+      return res.status(400).json({ resp: false, msg: 'Invalid seller ID' });
+    }
+
+    // Fetch products where sellerId matches
+    const products = await Product.find({ sellerId }).select(
+      '_id id name image description category new_price old_price stock available'
+    );
+
+    if (!products || products.length === 0) {
+      return res.json({ resp: true, msg: 'No products found', products: [] });
+    }
+
+    // Map products to match the frontend's expected format
+    const formattedProducts = products.map(product => ({
+      id: product._id.toString(),
+      productId: product.id,
+      nameProduct: product.name,
+      picture: product.image,
+      description: product.description,
+      category: product.category,
+      newPrice: product.new_price,
+      oldPrice: product.old_price,
+      stock: product.stock,
+      available: product.available
+    }));
+
+    res.json({
+      resp: true,
+      msg: 'Products retrieved successfully',
+      products: formattedProducts
+    });
+  } catch (error) {
+    console.error('Error fetching seller products:', error);
+    res.status(500).json({ resp: false, msg: 'Server Error', products: [] });
+  }
+});
+
+app.post('/api/add-new-product', async (req, res) => {
+  try {
+    const {
+      id,
+      sellerId,
+      name,
+      image,
+      thumbnail1,
+      thumbnail2,
+      thumbnail3,
+      description,
+      category,
+      new_price,
+      old_price,
+      s_stock,
+      m_stock,
+      l_stock,
+      xl_stock,
+      stock,
+      tags
+    } = req.body;
+
+    // Validate required fields
+    if (!name || !image || !category || !new_price) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields'
+      });
+    }
+
+    // Create new product
+    const newProduct = new Product({
+      id: id || Date.now(),
+      sellerId,
+      name,
+      image,
+      thumbnail1: thumbnail1 || '',
+      thumbnail2: thumbnail2 || '',
+      thumbnail3: thumbnail3 || '',
+      description: description || '',
+      category,
+      new_price: parseFloat(new_price),
+      old_price: old_price ? parseFloat(old_price) : parseFloat(new_price) * 1.2,
+      s_stock: s_stock || 0,
+      m_stock: m_stock || 0,
+      l_stock: l_stock || 0,
+      xl_stock: xl_stock || 0,
+      stock: stock || 0,
+      tags: Array.isArray(tags) ? tags : [category]
+    });
+
+    // Save product to database
+    await newProduct.save();
+
+    return res.status(201).json({
+      success: true,
+      message: 'Product added successfully',
+      product: newProduct
+    });
+  } catch (error) {
+    console.error('Error adding product:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error adding product',
+      error: error.message
+    });
+  }
+});
+
+// Add this endpoint to your server
+app.post('/upload-base64', async (req, res) => {
+  try {
+    const { image, filename } = req.body;
+    
+    if (!image || !filename) {
+      return res.status(400).json({
+        success: false,
+        message: 'Image and filename are required'
+      });
+    }
+    
+    // Remove the data:image prefix if present
+    const base64Data = image.includes('base64,') 
+      ? image.split('base64,')[1] 
+      : image;
+    
+    // Generate a unique filename with "product" prefix
+    const uniqueFilename = `product_${Date.now()}`;
+    const filePath = path.join(__dirname, 'upload', 'images', uniqueFilename);
+    
+    // Ensure directory exists
+    const dir = path.dirname(filePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    
+    // Write the file
+    fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
+    
+    // Return the URL to the image
+    const imageUrl = `http://localhost:4000/upload/images/${uniqueFilename}`;
+    
+    return res.status(200).json({
+      success: true,
+      message: 'Image uploaded successfully',
+      image_url: uniqueFilename
+    });
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error uploading image',
+      error: error.message
+    });
+  }
+});
+
 
 // Admin Routes
 app.use("/api/admin", adminRoutes);

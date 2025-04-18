@@ -10,6 +10,7 @@ class FormFieldFrave extends StatelessWidget {
   final int maxLine;
   final bool readOnly;
   final FormFieldValidator<String>? validator;
+  final Function(String)? onChanged; // Add this line
 
   const FormFieldFrave({ 
     this.controller, 
@@ -18,7 +19,8 @@ class FormFieldFrave extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.maxLine = 1,
     this.readOnly = false,
-    this.validator
+    this.validator,
+    this.onChanged, // Add this line
   });
 
   @override

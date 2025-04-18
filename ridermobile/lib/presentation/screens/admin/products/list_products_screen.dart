@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart';
 import 'package:restaurant/data/env/environment.dart';
+import 'package:restaurant/data/local_secure/secure_storage.dart';
 import 'package:restaurant/domain/bloc/blocs.dart';
 import 'package:restaurant/domain/models/response/products_top_home_response.dart';
 import 'package:restaurant/domain/services/products_services.dart';
@@ -16,7 +18,33 @@ class ListProductsScreen extends StatefulWidget {
 }
 
 class _ListProductsScreenState extends State<ListProductsScreen> {
+  String? _sellerId;
+  bool _isLoading = true;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadSellerId();
+  }
+
+Future<void> _loadSellerId() async {
+    try {
+      // Use your existing method to get the userId (which is the seller ID)
+      _sellerId = await secureStorage.readUserId();
+      
+      if (_sellerId == null) {
+        print('Warning: Could not get seller ID from secure storage');
+      }
+    } catch (e) {
+      print('Error loading seller ID: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  
   @override
   Widget build(BuildContext context) {
     return BlocListener<ProductsBloc, ProductsState>(
@@ -61,14 +89,25 @@ class _ListProductsScreenState extends State<ListProductsScreen> {
             )
           ],
         ),
-        body: FutureBuilder<List<Productsdb>>(
-          future: productServices.listProductsAdmin(),
-          builder: (context, snapshot) 
-            => ( !snapshot.hasData )
-              ? const ShimmerFrave()
-              : _GridViewListProduct(listProducts: snapshot.data!)
-           
-        ),
+        body: _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : _sellerId == null
+          ? const Center(child: TextCustom(text: 'No seller ID found. Please login again.', color: Colors.red))
+          : FutureBuilder<List<Productsdb>>(
+              future: productServices.listProductsBySeller(_sellerId!),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: TextCustom(text: 'Error: ${snapshot.error}', color: Colors.red));
+                }
+                if (!snapshot.hasData) {
+                  return const ShimmerFrave();
+                }
+                if (snapshot.data!.isEmpty) {
+                  return const Center(child: TextCustom(text: 'No products found for this seller.'));
+                }
+                return _GridViewListProduct(listProducts: snapshot.data!);
+              }
+            ),
       ),
     );
   }
@@ -105,7 +144,7 @@ class _GridViewListProduct extends StatelessWidget {
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     scale: 7,
-                    image: NetworkImage('${Environment.endpointBase}${listProducts[i].picture}')
+                    image: NetworkImage('${Environment.endpointBase}upload/images/${listProducts[i].picture}')
                   )
                 ),
               ),

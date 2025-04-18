@@ -46,41 +46,37 @@ if (userId == null) {
 
 Future<List<OrdersResponse>> getOrdersByStatus(String status) async {
   try {
-    final response = await http.get(
+    final token = await secureStorage.readToken();
+    final resp = await http.get(
       Uri.parse('${Environment.endpointApi}/get-orders-by-status/$status'),
-      headers: { 'Content-Type': 'application/json' }
+      headers: {'Accept': 'application/json', 'xx-token': token ?? ''},
     );
-    
-    print('API Response status code: ${response.statusCode}');
-    print('API Response body: ${response.body}');
-    
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      print('Decoded JSON: $data');
-      
+
+    print('API Response status: ${resp.statusCode}');
+    print('API Response body: ${resp.body}');
+
+    if (resp.statusCode == 200) {
+      final jsonResponse = jsonDecode(resp.body);
+      print('Decoded JSON: $jsonResponse');
+
       try {
-        final orderResponse = OrdersByStatusResponse.fromJson(data);
+        final orderResponse = OrdersByStatusResponse.fromJson(jsonResponse);
         print('Successfully parsed response');
         print('Parsed ${orderResponse.ordersResponse.length} orders from response');
-        
-        if (orderResponse.ordersResponse.isNotEmpty) {
-          print('First order ID: ${orderResponse.ordersResponse[0].id}');
-        }
-        
         return orderResponse.ordersResponse;
-      } catch (parseError) {
-        print('Error parsing response: $parseError');
-        return [];
+      } catch (e) {
+        print('Error parsing response: $e');
+        rethrow; // Propagate the error
       }
+    } else {
+      print('Error: Server returned status ${resp.statusCode}');
+      return [];
     }
-    
-    return [];
   } catch (e) {
-    print('Error in getOrdersByStatus: $e');
-    return [];
+    print('Exception in getOrdersByStatus: $e');
+    rethrow; // Propagate the error
   }
 }
-
   // In your ordersServices.dart file
 Future<List<DetailsOrder>> getOrderDetailsById(String orderId) async {
   final response = await http.get(
@@ -96,21 +92,40 @@ Future<List<DetailsOrder>> getOrderDetailsById(String orderId) async {
   }
 }
 
-  Future<ResponseDefault> updateStatusOrderToDispatched(String idOrder, String idDelivery) async {
-
+Future<ResponseDefault> updateStatusOrderToDispatched(String idOrder, String idDelivery) async {
+  try {
     final token = await secureStorage.readToken();
+    final url = '${Environment.endpointApi}/update-status-order-dispatched';
+    print('Request URL: $url');
+    print('Request body: ${jsonEncode({
+      'idOrder': idOrder,
+      'idDelivery': idDelivery,
+    })}');
 
-    final resp = await http.put(Uri.parse('${Environment.endpointApi}/update-status-order-dispatched'),
-      headers: { 'Accept' : 'application/json', 'xx-token' : token! },
-      body: {
-        'idDelivery' : idDelivery,
-        'idOrder' : idOrder
-      }
+    final resp = await http.put(
+      Uri.parse(url),
+      headers: {
+        'Accept': 'application/json',
+        'xx-token': token!,
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'idOrder': idOrder,
+        'idDelivery': idDelivery,
+      }),
     );
 
-    return ResponseDefault.fromJson(jsonDecode(resp.body));
-  }
+    if (resp.statusCode != 200) {
+      print('Error: ${resp.statusCode} - ${resp.body}');
+      return ResponseDefault(resp: false, msg: 'Failed to update status');
+    }
 
+    return ResponseDefault.fromJson(jsonDecode(resp.body));
+  } catch (e) {
+    print('Exception: $e');
+    return ResponseDefault(resp: false, msg: 'Network error');
+  }
+}
 
   Future<ResponseDefault> updateOrderStatusOnWay( String idOrder, String latitude, String longitude ) async {
 

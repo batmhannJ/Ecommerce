@@ -33,11 +33,15 @@ class OrdersResponse {
   final double markupValue;
   final double deliveryFee;
   final double deliveryComm;
+  final String? email; // Optional if not available
+  final String phone; // Map from contact
 
   OrdersResponse({
     required this.id,
     required this.date,
     required this.name,
+    this.email,
+    required this.phone,
     required this.contact,
     required this.item,
     required this.quantity,
@@ -53,22 +57,24 @@ class OrdersResponse {
   });
 
   factory OrdersResponse.fromJson(Map<String, dynamic> json) => OrdersResponse(
-    id: json["_id"],
-    date: json["date"],
-    name: json["name"],
-    contact: json["contact"],
-    item: json["item"],
-    quantity: json["quantity"],
-    amount: json["amount"].toDouble(),
-    address: json["address"],
-    transactionId: json["transactionId"],
-    status: json["status"],
-    userId: json["userId"],
-    riderId: json["riderId"],
-    markupValue: json["markupValue"].toDouble(),
-    deliveryFee: json["deliveryFee"].toDouble(),
-    deliveryComm: json["deliveryComm"].toDouble(),
-  );
+  id: json["_id"] ?? '',
+  date: json["date"] ?? '',
+  name: json["name"] ?? '',
+  email: json["email"], // Already nullable
+  phone: json["phone"] ?? 'N/A',
+  contact: json["contact"] ?? '',
+  item: json["item"] ?? '',
+  quantity: json["quantity"] ?? 0,
+  amount: (json["amount"] ?? 0).toDouble(),
+  address: json["address"] ?? '',
+  transactionId: json["transactionId"] ?? '',
+  status: json["status"] ?? '',
+  userId: json["userId"] ?? '',
+  riderId: json["riderId"] ?? '',
+  markupValue: (json["markupValue"] ?? 0).toDouble(),
+  deliveryFee: (json["deliveryFee"] ?? 0).toDouble(),
+  deliveryComm: (json["deliveryComm"] ?? 0).toDouble(),
+);
 }
 class UserId {
   final String id;

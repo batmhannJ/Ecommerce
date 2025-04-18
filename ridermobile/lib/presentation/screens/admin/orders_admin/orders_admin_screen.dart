@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:restaurant/domain/models/pay_type.dart';
 import 'package:restaurant/domain/models/response/orders_by_status_response.dart';
 import 'package:restaurant/domain/services/orders_services.dart';
@@ -9,12 +10,10 @@ import 'package:restaurant/presentation/screens/admin/orders_admin/order_details
 import 'package:restaurant/presentation/themes/colors_frave.dart';
 
 class OrdersAdminScreen extends StatelessWidget {
-
   @override
-  Widget build(BuildContext context){
-
+  Widget build(BuildContext context) {
     return DefaultTabController(
-      length: payType.length, 
+      length: payType.length,
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -27,8 +26,12 @@ class OrdersAdminScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
-                Icon(Icons.arrow_back_ios_new_outlined, color: ColorsFrave.primaryColor, size: 17),
-                TextCustom(text: 'Back', color: ColorsFrave.primaryColor, fontSize: 17)
+                Icon(Icons.arrow_back_ios_new_outlined,
+                    color: ColorsFrave.primaryColor, size: 17),
+                TextCustom(
+                    text: 'Back',
+                    color: ColorsFrave.primaryColor,
+                    fontSize: 17),
               ],
             ),
           ),
@@ -38,53 +41,73 @@ class OrdersAdminScreen extends StatelessWidget {
             unselectedLabelColor: Colors.grey,
             indicator: FraveIndicatorTabBar(),
             isScrollable: true,
-            tabs: List<Widget>.generate(payType.length, (i) 
-              => Tab(
-                  child: Text(payType[i], style: GoogleFonts.getFont('Roboto', fontSize: 17))
-                )
-            )
+            tabs: List<Widget>.generate(
+                payType.length,
+                (i) => Tab(
+                    child: Text(payType[i],
+                        style: GoogleFonts.getFont('Roboto', fontSize: 17)))),
           ),
         ),
         body: TabBarView(
-          children: payType.map((e) 
-            => // Inside your TabBarView's FutureBuilder
-FutureBuilder<List<OrdersResponse>>(
-  future: ordersServices.getOrdersByStatus(e),
-  builder: (context, snapshot) {
-    print('FutureBuilder state: ${snapshot.connectionState}');
-    print('Has data: ${snapshot.hasData}');
-    print('Has error: ${snapshot.hasError}');
-    if (snapshot.hasError) print('Error: ${snapshot.error}');
-    
-    if (snapshot.hasData) {
-      print('Data length: ${snapshot.data!.length}');
-      if (snapshot.data!.isEmpty) {
-        print('Data is empty list, but hasData is true');
-      } else {
-        print('First item ID: ${snapshot.data![0].id}');
-      }
-    }
-    
-    return (!snapshot.hasData)
-      ? Column(
-          children: const [
-            ShimmerFrave(),
-            SizedBox(height: 10),
-            ShimmerFrave(),
-            SizedBox(height: 10),
-            ShimmerFrave(),
-          ],
-        )
-      : _ListOrders(listOrders: snapshot.data!);
-  }
-)
-          ).toList(),
-        ),
-      )
-    );
-  }   
-}
+          children: payType.map((e) => FutureBuilder<List<OrdersResponse>>(
+                future: ordersServices.getOrdersByStatus(e),
+                builder: (context, snapshot) {
+                  print('FutureBuilder state for $e: ${snapshot.connectionState}');
+                  print('Has data: ${snapshot.hasData}');
+                  print('Has error: ${snapshot.hasError}');
+                  if (snapshot.hasError) print('Error: ${snapshot.error}');
+                  if (snapshot.hasData) {
+                    print('Data length: ${snapshot.data!.length}');
+                    if (snapshot.data!.isEmpty) {
+                      print('Data is empty for $e');
+                    } else {
+                      print('First item ID: ${snapshot.data![0].id}');
+                    }
+                  }
 
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Column(
+                      children: const [
+                        ShimmerFrave(),
+                        SizedBox(height: 10),
+                        ShimmerFrave(),
+                        SizedBox(height: 10),
+                        ShimmerFrave(),
+                      ],
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: TextCustom(
+                        text: 'Error: ${snapshot.error}',
+                        color: Colors.red,
+                        fontSize: 18,
+                      ),
+                    );
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset('Assets/no-data.svg', height: 200),
+                          const SizedBox(height: 20),
+                          TextCustom(
+                            text: 'No $e Transactions',
+                            color: ColorsFrave.primaryColor,
+                            fontSize: 20,
+                          ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    return _ListOrders(listOrders: snapshot.data!);
+                  }
+                },
+              )).toList(),
+        ),
+      ),
+    );
+  }
+}
 
 class _ListOrders extends StatelessWidget {
   final List<OrdersResponse> listOrders;
@@ -133,7 +156,7 @@ class _CardOrders extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextCustom(text: 'ORDER ID: ${orderResponse.id}'),
+              TextCustom(text: 'ORDER ID: ${orderResponse.transactionId}'),
               const Divider(),
               const SizedBox(height: 10.0),
               Row(

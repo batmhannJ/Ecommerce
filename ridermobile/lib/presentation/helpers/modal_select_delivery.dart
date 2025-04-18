@@ -119,7 +119,7 @@ class _ListDeliveryModal extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(50.0),
                     image: DecorationImage(
-                      image: NetworkImage('${Environment.endpointBase}${listDelivery[i].image}')
+                      image: NetworkImage('${Environment.endpointBase}upload/images/${listDelivery[i].image}')
                     )
                   ),
                 ),

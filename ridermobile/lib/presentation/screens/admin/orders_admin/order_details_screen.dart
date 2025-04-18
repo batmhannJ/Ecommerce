@@ -135,7 +135,7 @@ class OrderDetailsScreen extends StatelessWidget {
                 ),
               )
             ),
-            (order.status == 'PAID OUT')
+            (order.status == 'Pending')
             ? Container(
               padding: const EdgeInsets.all(10.0),
               width: MediaQuery.of(context).size.width,

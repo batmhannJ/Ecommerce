@@ -68,6 +68,7 @@ const allowedOrigins = [
   'http://localhost:5175',
   'http://localhost:51549',
   'http://localhost:60375',
+  'http://localhost:8888',
 ];
 
 app.use(
@@ -3179,17 +3180,23 @@ app.get('/api/client-order', async (req, res) => {
   }
 });*/
 
-app.get('/api/get-details-order-by-id/:id', async (req, res) => {
+app.get('/api/get-details-order-by-id/:transactionId', async (req, res) => {
   try {
-    const orderId = req.params.id;
+    const orderId = req.params.transactionId;
 
     // Validate ObjectID
-    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+    /*if (!mongoose.Types.ObjectId.isValid(orderId)) {
       return res.status(400).json({ error: 'Invalid order ID' });
-    }
+    }*/
+   
+      if (!orderId || typeof orderId !== 'string') {
+        return res.status(400).json({ error: 'Invalid transaction ID' });
+      }
+
+      console.log('Searching for transactionId:', orderId);
 
     // Find transaction by ID
-    const transaction = await Transaction.findById(orderId);
+    const transaction = await Transaction.findOne({ transactionId: orderId });
 
     if (!transaction) {
       return res.status(404).json({ error: 'Order not found' });
@@ -3223,37 +3230,49 @@ app.get('/api/get-details-order-by-id/:id', async (req, res) => {
 app.get("/api/get-orders-by-status/:status", async (req, res) => {
   try {
     const status = req.params.status;
-    console.log(`Fetching orders with status: ${status}`);
-    
-    // Find all orders with the specified status
-    const orders = await order
+    console.log(`Fetching transactions with status: ${status}`);
+
+    // Find all transactions with the specified status
+    const transactions = await Transaction // Ensure Transaction is your Mongoose model
       .find({ status: status })
-      .populate('userId', 'name email phone') // Populate userId
-      .sort({ dateTime: -1 }); // Sort by newest first
-    
-    if (orders.length === 0) {
-      console.log(`No orders found with status: ${status}`);
+      .populate('userId', 'name email contact') // Optional: Populate userId if needed
+      .sort({ date: -1 }); // Sort by newest first
+
+    if (transactions.length === 0) {
+      console.log(`No transactions found with status: ${status}`);
       return res.json({
         resp: true,
-        msg: `No orders found with status: ${status}`,
+        msg: `No transactions found with status: ${status}`,
         orders: [],
       });
     }
-    
-    console.log(`Found ${orders.length} orders with status: ${status}`);
-    // Log the orders to see the exact structure
-    console.log('Orders data:', JSON.stringify(orders, null, 2));
+
+    // Map transactions to match OrdersResponse model
+    const formattedOrders = transactions.map(transaction => ({
+      id: transaction._id.toString(),
+      name: transaction.name || 'Unknown',
+      email: transaction.userId ? transaction.userId.email : 'N/A', // Optional
+      phone: transaction.contact || 'N/A',
+      address: transaction.address || 'N/A',
+      date: transaction.date.toISOString(),
+      amount: transaction.amount,
+      status: transaction.status,
+      transactionId: transaction.transactionId
+    }));
+
+    console.log(`Found ${transactions.length} transactions with status: ${status}`);
+    console.log('Formatted orders:', JSON.stringify(formattedOrders, null, 2));
+
     return res.json({
       resp: true,
-      msg: 'Orders retrieved successfully',
-      orders: orders,
+      msg: 'Transactions retrieved successfully',
+      orders: formattedOrders,
     });
-    
   } catch (error) {
-    console.error(`Error fetching orders by status: ${error}`);
+    console.error(`Error fetching transactions by status: ${error}`);
     return res.status(500).json({
       resp: false,
-      msg: 'Server Error while retrieving orders',
+      msg: 'Server Error while retrieving transactions',
       orders: [],
     });
   }
@@ -3495,7 +3514,7 @@ app.get('/api/get-all-delivery', async (req, res) => {
     const deliveries = riders.map(rider => ({
       person_id: rider._id.toString(), // Use MongoDB _id as person_id
       nameDelivery: rider.name, // Map 'name' to 'nameDelivery'
-      phone: rider.phone || 'N/A', // Provide a default if phone is missing
+      phone: rider.contactNumber || 'N/A', // Provide a default if phone is missing
       image: rider.idPicture || '', // Map 'idPicture' to 'image'
       notification_token: rider.notification_token || '' // Provide a default if missing
     }));
@@ -3506,6 +3525,45 @@ app.get('/api/get-all-delivery', async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ resp: false, msg: 'Server error', delivery: [] });
+  }
+});
+
+app.put('/api/update-status-order-dispatched', async (req, res) => {
+  try {
+    const { idOrder, idDelivery } = req.body;
+
+    // Validate input
+    if (!idOrder || typeof idOrder !== 'string') {
+      return res.status(400).json({ error: 'Invalid order ID' });
+    }
+
+    // Optional: Validate idDelivery if required
+    if (idDelivery && typeof idDelivery !== 'string') {
+      return res.status(400).json({ error: 'Invalid delivery ID' });
+    }
+
+    // Find and update the transaction
+    const transaction = await Transaction.findOneAndUpdate(
+      { transactionId: idOrder }, // Use idOrder as transactionId
+      {
+        status: 'Cart Processing',
+        ...(idDelivery && { riderId: idDelivery })
+      },
+      { new: true }
+    );
+
+    if (!transaction) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    res.status(200).json({
+      ok: true,
+      message: 'Order status updated to dispatched',
+      data: transaction
+    });
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    res.status(500).json({ ok: false, error: 'Internal server error' });
   }
 });
 

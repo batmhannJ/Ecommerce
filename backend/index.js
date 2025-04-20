@@ -3567,6 +3567,83 @@ app.put('/api/update-status-order-dispatched', async (req, res) => {
   }
 });
 
+app.get('/api/public/rider/:riderId/vehicle-type', async (req, res) => {
+  try {
+    const riderId = req.params.riderId;
+    
+    // Validate riderId format to prevent injection
+    if (!mongoose.Types.ObjectId.isValid(riderId)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid rider ID format' 
+      });
+    }
+    
+    const rider = await Rider.findById(riderId).select('vehicleType');
+    
+    if (!rider) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Rider not found' 
+      });
+    }
+    
+    res.status(200).json({ 
+      success: true, 
+      vehicleType: rider.vehicleType 
+    });
+  } catch (error) {
+    console.error('Error fetching rider vehicle type:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error while fetching vehicle type',
+      error: error.message
+    });
+  }
+});
+
+app.put('/api/rider/:id/online-status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isOnline } = req.body;
+
+    console.log(`Updating rider ${id} online status to: ${isOnline}`);
+    
+    // Validate ID format if using MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid rider ID format' });
+    }
+    
+    // Validate request body
+    if (typeof isOnline !== 'boolean') {
+      return res.status(400).json({ message: 'isOnline must be a boolean value' });
+    }
+    
+    // Find rider and update online status
+    const rider = await Rider.findByIdAndUpdate(
+      id,
+      { isOnline },
+      { new: true }
+    );
+    
+    if (!rider) {
+      return res.status(404).json({ message: 'Rider not found' });
+    }
+    
+    return res.status(200).json({
+      success: true,
+      message: `Rider status updated to ${isOnline ? 'online' : 'offline'}`,
+      rider: {
+        id: rider._id,
+        isOnline: rider.isOnline
+      }
+    });
+  } catch (error) {
+    console.error('Error updating rider online status:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Admin Routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/", adminRoutes);

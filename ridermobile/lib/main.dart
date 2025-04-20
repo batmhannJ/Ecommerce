@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:restaurant/domain/bloc/blocs.dart';
 import 'package:restaurant/domain/models/response/address_one_response.dart';
+import 'package:restaurant/presentation/screens/delivery/main_screen.dart';
 import 'package:restaurant/presentation/screens/intro/checking_login_screen.dart';
+import 'package:provider/provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,10 +46,11 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(create: (context) => DeliveryBloc()),
         BlocProvider(create: (context) => MapdeliveryBloc()),
         BlocProvider(create: (context) => MapclientBloc()),
+        ChangeNotifierProvider(create: (_) => ShiftProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Food - Fraved',
+        title: 'BizGo',
         home: CheckingLoginScreen(),
       ),
     );

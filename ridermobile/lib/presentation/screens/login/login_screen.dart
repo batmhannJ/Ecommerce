@@ -6,6 +6,7 @@ import 'package:restaurant/presentation/helpers/helpers.dart';
 import 'package:restaurant/presentation/screens/admin/admin_home_screen.dart';
 import 'package:restaurant/presentation/screens/client/client_home_screen.dart';
 import 'package:restaurant/presentation/screens/delivery/delivery_home_screen.dart';
+import 'package:restaurant/presentation/screens/delivery/main_screen.dart';
 import 'package:restaurant/presentation/screens/home/select_role_screen.dart';
 import 'package:restaurant/presentation/screens/intro/intro_screen.dart';
 import 'package:restaurant/presentation/screens/login/forgot_password_screen.dart';
@@ -65,8 +66,8 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.pop(context);
 
       if (state.rolId == '3') {
-          print("Redirecting to DeliveryHomeScreen");
-          Navigator.pushAndRemoveUntil(context, routeFrave(page: DeliveryHomeScreen()), (route) => false);
+          print("Redirecting to Main Delivery Screen");
+          Navigator.pushAndRemoveUntil(context, routeFrave(page: MainDeliveryLayout()), (route) => false);
       } else if (state.rolId == '2') {
           print("Redirecting to AdminHomeScreen");
           Navigator.pushAndRemoveUntil(context, routeFrave(page: AdminHomeScreen()), (route) => false);

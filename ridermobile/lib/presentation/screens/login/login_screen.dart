@@ -108,31 +108,31 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       Row(
                         children: const [
-                          TextCustom(text: 'Frave ', color: ColorsFrave.primaryColor, fontWeight: FontWeight.w500 ),
-                          TextCustom(text: 'Food', color: Colors.black87, fontWeight: FontWeight.w500 ),
+                          TextCustom(text: 'Bizgo ', color: ColorsFrave.loadingColor, fontWeight: FontWeight.w500 ),
+                          TextCustom(text: 'Rider', color: Colors.black87, fontWeight: FontWeight.w500 ),
                         ],
                       )
                     ],
                   ),
                 ),
                 const SizedBox(height: 20.0),
-                Image.asset('Assets/Logo/logo-black.png', height: 150 ),
+                Image.asset('Assets/Logo/logobg.png', height: 150 ),
                 const SizedBox(height: 30.0),
                 Container(
                   alignment: Alignment.center,
-                  child: const TextCustom(text: 'Welcome back!', fontSize: 35, fontWeight: FontWeight.bold, color: Color(0xff14222E) ),
+                  child: const TextCustom(text: 'Welcome back!', fontSize: 35, fontWeight: FontWeight.bold, color: Color(0xFFFFB701) ),
                 ),
                 const SizedBox(height: 5.0),
                 Align(
                   alignment: Alignment.center,
-                  child: const TextCustom(text: 'Use your credentials below and login to your account.', textAlign: TextAlign.center, color: Colors.grey, maxLine: 2, fontSize: 16),
+                  child: const TextCustom(text: 'Use your credentials below and login to your account.', textAlign: TextAlign.center, color: Colors.black, maxLine: 2, fontSize: 16),
                 ),
                 const SizedBox(height: 50.0),
                 const TextCustom(text: 'Email Address'),
                 const SizedBox(height: 5.0),
                 FormFieldFrave(
                   controller: _emailController,
-                  hintText: 'email@frave.com',
+                  hintText: 'email@bizgo.com',
                   keyboardType: TextInputType.emailAddress,
                   validator: validatedEmail,
                 ),

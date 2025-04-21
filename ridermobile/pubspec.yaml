@@ -51,6 +51,9 @@ flutter:
     - Assets/
     - Assets/Logo/
     - Assets/svg/
+    - Assets/Logo/introbg.png
+    - Assets/Logo/logobg.png
+
 
 
   # To add custom fonts to your application, add a fonts section here,

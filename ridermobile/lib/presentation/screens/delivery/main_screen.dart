@@ -23,7 +23,7 @@ class MainDeliveryLayout extends StatefulWidget {
 
 class _MainDeliveryLayoutState extends State<MainDeliveryLayout> {
   int _currentIndex = 0;
-  String _statusKey = UniqueKey().toString(); // Key to force rebuild of StatusScreen
+  String _statusKey = UniqueKey().toString();
 
   List<Widget> get _screens => [
         StatusScreen(),
@@ -43,17 +43,20 @@ class _MainDeliveryLayoutState extends State<MainDeliveryLayout> {
 
   @override
   Widget build(BuildContext context) {
+    print("MainDeliveryLayout: Building with statusKey: $_statusKey");
     return ChangeNotifierProvider<ShiftProvider>(
-      create: (_) => ShiftProvider(),
+      create: (_) {
+        final provider = ShiftProvider();
+        print("MainDeliveryLayout: Created ShiftProvider instance: $provider");
+        return provider;
+      },
       child: Scaffold(
         appBar: AppBar(
           title: Text(_titles[_currentIndex]),
           actions: [
             IconButton(
-              icon: Icon(Icons.notifications_outlined, color: Colors.pink),
-              onPressed: () {
-                // Handle notifications
-              },
+              icon: Icon(Icons.notifications_outlined, color: Colors.yellowbg),
+              onPressed: () {},
             ),
           ],
         ),
@@ -61,7 +64,7 @@ class _MainDeliveryLayoutState extends State<MainDeliveryLayout> {
           child: DeliveryHomeScreenAsDrawer(),
         ),
         body: IndexedStack(
-          key: ValueKey(_statusKey), // Use a key to force rebuild
+          key: ValueKey(_statusKey),
           index: _currentIndex,
           children: _screens,
         ),
@@ -73,7 +76,7 @@ class _MainDeliveryLayoutState extends State<MainDeliveryLayout> {
             });
           },
           type: BottomNavigationBarType.fixed,
-          selectedItemColor: Colors.pink,
+          selectedItemColor: Colors.yellowbg,
           unselectedItemColor: Colors.grey,
           items: [
             BottomNavigationBarItem(
@@ -107,10 +110,11 @@ class _MainDeliveryLayoutState extends State<MainDeliveryLayout> {
     );
   }
 
-  // Method to update the key and force a rebuild
   void updateStatusKey() {
+    print("MainDeliveryLayout: Updating status key to force rebuild");
     setState(() {
       _statusKey = UniqueKey().toString();
+      _currentIndex = 0; // Ensure StatusScreen is visible
     });
   }
 }
@@ -278,14 +282,17 @@ class DeliveryHomeScreenAsDrawer extends StatelessWidget {
   }
 }
 
-// Create the screens for each bottom nav item
 class StatusScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print("StatusScreen: Building widget tree");
-    return Consumer<ShiftProvider>(
-      builder: (context, shiftProvider, _) {
-        print("StatusScreen: Consumer rebuilding with isShiftActive: ${shiftProvider.isShiftActive}");
+    final shiftProvider = Provider.of<ShiftProvider>(context, listen: true);
+    print("StatusScreen: Using ShiftProvider instance: $shiftProvider");
+
+    return ListenableBuilder(
+      listenable: shiftProvider,
+      builder: (context, child) {
+        print("StatusScreen: ListenableBuilder rebuilding with isShiftActive: ${shiftProvider.isShiftActive}");
         final DateTime now = DateTime.now();
         final Map<String, dynamic> nextShift = getNextShift(now);
 
@@ -320,7 +327,11 @@ class StatusScreen extends StatelessWidget {
   }
 
   Widget _buildCurrentShiftUI(BuildContext context, ShiftProvider shiftProvider) {
-    final activeShift = shiftProvider.activeShift;
+    final activeShift = shiftProvider.activeShift!;
+    final DateTime now = DateTime.now();
+    final bool isToday = activeShift['date'].day == now.day &&
+        activeShift['date'].month == now.month &&
+        activeShift['date'].year == now.year;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -349,9 +360,12 @@ class StatusScreen extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          Text('Apr', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-                          Text('10', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                          Text('Today', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                          Text(_getMonth(activeShift['date']),
+                              style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                          Text(activeShift['date'].day.toString(),
+                              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                          Text(isToday ? 'Today' : _getWeekday(activeShift['date']),
+                              style: TextStyle(color: Colors.grey[600], fontSize: 12)),
                         ],
                       ),
                     ),
@@ -360,7 +374,7 @@ class StatusScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '21:30 - 02:30 (5h)',
+                          '${activeShift['startTime']} - ${activeShift['endTime']} (${activeShift['hours']}h)',
                           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(height: 4),
@@ -395,7 +409,7 @@ class StatusScreen extends StatelessWidget {
                       onChanged: (value) {
                         shiftProvider.setAvailabilityForExtension(value);
                       },
-                      activeColor: Colors.pink,
+                      activeColor: Colors.yellowbg,
                     ),
                   ],
                 ),
@@ -403,6 +417,9 @@ class StatusScreen extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {
                     shiftProvider.endShift();
+                    final mainDeliveryLayoutState =
+                        context.findAncestorStateOfType<_MainDeliveryLayoutState>();
+                    mainDeliveryLayoutState?.updateStatusKey();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
@@ -424,6 +441,8 @@ class StatusScreen extends StatelessWidget {
     );
   }
 
+
+
   Widget _buildUpcomingShiftUI(BuildContext context, Map<String, dynamic> nextShift) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -437,7 +456,7 @@ class StatusScreen extends StatelessWidget {
             ),
             Text(
               'View All',
-              style: TextStyle(color: Colors.pink, fontWeight: FontWeight.w500),
+              style: TextStyle(color: Colors.yellowbg, fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -505,7 +524,7 @@ class StatusScreen extends StatelessWidget {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.pink,
+                    backgroundColor: Colors.yellowbg,
                     minimumSize: Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -792,9 +811,10 @@ String formatTimeRemaining(int minutes) {
 }
 }
 
+
 class StartShiftScreen extends StatefulWidget {
   final Map<String, dynamic> nextShift;
-  final VoidCallback onShiftStarted; // Add a callback
+  final VoidCallback onShiftStarted;
   const StartShiftScreen({Key? key, required this.nextShift, required this.onShiftStarted}) : super(key: key);
 
   @override
@@ -807,62 +827,45 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
   bool availableForExtension = false;
   String? vehicleType;
   bool isLoading = true;
-  
+
   @override
   void initState() {
     super.initState();
-    // Fetch rider data from backend when the screen initializes
     fetchRiderData();
   }
-  
+
   Future<void> fetchRiderData() async {
     setState(() {
       isLoading = true;
     });
-    
+
     try {
-      // Get rider ID from secure storage
       final riderId = await secureStorage.readUserId();
-      
       if (riderId == null) {
         throw Exception('User ID not found in secure storage');
       }
-      
-      // Base URL of your API
+
       const String baseUrl = 'http://localhost:4000';
-      
-      // Make the API request to the public endpoint
       final response = await http.get(
         Uri.parse('$baseUrl/api/public/rider/$riderId/vehicle-type'),
         headers: {
           'Content-Type': 'application/json',
         },
       );
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final vehicleTypeFromApi = data['vehicleType'];
-        
         setState(() {
-          // Format the vehicle type (capitalize first letter)
-          vehicleType = _formatVehicleType(vehicleTypeFromApi);
+          vehicleType = _formatVehicleType(data['vehicleType']);
           isLoading = false;
         });
       } else {
-        print('Failed to load vehicle type: ${response.statusCode}');
-        print('Response body: ${response.body}');
-        
         setState(() {
           vehicleType = 'Unknown';
           isLoading = false;
         });
-        
-        // Show error message
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Could not load vehicle information'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Could not load vehicle information'), backgroundColor: Colors.red),
         );
       }
     } catch (e) {
@@ -870,26 +873,17 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
         isLoading = false;
         vehicleType = 'Unknown';
       });
-      
-      // Show error snackbar
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to load vehicle information: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('Failed to load vehicle information: $e'), backgroundColor: Colors.red),
       );
-      
-      print('Error fetching rider data: $e');
     }
   }
-  
+
   String _formatVehicleType(String? type) {
-    // Handle null case
     if (type == null || type.isEmpty) return 'Unknown';
     return type[0].toUpperCase() + type.substring(1);
   }
-  
-  // Get the appropriate icon for the vehicle type
+
   IconData _getVehicleIcon(String? type) {
     switch (type?.toLowerCase()) {
       case 'motorcycle':
@@ -901,23 +895,27 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
       case 'van':
         return Icons.airport_shuttle;
       default:
-        return Icons.help_outline; // Default icon if type is unknown
+        return Icons.help_outline;
     }
   }
 
-   void _handleStartShift() {
-    print("Starting shift with vehicle: $vehicleType and bag: $selectedBagType");
-    
-    // Get the provider but don't listen to it
-    final shiftProvider = Provider.of<ShiftProvider>(context, listen: false);
-    
-    // Start the shift
-    shiftProvider.startShift(widget.nextShift, vehicleType ?? 'Unknown', selectedBagType);
-    print("After startShift, isShiftActive: ${shiftProvider.isShiftActive}"); // Add this log
-    widget.onShiftStarted(); // Call the callback to trigger rebuild
-    Navigator.of(context).pop();
-  }
-  
+ void _handleStartShift() {
+  print("StartShiftScreen: Starting shift with vehicle: $vehicleType, bag: $selectedBagType, shift: ${widget.nextShift}");
+
+  final shiftProvider = Provider.of<ShiftProvider>(context, listen: false);
+  print("StartShiftScreen: Using ShiftProvider instance: $shiftProvider");
+  shiftProvider.startShift(widget.nextShift, vehicleType ?? 'Unknown', selectedBagType);
+  print("StartShiftScreen: After startShift, isShiftActive: ${shiftProvider.isShiftActive}");
+
+  shiftProvider.notifyListeners();
+  Navigator.of(context).pop();
+  // Force rebuild by navigating to Status tab
+  Navigator.of(context).pushAndRemoveUntil(
+    MaterialPageRoute(builder: (context) => MainDeliveryLayout()),
+    (route) => false,
+  );
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -931,8 +929,8 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
         ],
         automaticallyImplyLeading: false,
       ),
-      body: isLoading 
-          ? Center(child: CircularProgressIndicator(color: Colors.pink))
+      body: isLoading
+          ? Center(child: CircularProgressIndicator(color: Colors.yellowbg))
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -940,26 +938,25 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
                 children: [
                   Text('Vehicle Type', style: TextStyle(color: Colors.grey[700])),
                   SizedBox(height: 8),
-                  // Display the rider's vehicle type from backend instead of selection options
                   Container(
                     padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.pink.withOpacity(0.1),
+                      color: Colors.yellowbg.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.pink, width: 2),
+                      border: Border.all(color: Colors.yellowbg, width: 2),
                     ),
                     child: Row(
                       children: [
                         Icon(
                           _getVehicleIcon(vehicleType),
-                          color: Colors.pink,
+                          color: Colors.yellowbg,
                           size: 32,
                         ),
                         SizedBox(width: 12),
                         Text(
                           vehicleType ?? 'Unknown',
                           style: TextStyle(
-                            color: Colors.pink,
+                            color: Colors.yellowbg,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -996,10 +993,10 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
                             agreeToPrivacyPolicy = value!;
                           });
                         },
-                        activeColor: Colors.pink,
+                        activeColor: Colors.yellowbg,
                       ),
                       Expanded(child: Text('I agree to the Privacy Policy')),
-                      Icon(Icons.launch, size: 16, color: Colors.pink),
+                      Icon(Icons.launch, size: 16, color: Colors.yellowbg),
                     ],
                   ),
                   SizedBox(height: 16),
@@ -1014,32 +1011,32 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
                             availableForExtension = value;
                           });
                         },
-                        activeColor: Colors.pink,
+                        activeColor: Colors.yellowbg,
                       ),
                     ],
                   ),
                   Spacer(),
                   ElevatedButton(
-      onPressed: agreeToPrivacyPolicy ? _handleStartShift : null,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.pink,
-        minimumSize: Size(double.infinity, 50),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-      child: Text(
-        'Start',
-        style: TextStyle(fontSize: 16, color: Colors.white),
-      ),
-    ),
+                    onPressed: agreeToPrivacyPolicy ? _handleStartShift : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.yellowbg,
+                      minimumSize: Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      'Start',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                  ),
                   SizedBox(height: 16),
                 ],
               ),
             ),
     );
   }
-  
+
   Widget _buildBagOption(String type, IconData icon) {
     final isSelected = selectedBagType == type;
     return GestureDetector(
@@ -1052,16 +1049,16 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
         width: 100,
         padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.pink.withOpacity(0.1) : Colors.grey[200],
+          color: isSelected ? Colors.yellowbg.withOpacity(0.1) : Colors.grey[200],
           borderRadius: BorderRadius.circular(8),
-          border: isSelected ? Border.all(color: Colors.pink, width: 2) : null,
+          border: isSelected ? Border.all(color: Colors.yellowbg, width: 2) : null,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: isSelected ? Colors.pink : Colors.grey[700], size: 32),
+            Icon(icon, color: isSelected ? Colors.yellowbg : Colors.grey[700], size: 32),
             SizedBox(height: 8),
-            Text(type, style: TextStyle(color: isSelected ? Colors.pink : Colors.grey[700])),
+            Text(type, style: TextStyle(color: isSelected ? Colors.yellowbg : Colors.grey[700])),
           ],
         ),
       ),
@@ -1075,41 +1072,39 @@ class ShiftProvider with ChangeNotifier {
   String _vehicleType = '';
   String _bagType = '';
   bool _isAvailableForExtension = false;
-  
+
   bool get isShiftActive => _isShiftActive;
   Map<String, dynamic>? get activeShift => _activeShift;
   String get vehicleType => _vehicleType;
   String get bagType => _bagType;
   bool get isAvailableForExtension => _isAvailableForExtension;
-  
+
   void startShift(Map<String, dynamic> shift, String vehicle, String bag) {
-    print("ShiftProvider: Explicitly setting shift active");
+    print("ShiftProvider: Starting shift with data: $shift");
     _isShiftActive = true;
-    _activeShift = Map<String, dynamic>.from(shift); // Create a copy to ensure change detection
+    _activeShift = Map<String, dynamic>.from(shift);
     _vehicleType = vehicle;
     _bagType = bag;
-    _isAvailableForExtension = false; // Reset this when starting a new shift
+    _isAvailableForExtension = false;
 
-    
     print("ShiftProvider: isShiftActive set to $_isShiftActive");
     print("ShiftProvider: activeShift set to $_activeShift");
-        notifyListeners();
+    notifyListeners();
+
     _updateOnlineStatus(true);
-    
-    // Force another notification after a short delay to ensure UI updates
+
     Future.delayed(Duration(milliseconds: 100), () {
       print("ShiftProvider: Forcing additional notification");
       notifyListeners();
     });
   }
-  
+
   void endShift() {
+    print("ShiftProvider: Ending shift");
     _isShiftActive = false;
     _activeShift = null;
     _isAvailableForExtension = false;
     notifyListeners();
-    
-    // Update backend about status change
     _updateOnlineStatus(false);
   }
   

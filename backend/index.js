@@ -11,6 +11,7 @@ const nodemailer = require("nodemailer");
 const otpGenerator = require("otp-generator");
 const helmet = require("helmet");
 const server = require("http").createServer(app);
+const fs = require('fs');
 
 // import routes
 const superAdminRoutes = require("./routes/superAdminRoute");
@@ -67,6 +68,7 @@ const allowedOrigins = [
   'http://localhost:5175',
   'http://localhost:51549',
   'http://localhost:60375',
+  'http://localhost:8888',
 ];
 
 app.use(
@@ -199,6 +201,7 @@ const Admin = require("./models/adminUserModel");
 const Rider = require("./models/riderModel");
 const Seller = require("./models/sellerModels");
 const Cart = require('./models/cartModel'); 
+const Category = require('./models/category'); 
 
 const Transaction = require("./models/transactionModel");
 
@@ -1776,7 +1779,7 @@ app.get('/api/top-sellers', async (req, res) => {
   }
 });
 
-app.post("/api/login-role", async (req, res) => {
+/*app.post("/api/login-role", async (req, res) => {
   console.log("Login request received:", req.body);
   const { email, password } = req.body;
 
@@ -1814,33 +1817,69 @@ app.post("/api/login-role", async (req, res) => {
       return res.json({ success: false, errors: "Error: Wrong Password" });
     }
 
-     // Check Admins table
-     console.log("Checking Admins table for email:", email);
-     let admin = await Admin.findOne({ email });
-     if (admin) {
-       console.log("User found in Admins table:", admin._id);
-       if (password === admin.password) {
-         const data = {
-           user: {
-             id: admin.id,
-             role_id: 2 // Admins table
-           }
-         };
-         const token = jwt.sign(data, "secret_ecom");
-         console.log("Login successful for admin:", admin._id, "Role ID: 2");
-         return res.json({ 
-           success: true, 
-           token, 
-           userId: admin._id,
-           roleId: 2,
-           firstName: admin.name.split(' ')[0],  // Changed from user.name to admin.name
-           lastName: admin.name.split(' ').slice(1).join(' '),  // Changed from user.name to admin.name
-           phone: admin.phone  // Changed from user.phone to admin.phone
-         });
-       }
-       console.log("Password mismatch for admin:", admin._id);
-       return res.json({ success: false, errors: "Error: Wrong Password" });
-     }
+    // Check Admins table
+    console.log("Checking Admins table for email:", email);
+    let admin = await Admin.findOne({ email });
+    if (admin) {
+      console.log("User found in Admins table:", admin._id);
+      if (password === admin.password) {
+        const data = {
+          user: {
+            id: admin.id,
+            role_id: 2 // Admins table
+          }
+        };
+        const token = jwt.sign(data, "secret_ecom");
+        console.log("Login successful for admin:", admin._id, "Role ID: 2");
+        return res.json({ 
+          success: true, 
+          token, 
+          userId: admin._id,
+          roleId: 2,
+          firstName: admin.name.split(' ')[0],
+          lastName: admin.name.split(' ').slice(1).join(' '),
+          phone: admin.phone
+        });
+      }
+      console.log("Password mismatch for admin:", admin._id);
+      return res.json({ success: false, errors: "Error: Wrong Password" });
+    }
+
+    // Check Sellers table (NEW)
+    console.log("Checking Sellers table for email:", email);
+    let seller = await Seller.findOne({ email });
+    if (seller) {
+      console.log("User found in Sellers table:", seller._id);
+      // If the seller account is not approved yet
+      if (!seller.isApproved) {
+        console.log("Seller account not approved yet:", seller._id);
+        return res.json({ success: false, errors: "Your seller account is pending approval" });
+      }
+      
+      if (password === seller.password) {
+        const data = {
+          user: {
+            id: seller.id,
+            role_id: 2 // Same role as Admin (role_id: 2)
+          }
+        };
+        const token = jwt.sign(data, "secret_ecom");
+        console.log("Login successful for seller:", seller._id, "Role ID: 2");
+        return res.json({ 
+          success: true, 
+          token, 
+          userId: seller._id,
+          roleId: 2, // Same role as Admin
+          firstName: seller.name.split(' ')[0],
+          lastName: seller.name.split(' ').slice(1).join(' '),
+          phone: seller.phone,
+          shopName: seller.shopName, // Include shop name for sellers
+          isSeller: true // Flag to identify as seller vs admin
+        });
+      }
+      console.log("Password mismatch for seller:", seller._id);
+      return res.json({ success: false, errors: "Error: Wrong Password" });
+    }
 
     // Check Riders table
     console.log("Checking Riders table for email:", email);
@@ -1861,9 +1900,122 @@ app.post("/api/login-role", async (req, res) => {
           token, 
           userId: rider._id,
           roleId: 3,
-          firstName: user.name.split(' ')[0],
-          lastName: user.name.split(' ').slice(1).join(' '),
-          phone: user.contactNumber
+          firstName: rider.name.split(' ')[0],
+          lastName: rider.name.split(' ').slice(1).join(' '),
+          phone: rider.contactNumber
+        });
+      }
+      console.log("Password mismatch for rider:", rider._id);
+      return res.json({ success: false, errors: "Error: Wrong Password" });
+    }
+
+    // If no match found in any table
+    console.log("No user found with email:", email);
+    res.status(404).json({ success: false, errors: "Error: Wrong Email Address" });
+    
+  } catch (error) {
+    console.error("Server error during login:", error);
+    res.status(500).json({ success: false, errors: "Server Error" });
+  }
+});*/
+
+
+app.post("/api/login-role", async (req, res) => {
+  console.log("Login request received:", req.body);
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    console.log("Missing email or password in request");
+    return res.status(400).json({ success: false, errors: "Email and password are required" });
+  }
+
+  try {
+    // Check Admins table
+    console.log("Checking Admins table for email:", email);
+    let admin = await Admin.findOne({ email });
+    if (admin) {
+      console.log("User found in Admins table:", admin._id);
+      if (password === admin.password) {
+        const data = {
+          user: {
+            id: admin.id,
+            role_id: 2 // Admins table
+          }
+        };
+        const token = jwt.sign(data, "secret_ecom");
+        console.log("Login successful for admin:", admin._id, "Role ID: 2");
+        return res.json({ 
+          success: true, 
+          token, 
+          userId: admin._id,
+          roleId: 2,
+          firstName: admin.name.split(' ')[0],
+          lastName: admin.name.split(' ').slice(1).join(' '),
+          phone: admin.phone
+        });
+      }
+      console.log("Password mismatch for admin:", admin._id);
+      return res.json({ success: false, errors: "Error: Wrong Password" });
+    }
+
+    // Check Sellers table (NEW)
+    console.log("Checking Sellers table for email:", email);
+    let seller = await Seller.findOne({ email });
+    if (seller) {
+      console.log("User found in Sellers table:", seller._id);
+      // If the seller account is not approved yet
+      if (!seller.isApproved) {
+        console.log("Seller account not approved yet:", seller._id);
+        return res.json({ success: false, errors: "Your seller account is pending approval" });
+      }
+      
+      if (password === seller.password) {
+        const data = {
+          user: {
+            id: seller.id,
+            role_id: 2 // Same role as Admin (role_id: 2)
+          }
+        };
+        const token = jwt.sign(data, "secret_ecom");
+        console.log("Login successful for seller:", seller._id, "Role ID: 2");
+        return res.json({ 
+          success: true, 
+          token, 
+          userId: seller._id,
+          roleId: 2, // Same role as Admin
+          firstName: seller.name.split(' ')[0],
+          lastName: seller.name.split(' ').slice(1).join(' '),
+          phone: seller.phone,
+          shopName: seller.shopName, // Include shop name for sellers
+          isSeller: true // Flag to identify as seller vs admin
+        });
+      }
+      console.log("Password mismatch for seller:", seller._id);
+      return res.json({ success: false, errors: "Error: Wrong Password" });
+    }
+
+    // Check Riders table
+    console.log("Checking Riders table for email:", email);
+    let rider = await Rider.findOne({ email });
+    if (rider) {
+      console.log("User found in Riders table:", rider._id);
+      if (password === rider.password) {
+        const data = {
+          user: {
+            id: rider.id,
+            role_id: 3 // Riders table
+          }
+        };
+        const token = jwt.sign(data, "secret_ecom");
+        console.log("Login successful for rider:", rider._id, "Role ID: 3");
+        return res.json({ 
+          success: true, 
+          token, 
+          userId: rider._id,
+          roleId: 3,
+          firstName: rider.name.split(' ')[0],
+          lastName: rider.name.split(' ').slice(1).join(' '),
+          phone: rider.contactNumber
         });
       }
       console.log("Password mismatch for rider:", rider._id);
@@ -2472,7 +2624,54 @@ app.get("/api/user-details/:userId", async (req, res) => {
       });
     }
     
-    // If not found in Users, try Admins
+    // If not found in Users, try Sellers
+    let seller = await Seller.findById(userId);
+    if (seller) {
+      console.log("User found in Sellers collection:", seller.name);
+      // Split the name into first and last name components
+      const nameParts = seller.name.split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(' ');
+      
+      return res.json({
+        resp: true,
+        msg: "Seller details retrieved successfully",
+        user: {
+          uid: seller._id,
+          firstName: firstName,
+          lastName: lastName,
+          email: seller.email,
+          phone: seller.phone || '',
+          image: seller.image || '',
+          rolId: 2,
+          isSeller: true,
+          isApproved: seller.isApproved,
+          shopName: seller.shopName || '',
+          businessLocation: seller.businessLocation || '',
+          address: seller.address ? {
+            country: seller.address.country || '',
+            street: seller.address.street || '',
+            region: seller.address.region || '',
+            province: seller.address.province || '',
+            municipality: seller.address.municipality || '',
+            barangay: seller.address.barangay || '',
+            zip: seller.address.zip || ''
+          } : {
+            country: '',
+            street: '',
+            region: '',
+            province: '',
+            municipality: '',
+            barangay: '',
+            zip: ''
+          },
+          notificationToken: ''
+        },
+        token: req.header('xx-token') || ''
+      });
+    }
+    
+    // If not found in Sellers, try Admins
     let admin = await Admin.findById(userId);
     if (admin) {
       console.log("User found in Admins collection:", admin.name);
@@ -2492,6 +2691,7 @@ app.get("/api/user-details/:userId", async (req, res) => {
           phone: admin.phone || '',
           image: admin.image || '',
           rolId: 2,
+          isSeller: false,
           address: admin.address ? {
             country: admin.address.country || '',
             street: admin.address.street || '',
@@ -2939,7 +3139,7 @@ app.get('/api/client-order', async (req, res) => {
   }
 });
 
-app.get('/api/get-details-order-by-id/:id', async (req, res) => {
+/*app.get('/api/get-details-order-by-id/:id', async (req, res) => {
   try {
     const orderId = req.params.id;
 
@@ -2978,43 +3178,114 @@ app.get('/api/get-details-order-by-id/:id', async (req, res) => {
       message: 'Failed to fetch order details: ' + error.message,
     });
   }
+});*/
+
+app.get('/api/get-details-order-by-id/:transactionId', async (req, res) => {
+  try {
+    const orderId = req.params.transactionId;
+
+    // Validate ObjectID
+    /*if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(400).json({ error: 'Invalid order ID' });
+    }*/
+   
+      if (!orderId || typeof orderId !== 'string') {
+        return res.status(400).json({ error: 'Invalid transaction ID' });
+      }
+
+      console.log('Searching for transactionId:', orderId);
+
+    // Find transaction by ID
+    const transaction = await Transaction.findOne({ transactionId: orderId });
+
+    if (!transaction) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    // Find the product associated with the transaction
+    const product = await Product.findOne({ name: transaction.item });
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // Format response to match the DetailsOrder model expected by your Flutter app
+    const orderDetails = [{
+      id: product._id.toString(),
+      nameProduct: product.name,
+      picture: product.image, // Assuming this is the image path
+      quantity: transaction.quantity,
+      total: transaction.amount.toFixed(2),
+      price: product.markup_price || product.new_price
+    }];
+
+    res.status(200).json(orderDetails);
+  } catch (error) {
+    console.error('Error fetching order details:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
+
+
 app.get("/api/get-orders-by-status/:status", async (req, res) => {
   try {
     const status = req.params.status;
-    console.log(`Fetching orders with status: ${status}`);
-    
-    // Find all orders with the specified status
-    const orders = await order
+    console.log(`Fetching transactions with status: ${status}`);
+
+    // Find all transactions with the specified status
+    const transactions = await Transaction // Ensure Transaction is your Mongoose model
       .find({ status: status })
-      .populate('userId', 'name email phone') // Populate userId
-      .sort({ dateTime: -1 }); // Sort by newest first
-    
-    if (orders.length === 0) {
-      console.log(`No orders found with status: ${status}`);
+      .populate('userId', 'name email contact') // Optional: Populate userId if needed
+      .sort({ date: -1 }); // Sort by newest first
+
+    if (transactions.length === 0) {
+      console.log(`No transactions found with status: ${status}`);
       return res.json({
         resp: true,
-        msg: `No orders found with status: ${status}`,
+        msg: `No transactions found with status: ${status}`,
         orders: [],
       });
     }
-    
-    console.log(`Found ${orders.length} orders with status: ${status}`);
-    // Log the orders to see the exact structure
-    console.log('Orders data:', JSON.stringify(orders, null, 2));
+
+    // Map transactions to match OrdersResponse model
+    const formattedOrders = transactions.map(transaction => ({
+      id: transaction._id.toString(),
+      name: transaction.name || 'Unknown',
+      email: transaction.userId ? transaction.userId.email : 'N/A', // Optional
+      phone: transaction.contact || 'N/A',
+      address: transaction.address || 'N/A',
+      date: transaction.date.toISOString(),
+      amount: transaction.amount,
+      status: transaction.status,
+      transactionId: transaction.transactionId
+    }));
+
+    console.log(`Found ${transactions.length} transactions with status: ${status}`);
+    console.log('Formatted orders:', JSON.stringify(formattedOrders, null, 2));
+
     return res.json({
       resp: true,
-      msg: 'Orders retrieved successfully',
-      orders: orders,
+      msg: 'Transactions retrieved successfully',
+      orders: formattedOrders,
     });
-    
   } catch (error) {
-    console.error(`Error fetching orders by status: ${error}`);
+    console.error(`Error fetching transactions by status: ${error}`);
     return res.status(500).json({
       resp: false,
-      msg: 'Server Error while retrieving orders',
+      msg: 'Server Error while retrieving transactions',
       orders: [],
     });
+  }
+});
+
+app.get('/api/get-transactions-by-status/:status', async (req, res) => {
+  try {
+    const { status } = req.params;
+    const transactions = await Transaction.find({ status: status }).lean();
+    res.status(200).json({ transactions });
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -3026,6 +3297,350 @@ app.get('/api/get-all-orders-by-delivery/:statusOrder', async (req, res) => {
   } catch (error) {
     console.error('Error fetching orders:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/get-all-categories', async (req, res) => {
+  try {
+    const categories = await Category.find().select('name description'); // Fetch only the name field (add more fields if needed)
+    res.status(200).json(categories);
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/add-categories', async (req, res) => {
+  try {
+    console.log('Received request body:', req.body); // Log the entire body
+    console.log('Request headers:', req.headers['content-type']); // Check content type
+    
+    const { name, description } = req.body;
+    
+    console.log(`Parsed values - Name: "${name}", Description: "${description}"`);
+
+    // Validate input
+    if (!name || name.trim() === '') {
+      return res.status(400).json({ error: 'Name is required' });
+    }
+
+    // Create new category
+    const newCategory = new Category({
+      name: name.trim(),
+      description: description ? description.trim() : '',
+    });
+
+    // Save to MongoDB
+    const savedCategory = await newCategory.save();
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Category added successfully',
+      category: savedCategory,
+    });
+  } catch (error) {
+    console.error('Error adding category:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/api/list-products-seller', async (req, res) => {
+  try {
+    const sellerId = req.query.sellerId; // Get sellerId from query parameter
+    console.log('Fetching products for seller ID:', sellerId);
+
+    // Validate sellerId
+    if (!sellerId) {
+      return res.status(400).json({ resp: false, msg: 'sellerId is required' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(sellerId)) {
+      return res.status(400).json({ resp: false, msg: 'Invalid seller ID' });
+    }
+
+    // Fetch products where sellerId matches
+    const products = await Product.find({ sellerId }).select(
+      '_id id name image description category new_price old_price stock available'
+    );
+
+    if (!products || products.length === 0) {
+      return res.json({ resp: true, msg: 'No products found', products: [] });
+    }
+
+    // Map products to match the frontend's expected format
+    const formattedProducts = products.map(product => ({
+      id: product._id.toString(),
+      productId: product.id,
+      nameProduct: product.name,
+      picture: product.image,
+      description: product.description,
+      category: product.category,
+      newPrice: product.new_price,
+      oldPrice: product.old_price,
+      stock: product.stock,
+      available: product.available
+    }));
+
+    res.json({
+      resp: true,
+      msg: 'Products retrieved successfully',
+      products: formattedProducts
+    });
+  } catch (error) {
+    console.error('Error fetching seller products:', error);
+    res.status(500).json({ resp: false, msg: 'Server Error', products: [] });
+  }
+});
+
+app.post('/api/add-new-product', async (req, res) => {
+  try {
+    const {
+      id,
+      sellerId,
+      name,
+      image,
+      thumbnail1,
+      thumbnail2,
+      thumbnail3,
+      description,
+      category,
+      new_price,
+      old_price,
+      s_stock,
+      m_stock,
+      l_stock,
+      xl_stock,
+      stock,
+      tags
+    } = req.body;
+
+    // Validate required fields
+    if (!name || !image || !category || !new_price) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields'
+      });
+    }
+
+    // Create new product
+    const newProduct = new Product({
+      id: id || Date.now(),
+      sellerId,
+      name,
+      image,
+      thumbnail1: thumbnail1 || '',
+      thumbnail2: thumbnail2 || '',
+      thumbnail3: thumbnail3 || '',
+      description: description || '',
+      category,
+      new_price: parseFloat(new_price),
+      old_price: old_price ? parseFloat(old_price) : parseFloat(new_price) * 1.2,
+      s_stock: s_stock || 0,
+      m_stock: m_stock || 0,
+      l_stock: l_stock || 0,
+      xl_stock: xl_stock || 0,
+      stock: stock || 0,
+      tags: Array.isArray(tags) ? tags : [category]
+    });
+
+    // Save product to database
+    await newProduct.save();
+
+    return res.status(201).json({
+      success: true,
+      message: 'Product added successfully',
+      product: newProduct
+    });
+  } catch (error) {
+    console.error('Error adding product:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error adding product',
+      error: error.message
+    });
+  }
+});
+
+// Add this endpoint to your server
+app.post('/upload-base64', async (req, res) => {
+  try {
+    const { image, filename } = req.body;
+    
+    if (!image || !filename) {
+      return res.status(400).json({
+        success: false,
+        message: 'Image and filename are required'
+      });
+    }
+    
+    // Remove the data:image prefix if present
+    const base64Data = image.includes('base64,') 
+      ? image.split('base64,')[1] 
+      : image;
+    
+    // Generate a unique filename with "product" prefix
+    const uniqueFilename = `product_${Date.now()}`;
+    const filePath = path.join(__dirname, 'upload', 'images', uniqueFilename);
+    
+    // Ensure directory exists
+    const dir = path.dirname(filePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    
+    // Write the file
+    fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
+    
+    // Return the URL to the image
+    const imageUrl = `http://localhost:4000/upload/images/${uniqueFilename}`;
+    
+    return res.status(200).json({
+      success: true,
+      message: 'Image uploaded successfully',
+      image_url: uniqueFilename
+    });
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error uploading image',
+      error: error.message
+    });
+  }
+});
+
+app.get('/api/get-all-delivery', async (req, res) => {
+  try {
+    const riders = await Rider.find({ isApproved: true }); // Filter by isApproved: true
+    const deliveries = riders.map(rider => ({
+      person_id: rider._id.toString(), // Use MongoDB _id as person_id
+      nameDelivery: rider.name, // Map 'name' to 'nameDelivery'
+      phone: rider.contactNumber || 'N/A', // Provide a default if phone is missing
+      image: rider.idPicture || '', // Map 'idPicture' to 'image'
+      notification_token: rider.notification_token || '' // Provide a default if missing
+    }));
+    res.json({
+      resp: true,
+      msg: 'Deliveries retrieved successfully',
+      delivery: deliveries
+    });
+  } catch (error) {
+    res.status(500).json({ resp: false, msg: 'Server error', delivery: [] });
+  }
+});
+
+app.put('/api/update-status-order-dispatched', async (req, res) => {
+  try {
+    const { idOrder, idDelivery } = req.body;
+
+    // Validate input
+    if (!idOrder || typeof idOrder !== 'string') {
+      return res.status(400).json({ error: 'Invalid order ID' });
+    }
+
+    // Optional: Validate idDelivery if required
+    if (idDelivery && typeof idDelivery !== 'string') {
+      return res.status(400).json({ error: 'Invalid delivery ID' });
+    }
+
+    // Find and update the transaction
+    const transaction = await Transaction.findOneAndUpdate(
+      { transactionId: idOrder }, // Use idOrder as transactionId
+      {
+        status: 'Cart Processing',
+        ...(idDelivery && { riderId: idDelivery })
+      },
+      { new: true }
+    );
+
+    if (!transaction) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    res.status(200).json({
+      ok: true,
+      message: 'Order status updated to dispatched',
+      data: transaction
+    });
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    res.status(500).json({ ok: false, error: 'Internal server error' });
+  }
+});
+
+app.get('/api/public/rider/:riderId/vehicle-type', async (req, res) => {
+  try {
+    const riderId = req.params.riderId;
+    
+    // Validate riderId format to prevent injection
+    if (!mongoose.Types.ObjectId.isValid(riderId)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid rider ID format' 
+      });
+    }
+    
+    const rider = await Rider.findById(riderId).select('vehicleType');
+    
+    if (!rider) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Rider not found' 
+      });
+    }
+    
+    res.status(200).json({ 
+      success: true, 
+      vehicleType: rider.vehicleType 
+    });
+  } catch (error) {
+    console.error('Error fetching rider vehicle type:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error while fetching vehicle type',
+      error: error.message
+    });
+  }
+});
+
+app.put('/api/rider/:id/online-status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isOnline } = req.body;
+
+    console.log(`Updating rider ${id} online status to: ${isOnline}`);
+    
+    // Validate ID format if using MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid rider ID format' });
+    }
+    
+    // Validate request body
+    if (typeof isOnline !== 'boolean') {
+      return res.status(400).json({ message: 'isOnline must be a boolean value' });
+    }
+    
+    // Find rider and update online status
+    const rider = await Rider.findByIdAndUpdate(
+      id,
+      { isOnline },
+      { new: true }
+    );
+    
+    if (!rider) {
+      return res.status(404).json({ message: 'Rider not found' });
+    }
+    
+    return res.status(200).json({
+      success: true,
+      message: `Rider status updated to ${isOnline ? 'online' : 'offline'}`,
+      rider: {
+        id: rider._id,
+        isOnline: rider.isOnline
+      }
+    });
+  } catch (error) {
+    console.error('Error updating rider online status:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
 });
 

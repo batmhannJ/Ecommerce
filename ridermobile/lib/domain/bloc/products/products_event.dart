@@ -12,7 +12,7 @@ class OnAddNewCategoryEvent extends ProductsEvent {
 
 
 class OnSelectCategoryEvent extends ProductsEvent {
-  final int idCategory;
+  final String idCategory;
   final String category;
 
   OnSelectCategoryEvent(this.idCategory, this.category);

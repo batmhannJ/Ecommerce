@@ -75,11 +75,20 @@ class _AddCategoryAdminScreenState extends State<AddCategoryAdminScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                if( _keyForm.currentState!.validate() ){
-                  productBloc.add(OnAddNewCategoryEvent(_nameCategoryController.text, _categoryDescriptionController.text));
+                if (_keyForm.currentState!.validate()) {
+                  // Check if name is not empty after trimming
+                  final name = _nameCategoryController.text.trim();
+                  if (name.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: TextCustom(text: 'Category name is required', color: Colors.white), 
+                      backgroundColor: Colors.red)
+                    );
+                  } else {
+                    productBloc.add(OnAddNewCategoryEvent(name, _categoryDescriptionController.text));
+                  }
                 }
               }, 
-              child: const TextCustom(text: 'Save', color: ColorsFrave.primaryColor )
+              child: const TextCustom(text: 'Save', color: ColorsFrave.primaryColor)
             )
           ],
         ),

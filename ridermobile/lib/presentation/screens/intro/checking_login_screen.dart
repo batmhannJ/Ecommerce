@@ -69,7 +69,7 @@ class _CheckingLoginScreenState extends State<CheckingLoginScreen> with TickerPr
     }
   },
       child: Scaffold(
-        backgroundColor: ColorsFrave.primaryColor,
+        backgroundColor: ColorsFrave.loadingColor,
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -84,7 +84,7 @@ class _CheckingLoginScreenState extends State<CheckingLoginScreen> with TickerPr
                     child: SizedBox(
                       height: 200,
                       width: 200,
-                      child: Image.asset('Assets/Logo/logo-white.png'),
+                      child: Image.asset('Assets/Logo/logobg.png'),
                     ),
                   ),
               ),

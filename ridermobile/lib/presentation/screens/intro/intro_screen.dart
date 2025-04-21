@@ -19,8 +19,8 @@ class IntroScreen extends StatelessWidget {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: const [
-            TextCustom(text: 'Frave ', color:  Color(0xff0C6CF2), fontWeight: FontWeight.w500, fontSize: 25),
-            TextCustom(text: 'Food', fontSize: 25, fontWeight: FontWeight.w500),
+            TextCustom(text: 'BizGo ', color:  Color(0xFFFFB701), fontWeight: FontWeight.w500, fontSize: 25),
+            TextCustom(text: 'Rider', fontSize: 25, fontWeight: FontWeight.w500),
           ],
         ),
         backgroundColor: Colors.white,
@@ -34,11 +34,11 @@ class IntroScreen extends StatelessWidget {
               padding: const EdgeInsets.all(15.0),
               height: 350,
               width: size.width,
-              child: SvgPicture.asset('assets/delivery.svg'),
+              child: Image.asset('Assets/Logo/introbg.png'),
             ),
             Column(
               children: [
-                _BtnSocial(
+                /*_BtnSocial(
                   icon: FontAwesomeIcons.google, 
                   text: 'Sign up with Google',
                   backgroundColor: Colors.white,
@@ -51,7 +51,7 @@ class IntroScreen extends StatelessWidget {
                   backgroundColor: Color(0xff3b5998),
                   textColor: Colors.white,
                 ),
-                const SizedBox(height: 15.0),
+                const SizedBox(height: 15.0),*/
                 _BtnSocial(
                   icon: FontAwesomeIcons.envelope,
                   text: 'Sign up with an Email ID',

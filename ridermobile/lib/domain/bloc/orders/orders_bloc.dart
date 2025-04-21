@@ -26,8 +26,6 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
       final resp = await ordersServices.addNewOrders(event.uidAddress, event.total, event.typePayment, event.products);
 
       if (resp.resp) {
-        // Inalis ang push notification logic
-        // Kung gusto mo ng alternatibong notification, idagdag dito
 
         emit(SuccessOrdersState());
       } else {
@@ -47,8 +45,6 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
       await Future.delayed(Duration(seconds: 1));
 
       if (resp.resp) {
-        // Inalis ang push notification logic
-        // Kung gusto mo ng alternatibong notification, idagdag dito
 
         emit(SuccessOrdersState());
       } else {

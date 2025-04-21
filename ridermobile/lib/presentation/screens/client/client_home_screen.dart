@@ -202,8 +202,25 @@ class ClientHomeScreen extends StatelessWidget {
                           itemBuilder: (context, i) => InkWell(
                             splashColor: Colors.transparent,
                             highlightColor: Colors.transparent,
-                            onTap: () => Navigator.push(
-                                context, routeFrave(page: SearchForCategoryScreen(idCategory: category[i].id, category: category[i].category))),
+                              onTap: () {
+                                // Try to parse the ID to int
+                                int categoryId;
+                                try {
+                                  categoryId = int.parse(category[i].id);
+                                } catch (e) {
+                                  // Handle parsing error
+                                  print('Error parsing category ID: ${category[i].id}');
+                                  categoryId = 0; // Default value
+                                }
+                                
+                                Navigator.push(
+                                  context, 
+                                  routeFrave(page: SearchForCategoryScreen(
+                                    idCategory: categoryId, 
+                                    category: category[i].name
+                                  ))
+                                );
+                              },
                             child: Container(
                               alignment: Alignment.center,
                               margin: const EdgeInsets.only(right: 10.0),
@@ -212,7 +229,7 @@ class ClientHomeScreen extends StatelessWidget {
                                 color: Color(0xff5469D4).withOpacity(.1),
                                 borderRadius: BorderRadius.circular(25.0),
                               ),
-                              child: TextCustom(text: category[i].category),
+                              child: TextCustom(text: category[i].name),
                             ),
                           ),
                         ),

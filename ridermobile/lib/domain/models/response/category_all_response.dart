@@ -19,21 +19,17 @@ class CategoryAllResponse {
 }
 
 class Category {
-    
-  final int id;
-  final String category;
+  final String id;
+  final String name;
   final String description;
 
-  Category({
-    required this.id,
-    required this.category,
-    required this.description,
-  });
+  Category({required this.id, required this.name, required this.description});
 
-  factory Category.fromJson(Map<String, dynamic> json) => Category(
-    id: json["id"],
-    category: json["category"],
-    description: json["description"],
-  );
-
+  factory Category.fromJson(Map<String, dynamic> json) {
+    return Category(
+      id: json['_id'] ?? '',
+      name: json['name'] ?? '',
+      description: json['description'] ?? '',
+    );
+  }
 }

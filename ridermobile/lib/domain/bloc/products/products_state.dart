@@ -3,19 +3,19 @@ part of 'products_bloc.dart';
 @immutable
 class ProductsState {
 
-  final int idCategory;
+  final String idCategory; // Changed from int to String
   final String? category;
   final List<XFile>? images;
   final String searchProduct;
 
   ProductsState({
-    this.idCategory = 0, 
+    this.idCategory = "", // Default empty string 
     this.category,
     this.images,
     this.searchProduct = ''
   });
 
-  ProductsState copyWith({ int? idCategory, String? category, List<XFile>? images, String? searchProduct })
+  ProductsState copyWith({ String? idCategory, String? category, List<XFile>? images, String? searchProduct })
     => ProductsState(
       idCategory: idCategory ?? this.idCategory,
       category: category ?? this.category,

@@ -18,92 +18,62 @@ class OrdersByStatusResponse {
   );
 }
 class OrdersResponse {
-  final String id; // Map to _id
-  final UserId userId; // Map to userId object
-  final List<Item> items;
+  final String id;
+  final String date;
+  final String name;
+  final String contact;
+  final String item;
+  final int quantity;
   final double amount;
-  final Address address;
-  final bool payment;
+  final String address;
+  final String transactionId;
   final String status;
-  final DateTime dateTime; // Map to dateTime
-  final int orderId;
-  final int deliveryId;
-  final String delivery;
-  final String deliveryImage;
-  final int clientId;
-  final String cliente;
-  final String clientImage;
-  final String clientPhone;
-  final int addressId;
-  final String street;
-  final String reference;
-  final String latitude;
-  final String longitude;
-  //final String status;
-  final String payType;
-  //final double amount;
-  final DateTime currentDate;
+  final String userId;
+  final String riderId;
+  final double markupValue;
+  final double deliveryFee;
+  final double deliveryComm;
+  final String? email; // Optional if not available
+  final String phone; // Map from contact
 
   OrdersResponse({
     required this.id,
-    required this.userId,
-    required this.items,
+    required this.date,
+    required this.name,
+    this.email,
+    required this.phone,
+    required this.contact,
+    required this.item,
+    required this.quantity,
     required this.amount,
     required this.address,
-    required this.payment,
+    required this.transactionId,
     required this.status,
-    required this.dateTime,
-    required this.orderId,
-    required this.deliveryId,
-    required this.delivery,
-    required this.deliveryImage,
-    required this.clientId,
-    required this.cliente,
-    required this.clientImage,
-    required this.clientPhone,
-    required this.addressId,
-    required this.street,
-    required this.reference,
-    required this.latitude,
-    required this.longitude,
-    //required this.status,
-    required this.payType,
-    //required this.amount,
-    required this.currentDate,
-  });factory OrdersResponse.fromJson(Map<String, dynamic> json) => OrdersResponse(
-  id: json['_id']?.toString() ?? '',
-  // Handle the case where userId might be a string, an object with just id, or a full user object
-  userId: json['userId'] != null ? UserId.fromJson(json['userId']) : UserId(id: '', name: '', phone: '', email: ''),
-  // Handle items array that might be missing
-  items: json['items'] != null 
-    ? List<Item>.from((json['items'] as List).map((item) => Item.fromJson(item))) 
-    : [],
-  // Convert numeric amount to double, with fallback to 0.0
-  amount: json['amount'] != null ? (json['amount'] as num).toDouble() : 0.0,
-  // Updated address handling using your existing Address.fromJson method
-  address: json['address'] != null ? Address.fromJson(json['address']) : Address(id: ''),
-  // Handle boolean with fallback
-  payment: json['payment'] ?? false,
-  status: json['status'] ?? '',
-  // Handle datetime with fallback
-  dateTime: json['dateTime'] != null ? DateTime.parse(json['dateTime']) : DateTime.now(),
-  orderId: json["order_id"] ?? 0,
-  deliveryId: json["delivery_id"] ?? 0,
-  delivery: json["delivery"] ?? '',
-  deliveryImage: json["deliveryImage"] ?? '',
-  clientId: json["client_id"] ?? 0,
-  cliente: json["cliente"] ?? '',
-  clientImage: json["clientImage"] ?? '',
-  clientPhone: json["clientPhone"] ?? '',
-  addressId: json["address_id"] ?? 0,
-  street: json["street"] ?? '',
-  reference: json["reference"] ?? '',
-  latitude: json["Latitude"] ?? '',
-  longitude: json["Longitude"] ?? '',
-  payType: json["pay_type"] ?? '',
-  currentDate: json["currentDate"] != null 
-    ? DateTime.parse(json["currentDate"]) 
-    : DateTime.now(),
+    required this.userId,
+    required this.riderId,
+    required this.markupValue,
+    required this.deliveryFee,
+    required this.deliveryComm,
+  });
+
+  factory OrdersResponse.fromJson(Map<String, dynamic> json) => OrdersResponse(
+  id: json["_id"] ?? '',
+  date: json["date"] ?? '',
+  name: json["name"] ?? '',
+  email: json["email"], // Already nullable
+  phone: json["phone"] ?? 'N/A',
+  contact: json["contact"] ?? '',
+  item: json["item"] ?? '',
+  quantity: json["quantity"] ?? 0,
+  amount: (json["amount"] ?? 0).toDouble(),
+  address: json["address"] ?? '',
+  transactionId: json["transactionId"] ?? '',
+  status: json["status"] ?? '',
+  userId: json["userId"] ?? '',
+  riderId: json["riderId"] ?? '',
+  markupValue: (json["markupValue"] ?? 0).toDouble(),
+  deliveryFee: (json["deliveryFee"] ?? 0).toDouble(),
+  deliveryComm: (json["deliveryComm"] ?? 0).toDouble(),
 );
 }
 class UserId {

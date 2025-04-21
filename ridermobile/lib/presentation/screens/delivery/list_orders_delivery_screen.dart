@@ -7,12 +7,9 @@ import 'package:restaurant/presentation/components/components.dart';
 import 'package:restaurant/presentation/screens/delivery/order_details_delivery_screen.dart';
 import 'package:restaurant/presentation/themes/colors_frave.dart';
 
-
 class ListOrdersDeliveryScreen extends StatelessWidget {
-
   @override
   Widget build(BuildContext context){
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -33,9 +30,9 @@ class ListOrdersDeliveryScreen extends StatelessWidget {
         ),
       ),
       body: FutureBuilder<List<OrdersResponse>>(
-        future: deliveryServices.getOrdersForDelivery('DISPATCHED'),
+        future: deliveryServices.getOrdersForDelivery('Cart Processing'),
         builder: (context, snapshot) 
-          => ( !snapshot.hasData )
+          => (!snapshot.hasData)
             ? Column(
                 children: const [
                   ShimmerFrave(),
@@ -52,14 +49,13 @@ class ListOrdersDeliveryScreen extends StatelessWidget {
 }
 
 class _ListOrdersForDelivery extends StatelessWidget {
-  
   final List<OrdersResponse> listOrdersDelivery;
 
   const _ListOrdersForDelivery({ required this.listOrdersDelivery});
 
   @override
   Widget build(BuildContext context) {
-    return ( listOrdersDelivery.length != 0 ) 
+    return (listOrdersDelivery.isNotEmpty) 
       ? ListView.builder(
           itemCount: listOrdersDelivery.length,
           itemBuilder: (_, i) 

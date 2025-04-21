@@ -41,14 +41,44 @@ class Productsdb {
     required this.categoryId
   });
 
-  factory Productsdb.fromJson(Map<String, dynamic> json) => Productsdb(
-  id: json["id"] ?? json["_id"] ?? 0,
-  nameProduct: json['nameProduct'] ?? json['name'] ?? '',
-  description: json["description"] ?? "",
-  price: (json['price'] ?? json['new_price'] ?? 0).toDouble(),
-  status: json["status"] ?? (json["available"] == true ? 1 : 0),
-  picture: json['picture'] ?? json['image'] ?? '',
-  category: json["category"] ?? "",
-  categoryId: json["category_id"] ?? json["categoryId"] ?? 0
-);
+factory Productsdb.fromJson(Map<String, dynamic> json) {
+  // Debug the incoming JSON
+  print('Processing JSON: $json');
+  
+  // Handle the ID field which could be an ObjectId
+  var id = 0;
+  if (json["id"] != null) {
+    id = json["id"] is int ? json["id"] : int.tryParse(json["id"].toString()) ?? 0;
+  } else if (json["_id"] != null) {
+    // If it's an ObjectId, handle differently
+    id = json["_id"] is Map ? 0 : int.tryParse(json["_id"].toString()) ?? 0;
+  }
+  
+  // Handle numeric fields with parsing
+  double price = 0.0;
+  if (json['price'] != null) {
+    price = json['price'] is double ? json['price'] : double.tryParse(json['price'].toString()) ?? 0.0;
+  } else if (json['new_price'] != null) {
+    price = json['new_price'] is double ? json['new_price'] : double.tryParse(json['new_price'].toString()) ?? 0.0;
+  }
+  
+  // Handle status/available conversion
+  int status = 0;
+  if (json['status'] != null) {
+    status = json['status'] is int ? json['status'] : int.tryParse(json['status'].toString()) ?? 0;
+  } else if (json['available'] != null) {
+    status = json['available'] == true ? 1 : 0;
+  }
+  
+  return Productsdb(
+    id: id,
+    nameProduct: json['nameProduct'] ?? json['name'] ?? '',
+    description: json["description"] ?? "",
+    price: price,
+    status: status,
+    picture: json['picture'] ?? json['image'] ?? '',
+    category: json["category"] ?? "",
+    categoryId: json["category_id"] ?? json["categoryId"] ?? 0
+  );
+}
 }

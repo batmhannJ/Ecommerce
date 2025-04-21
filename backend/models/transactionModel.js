@@ -10,6 +10,7 @@ const transactionSchema = new mongoose.Schema({
   address: { type: String, required: true },
   transactionId: { type: String, required: true },
   status: { type: String, required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Users' },
   userId: { type: String, required: true },
   riderId: { type: String, required: true },
   markupValue: { type: Number },

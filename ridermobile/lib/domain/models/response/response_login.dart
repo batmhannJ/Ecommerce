@@ -36,7 +36,10 @@ class User {
   final int rolId;
   final String notificationToken;
   final Address? address; // Add this
-  
+  final bool? isSeller; // Add this property
+  final String? shopName; // Add this property
+  final bool isApproved; // Add this property
+
   // Address fields
   final String country;
   final String street;
@@ -64,9 +67,16 @@ class User {
     this.municipality = '',
     this.barangay = '',
     this.zip = '',
+    this.isSeller,
+    this.shopName,
+    this.isApproved = true, // Default to true
   });
 
-  factory User.fromJson(Map<String, dynamic> json) => User(
+  factory User.fromJson(Map<String, dynamic> json) {
+  final Map<String, dynamic>? addressData = 
+      json["address"] is Map<String, dynamic> ? json["address"] : null;
+      
+  return User(
     uid: json["uid"] ?? json["_id"] ?? '',
     name: json["name"] ?? '',
     firstName: json["firstName"] ?? '',
@@ -75,17 +85,21 @@ class User {
     image: json["image"] ?? '',
     email: json["email"] ?? '',
     rolId: json["rolId"] ?? 0,
+    isApproved: json['isApproved'] ?? true,
+    isSeller: json['isSeller'] ?? false,
+    shopName: json['shopName'],
     notificationToken: json["notification_token"] ?? '',
-    address: json['address'] != null ? Address.fromJson(json['address']) : null,
+    address: addressData != null ? Address.fromJson(addressData) : null,
     // Parse address fields
-    country: json["country"] ?? json["address"]?["country"] ?? '',
-    street: json["street"] ?? json["address"]?["street"] ?? '',
-    region: json["region"] ?? json["address"]?["region"] ?? '',
-    province: json["province"] ?? json["address"]?["province"] ?? '',
-    municipality: json["municipality"] ?? json["address"]?["municipality"] ?? '',
-    barangay: json["barangay"] ?? json["address"]?["barangay"] ?? '',
-    zip: json["zip"] ?? json["address"]?["zip"] ?? '',
+    country: json["country"] ?? addressData?["country"] ?? '',
+    street: json["street"] ?? addressData?["street"] ?? '',
+    region: json["region"] ?? addressData?["region"] ?? '',
+    province: json["province"] ?? addressData?["province"] ?? '',
+    municipality: json["municipality"] ?? addressData?["municipality"] ?? '',
+    barangay: json["barangay"] ?? addressData?["barangay"] ?? '',
+    zip: json["zip"] ?? addressData?["zip"] ?? '',
   );
+}
 
   @override
   String toString() {

@@ -15,7 +15,7 @@ class BtnFrave extends StatelessWidget {
 
   const BtnFrave({
     required this.text, 
-    this.color  = const Color(0xff0C6CF2), 
+    this.color  = const Color(0xFFFFB701), 
     this.height = 50, 
     this.width  = double.infinity, 
     this.borderRadius = 8.0, 

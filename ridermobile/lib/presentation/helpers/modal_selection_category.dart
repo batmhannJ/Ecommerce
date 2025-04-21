@@ -54,8 +54,12 @@ void modalSelectionCategory(BuildContext ctx){
                         itemCount: snapshot.data!.length,
                         itemBuilder: (context, i) 
                           => InkWell(
-                            onTap: () => productBloc.add(OnSelectCategoryEvent(category[i].id, category[i].category)),
-                            child: Container(
+onTap: () {
+  // Use the ID directly as a string
+  String categoryId = category[i].id;
+  
+  productBloc.add(OnSelectCategoryEvent(categoryId, category[i].name));
+},                           child: Container(
                                 height: 40,
                                 color: Colors.white,
                                 child: Row(
@@ -72,7 +76,7 @@ void modalSelectionCategory(BuildContext ctx){
                                           ),
                                         ),
                                         const SizedBox(width: 10.0),
-                                        TextCustom(text: category![i].category)
+                                        TextCustom(text: category![i].name)
                                       ],
                                     ),
                                     BlocBuilder<ProductsBloc, ProductsState>(

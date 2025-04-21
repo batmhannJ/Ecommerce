@@ -21,7 +21,7 @@ class GetAllDeliveryResponse {
 
 class Delivery {
 
-  final int personId;
+  final String personId;
   final String nameDelivery;
   final String phone;
   final String image;

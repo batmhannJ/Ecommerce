@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:restaurant/data/local_secure/secure_storage.dart';
 import 'package:restaurant/domain/bloc/blocs.dart';
+import 'package:restaurant/domain/models/response/orders_by_status_response.dart';
 import 'package:restaurant/presentation/components/components.dart';
 import 'package:restaurant/presentation/helpers/helpers.dart';
 import 'package:restaurant/presentation/screens/profile/edit_Prodile_screen.dart';
@@ -844,7 +846,7 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
           isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not load vehicle information'), backgroundColor: Colors.red),
+          const SnackBar(content: Text('Could not load vehicle information'), backgroundColor: Colors.red),
         );
       }
     } catch (e) {
@@ -894,26 +896,26 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Start Shift'),
+        title: const Text('Start Shift'),
         actions: [
           IconButton(
-            icon: Icon(Icons.close),
+            icon: const Icon(Icons.close),
             onPressed: () => Navigator.pop(context),
           ),
         ],
         automaticallyImplyLeading: false,
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator(color: Colors.yellowbg))
+          ? const Center(child: CircularProgressIndicator(color: Colors.yellowbg))
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Vehicle Type', style: TextStyle(color: Colors.grey[700])),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Container(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.yellowbg.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
@@ -926,10 +928,10 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
                           color: Colors.yellowbg,
                           size: 32,
                         ),
-                        SizedBox(width: 12),
+                        const SizedBox(width: 12),
                         Text(
                           vehicleType ?? 'Unknown',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.yellowbg,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -938,26 +940,26 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 16),
-                  Divider(),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const SizedBox(height: 16),
                   Text('Bag Type', style: TextStyle(color: Colors.grey[700])),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
                         _buildBagOption('Standard box', Icons.work),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         _buildBagOption('Large box', Icons.cases),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         _buildBagOption('Backpack', Icons.backpack),
                       ],
                     ),
                   ),
-                  SizedBox(height: 16),
-                  Divider(),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const SizedBox(height: 16),
                   Row(
                     children: [
                       Checkbox(
@@ -969,15 +971,15 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
                         },
                         activeColor: Colors.yellowbg,
                       ),
-                      Expanded(child: Text('I agree to the Privacy Policy')),
-                      Icon(Icons.launch, size: 16, color: Colors.yellowbg),
+                      const Expanded(child: Text('I agree to the Privacy Policy')),
+                      const Icon(Icons.launch, size: 16, color: Colors.yellowbg),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('I am available to extend my shift'),
+                      const Text('I am available to extend my shift'),
                       Switch(
                         value: availableForExtension,
                         onChanged: (value) {
@@ -989,22 +991,22 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
                       ),
                     ],
                   ),
-                  Spacer(),
+                  const Spacer(),
                   ElevatedButton(
                     onPressed: agreeToPrivacyPolicy ? _handleStartShift : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.yellowbg,
-                      minimumSize: Size(double.infinity, 50),
+                      minimumSize: const Size(double.infinity, 50),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: Text(
+                    child: const Text(
                       'Start',
                       style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),
@@ -1021,7 +1023,7 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
       },
       child: Container(
         width: 100,
-        padding: EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isSelected ? Colors.yellowbg.withOpacity(0.1) : Colors.grey[200],
           borderRadius: BorderRadius.circular(8),
@@ -1031,7 +1033,7 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, color: isSelected ? Colors.yellowbg : Colors.grey[700], size: 32),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(type, style: TextStyle(color: isSelected ? Colors.yellowbg : Colors.grey[700])),
           ],
         ),
@@ -1071,7 +1073,7 @@ class ShiftProvider with ChangeNotifier {
 
     _updateOnlineStatus(true);
 
-    Future.delayed(Duration(milliseconds: 100), () {
+    Future.delayed(const Duration(milliseconds: 100), () {
       print("ShiftProvider: Forcing additional notification");
       notifyListeners();
     });
@@ -1151,12 +1153,483 @@ class ShiftProvider with ChangeNotifier {
   }
 }
 
-class DeliveriesScreen extends StatelessWidget {
+class DeliveriesScreen extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return Center(child: Text('Deliveries Screen'));
+  _DeliveriesScreenState createState() => _DeliveriesScreenState();
+}
+
+class _DeliveriesScreenState extends State<DeliveriesScreen> {
+  List<OrdersResponse> pendingOrders = [];
+  bool isLoading = true;
+  String? riderId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRiderInfo();
+  }
+
+  Future<void> _loadRiderInfo() async {
+    try {
+      final riderId = await secureStorage.readUserId();
+
+      
+      if (riderId != null) {
+        await fetchPendingOrders();
+      }
+    } catch (e) {
+      print('Error loading rider info: $e');
+    }
+  }
+
+  Future<void> fetchPendingOrders() async {
+  setState(() {
+    isLoading = true;
+  });
+
+  try {
+    // Fetch orders with status "CART_PROCESSING"
+    final response = await http.get(
+      Uri.parse('http://localhost:4000/api/get-orders-by-status/Cart%20Processing'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      
+      final responseData = json.decode(response.body);
+      print('API Response: $responseData'); // Debug log
+      final ordersResponse = OrdersByStatusResponse.fromJson(json.decode(response.body));
+      
+      if (ordersResponse.resp) {
+        // Filter orders that haven't been assigned to any rider yet
+        final unassignedOrders = ordersResponse.ordersResponse
+            .where((order) => order.riderId.isEmpty)
+            .toList();
+        
+        // For each order, fetch product and seller information
+        final List<OrdersResponse> enrichedOrders = [];
+        for (final order in unassignedOrders) {
+          try {
+            // Fetch product and seller details
+            final detailsResponse = await http.get(
+              Uri.parse('http://localhost:4000/api/get-details-order-by-id/${order.transactionId}'),
+              headers: {'Content-Type': 'application/json'},
+            );
+            
+            if (detailsResponse.statusCode == 200) {
+              final detailsData = json.decode(detailsResponse.body);
+              if (detailsData is List && detailsData.isNotEmpty) {
+                final productDetails = detailsData[0];
+                
+                // If sellerId is available in the details, fetch seller information
+                if (productDetails['sellerId'] != null) {
+                  final sellerResponse = await http.get(
+                    Uri.parse('http://localhost:4000/api/seller/${productDetails['sellerId']}'),
+                    headers: {'Content-Type': 'application/json'},
+                  );
+                  
+                  if (sellerResponse.statusCode == 200) {
+                    final sellerData = json.decode(sellerResponse.body);
+                    
+                    // Create a new order with seller information
+                    final enrichedOrder = OrdersResponse(
+                      id: order.id,
+                      date: order.date,
+                      name: order.name,
+                      contact: order.contact,
+                      item: order.item,
+                      quantity: order.quantity,
+                      amount: order.amount,
+                      address: order.address,
+                      transactionId: order.transactionId,
+                      status: order.status,
+                      userId: order.userId,
+                      riderId: order.riderId,
+                      markupValue: order.markupValue,
+                      deliveryFee: order.deliveryFee,
+                      deliveryComm: order.deliveryComm,
+                      sellerName: sellerData['name'] ?? '',
+                      shopName: sellerData['shopName'] ?? '',
+                      businessLocation: sellerData['businessLocation'] ?? '',
+                      sellerPhone: sellerData['phone'] ?? '',
+                    );
+                    
+                    enrichedOrders.add(enrichedOrder);
+                  } else {
+                    enrichedOrders.add(order);
+                  }
+                } else {
+                  enrichedOrders.add(order);
+                }
+              } else {
+                enrichedOrders.add(order);
+              }
+            } else {
+              enrichedOrders.add(order);
+            }
+          } catch (e) {
+            print('Error fetching details for order ${order.id}: $e');
+            enrichedOrders.add(order);
+          }
+        }
+        
+        setState(() {
+          pendingOrders = enrichedOrders;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        print('API Error: ${ordersResponse.msg}');
+      }
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      print('Failed to load pending orders: ${response.statusCode}');
+    }
+  } catch (e) {
+    setState(() {
+      isLoading = false;
+    });
+    print('Error fetching pending orders: $e');
   }
 }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Deliveries'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: fetchPendingOrders,
+          )
+        ],
+      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : pendingOrders.isEmpty
+              ? const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.delivery_dining, size: 80, color: Colors.grey),
+                      SizedBox(height: 16),
+                      Text(
+                        'No pending orders available',
+                        style: TextStyle(fontSize: 18, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: pendingOrders.length,
+                  itemBuilder: (context, index) {
+                    return NewOrderCard(
+                      order: pendingOrders[index],
+                      onAccept: () => _acceptOrder(pendingOrders[index].id),
+                      onDecline: () => _declineOrder(pendingOrders[index].id),
+                    );
+                  },
+                ),
+    );
+  }
+
+  Future<void> _acceptOrder(String orderId) async {
+    try {
+      final response = await http.patch(
+        Uri.parse('http://localhost:4000/api/orders/assign-rider'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'orderId': orderId,
+          'riderId': riderId,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        // Order accepted successfully
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Order accepted!')),
+        );
+        await fetchPendingOrders(); // Refresh the orders list
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to accept order. Please try again.')),
+        );
+      }
+    } catch (e) {
+      print('Error accepting order: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('An error occurred. Please try again.')),
+      );
+    }
+  }
+
+  Future<void> _declineOrder(String orderId) async {
+    // Remove the order from local list only, since declining just means the rider won't take it
+    setState(() {
+      pendingOrders.removeWhere((order) => order.id == orderId);
+    });
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Order declined')),
+    );
+  }
+}
+class NewOrderCard extends StatelessWidget {
+  final OrdersResponse order;
+  final VoidCallback onAccept;
+  final VoidCallback onDecline;
+
+  const NewOrderCard({
+    Key? key,
+    required this.order,
+    required this.onAccept,
+    required this.onDecline,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final DateFormat formatter = DateFormat('MMM d, yyyy');
+    String formattedDate = '';
+    
+    try {
+      final DateTime date = DateTime.parse(order.date);
+      formattedDate = formatter.format(date);
+    } catch (e) {
+      formattedDate = order.date;
+    }
+    
+    // For demonstration, we'll use fixed locations based on address
+    // In a real application, you would get actual coordinates from your backend
+    const LatLng pickupLocation = LatLng(14.5995, 120.9842); // Example location
+    const LatLng dropoffLocation = LatLng(14.6091, 120.9976); // Example location
+    
+    // Get seller information or use a default value
+    final String shopDisplay = order.shopName.isNotEmpty 
+        ? order.shopName 
+        : "Shop information not available";
+    
+    final String locationDisplay = order.businessLocation.isNotEmpty
+        ? order.businessLocation
+        : "Location not available";
+    
+    return Card(
+      margin: const EdgeInsets.all(12),
+      elevation: 3,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'New Order',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                TextButton(
+                  onPressed: onDecline,
+                  child: const Text(
+                    'Decline',
+                    style: TextStyle(
+                      color: Colors.pink,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            height: 150,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: LatLng(
+                    (pickupLocation.latitude + dropoffLocation.latitude) / 2,
+                    (pickupLocation.longitude + dropoffLocation.longitude) / 2,
+                  ),
+                  zoom: 13.0,
+                ),
+                markers: {
+                  Marker(
+                    markerId: const MarkerId('pickup'),
+                    position: pickupLocation,
+                    infoWindow: const InfoWindow(title: 'Pickup'),
+                    icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+                  ),
+                  Marker(
+                    markerId: const MarkerId('dropoff'),
+                    position: dropoffLocation,
+                    infoWindow: const InfoWindow(title: 'Drop-off'),
+                    icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+                  ),
+                },
+                myLocationEnabled: false,
+                zoomControlsEnabled: false,
+                mapToolbarEnabled: false,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Delivery Details',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Icons.store, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Pickup', style: TextStyle(color: Colors.grey)),
+                          Text(shopDisplay),
+                          if (order.businessLocation.isNotEmpty)
+                            Text(
+                              locationDisplay,
+                              style: const TextStyle(fontSize: 12, color: Colors.grey),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const Text('1 min'),
+                  ],
+                ),
+                const Divider(height: 24),
+                Row(
+                  children: [
+                    const Icon(Icons.location_on, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Drop-off', style: TextStyle(color: Colors.grey)),
+                          Text(order.address),
+                        ],
+                      ),
+                    ),
+                    const Text('7 mins'),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  width: double.infinity,
+                  height: 1,
+                  color: Colors.grey.shade300,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'You will earn ',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      Text(
+                        '₱ ${order.deliveryComm} ',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: onAccept,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text(
+                      'Accept Order',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Order details summary
+                ExpansionTile(
+                  title: const Text('Order Summary'),
+                  children: [
+                    ListTile(
+                      title: const Text('Customer'),
+                      subtitle: Text(order.name),
+                      leading: const Icon(Icons.person),
+                    ),
+                    ListTile(
+                      title: const Text('Contact'),
+                      subtitle: Text(order.contact),
+                      leading: const Icon(Icons.phone),
+                    ),
+                    if (order.sellerName.isNotEmpty)
+                      ListTile(
+                        title: const Text('Seller'),
+                        subtitle: Text(order.sellerName),
+                        leading: const Icon(Icons.business),
+                      ),
+                    if (order.sellerPhone.isNotEmpty)
+                      ListTile(
+                        title: const Text('Seller Contact'),
+                        subtitle: Text(order.sellerPhone),
+                        leading: const Icon(Icons.phone),
+                      ),
+                    ListTile(
+                      title: const Text('Item'),
+                      subtitle: Text(order.item),
+                      leading: const Icon(Icons.shopping_bag),
+                    ),
+                    ListTile(
+                      title: const Text('Quantity'),
+                      subtitle: Text('${order.quantity}'),
+                      leading: const Icon(Icons.format_list_numbered),
+                    ),
+                    ListTile(
+                      title: const Text('Amount'),
+                      subtitle: Text('₱${order.amount.toStringAsFixed(2)}'),
+                      leading: const Icon(Icons.attach_money),
+                    ),
+                    ListTile(
+                      title: const Text('Delivery Fee'),
+                      subtitle: Text('₱${order.deliveryFee.toStringAsFixed(2)}'),
+                      leading: const Icon(Icons.delivery_dining),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 
 class MapScreen extends StatefulWidget {
   @override
@@ -1179,7 +1652,7 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     // Slight delay to ensure widgets are properly initialized before accessing location
-    Future.delayed(Duration(milliseconds: 300), () {
+    Future.delayed(const Duration(milliseconds: 300), () {
       _initializeLocation();
     });
   }
@@ -1229,7 +1702,7 @@ class _MapScreenState extends State<MapScreen> {
       try {
         _currentPosition = await geo.Geolocator.getCurrentPosition(
           desiredAccuracy: geo.LocationAccuracy.high
-        ).timeout(Duration(seconds: 20), onTimeout: () async {
+        ).timeout(const Duration(seconds: 20), onTimeout: () async {
           // Fallback to last known position if current position times out
           final lastPosition = await geo.Geolocator.getLastKnownPosition();
           if (lastPosition != null) {
@@ -1242,7 +1715,7 @@ class _MapScreenState extends State<MapScreen> {
         // Try with lower accuracy if high accuracy fails
         _currentPosition = await geo.Geolocator.getCurrentPosition(
           desiredAccuracy: geo.LocationAccuracy.low
-        ).timeout(Duration(seconds: 10));
+        ).timeout(const Duration(seconds: 10));
       }
       
       // Set up location stream ONLY if we successfully got the initial position
@@ -1334,9 +1807,9 @@ class _MapScreenState extends State<MapScreen> {
       _markers.clear();
       _markers.add(
         Marker(
-          markerId: MarkerId('rider'),
+          markerId: const MarkerId('rider'),
           position: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-          infoWindow: InfoWindow(title: 'Your Current Location'),
+          infoWindow: const InfoWindow(title: 'Your Current Location'),
           icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
         )
       );
@@ -1350,7 +1823,7 @@ class _MapScreenState extends State<MapScreen> {
         // For web, try to use a free geocoding API service
         final response = await http.get(
           Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=10')
-        ).timeout(Duration(seconds: 5));
+        ).timeout(const Duration(seconds: 5));
         
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
@@ -1441,7 +1914,7 @@ class _MapScreenState extends State<MapScreen> {
         setState(() {
           _polygons.add(
             Polygon(
-              polygonId: PolygonId('municipality_boundary'),
+              polygonId: const PolygonId('municipality_boundary'),
               points: boundaryPoints,
               fillColor: Colors.blue.withOpacity(0.3),
               strokeColor: Colors.blue,
@@ -1459,7 +1932,7 @@ class _MapScreenState extends State<MapScreen> {
   void _addDefaultBoundary() {
     if (_currentPosition == null) {
       // If we don't have location, use default Philippines coordinates
-      LatLng defaultPosition = LatLng(15.4875, 121.1053);
+      LatLng defaultPosition = const LatLng(15.4875, 121.1053);
       _addBoundaryFromCenter(defaultPosition, 3.0);
     } else {
       // Use current location with a default radius
@@ -1483,7 +1956,7 @@ class _MapScreenState extends State<MapScreen> {
         _polygons.clear();
         _polygons.add(
           Polygon(
-            polygonId: PolygonId('default_boundary'),
+            polygonId: const PolygonId('default_boundary'),
             points: boundaryPoints,
             fillColor: Colors.blue.withOpacity(0.3),
             strokeColor: Colors.blue,
@@ -1502,15 +1975,15 @@ class _MapScreenState extends State<MapScreen> {
       _mapInitialized = true;
       
       // Fallback to default position
-      final LatLng defaultPosition = LatLng(15.4875, 121.1053); // Philippines
+      const LatLng defaultPosition = LatLng(15.4875, 121.1053); // Philippines
       
       // Clear markers and add default marker
       _markers.clear();
       _markers.add(
         Marker(
-          markerId: MarkerId('default'),
+          markerId: const MarkerId('default'),
           position: defaultPosition,
-          infoWindow: InfoWindow(title: 'Default Location')
+          infoWindow: const InfoWindow(title: 'Default Location')
         )
       );
       
@@ -1579,10 +2052,10 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Rider Map'),
+        title: const Text('Rider Map'),
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: _refreshLocation,
           ),
         ],
@@ -1593,12 +2066,12 @@ class _MapScreenState extends State<MapScreen> {
             children: [
               Expanded(
                 child: _isLoading 
-                  ? Center(child: CircularProgressIndicator()) 
+                  ? const Center(child: CircularProgressIndicator()) 
                   : GoogleMap(
                       initialCameraPosition: CameraPosition(
                         target: _currentPosition != null
                             ? LatLng(_currentPosition!.latitude, _currentPosition!.longitude)
-                            : LatLng(15.4875, 121.1053), // Default Philippines
+                            : const LatLng(15.4875, 121.1053), // Default Philippines
                         zoom: 14,
                       ),
                       markers: _markers,
@@ -1625,16 +2098,16 @@ class _MapScreenState extends State<MapScreen> {
                     ),
               ),
               Container(
-                padding: EdgeInsets.all(12),
+                padding: const EdgeInsets.all(12),
                 color: Colors.blue.shade100,
                 width: double.infinity,
                 child: Text(
                   'Delivery Area: ${_currentMunicipality ?? "Loading..."}',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
               ),
-              if (kIsWeb)
+              /*if (kIsWeb)
                 Container(
                   padding: EdgeInsets.all(8),
                   color: Colors.amber.shade100,
@@ -1644,7 +2117,7 @@ class _MapScreenState extends State<MapScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
-                ),
+                ),*/
             ],
           ),
           if (!_isLoading && _currentPosition == null)
@@ -1653,14 +2126,14 @@ class _MapScreenState extends State<MapScreen> {
               left: 0,
               right: 0,
               child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 20),
-                padding: EdgeInsets.all(12),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.red.shade100,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.red),
                 ),
-                child: Text(
+                child: const Text(
                   'Location access is required. Please enable location services and try again.',
                   style: TextStyle(fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
@@ -1671,8 +2144,8 @@ class _MapScreenState extends State<MapScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _refreshLocation,
-        child: Icon(Icons.my_location),
-        backgroundColor: Colors.blue,
+        child: const Icon(Icons.my_location),
+        backgroundColor: Colors.yellowbg,
       ),
     );
   }
@@ -1681,13 +2154,13 @@ class _MapScreenState extends State<MapScreen> {
 class HistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('History Screen'));
+    return const Center(child: Text('History Screen'));
   }
 }
 
 class WalletScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('Wallet Screen'));
+    return const Center(child: Text('Wallet Screen'));
   }
 }

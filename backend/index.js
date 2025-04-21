@@ -2581,49 +2581,6 @@ app.get("/api/user-details/:userId", async (req, res) => {
     const userId = req.params.userId;
     console.log("Fetching user details for ID:", userId);
     
-    // Try to find in Users collection first
-    let user = await Users.findById(userId);
-    if (user) {
-      console.log("User found in Users collection:", user.name);
-      // Split the name into first and last name components
-      const nameParts = user.name.split(' ');
-      const firstName = nameParts[0];
-      const lastName = nameParts.slice(1).join(' ');
-      
-      return res.json({
-        resp: true,
-        msg: "User details retrieved successfully",
-        user: {
-          uid: user._id,
-          firstName: firstName,
-          lastName: lastName,
-          email: user.email,
-          phone: user.phone || '',
-          image: user.image || '',
-          rolId: 1,
-          address: user.address ? {
-            country: user.address.country || '',
-            street: user.address.street || '',
-            region: user.address.region || '',
-            province: user.address.province || '',
-            municipality: user.address.municipality || '',
-            barangay: user.address.barangay || '',
-            zip: user.address.zip || ''
-          } : {
-            country: '',
-            street: '',
-            region: '',
-            province: '',
-            municipality: '',
-            barangay: '',
-            zip: ''
-          },
-          notificationToken: ''
-        },
-        token: req.header('xx-token') || ''
-      });
-    }
-    
     // If not found in Users, try Sellers
     let seller = await Seller.findById(userId);
     if (seller) {
@@ -3139,87 +3096,59 @@ app.get('/api/client-order', async (req, res) => {
   }
 });
 
-/*app.get('/api/get-details-order-by-id/:id', async (req, res) => {
-  try {
-    const orderId = req.params.id;
-
-    if (!mongoose.Types.ObjectId.isValid(orderId)) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Invalid order ID',
-      });
-    }
-
-    const orders = await order.findById(orderId);
-
-    if (!orders) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Order not found',
-      });
-    }
-
-    const details = orders.items.map(item => ({
-      nameProduct: item.name,
-      quantity: item.quantity,
-      total: item.price * item.quantity,
-      picture: item.image || 'without-image.png',
-    }));
-
-    res.status(200).json({
-      status: 'success',
-      message: 'Order details retrieved successfully',
-      data: details,
-    });
-  } catch (error) {
-    console.error('Error fetching order details:', error);
-    res.status(500).json({
-      status: 'error',
-      message: 'Failed to fetch order details: ' + error.message,
-    });
-  }
-});*/
 
 app.get('/api/get-details-order-by-id/:transactionId', async (req, res) => {
   try {
     const orderId = req.params.transactionId;
-
-    // Validate ObjectID
-    /*if (!mongoose.Types.ObjectId.isValid(orderId)) {
-      return res.status(400).json({ error: 'Invalid order ID' });
-    }*/
-   
-      if (!orderId || typeof orderId !== 'string') {
-        return res.status(400).json({ error: 'Invalid transaction ID' });
-      }
-
-      console.log('Searching for transactionId:', orderId);
-
+    
+    if (!orderId || typeof orderId !== 'string') {
+      return res.status(400).json({ error: 'Invalid transaction ID' });
+    }
+    
+    console.log('Searching for transactionId:', orderId);
+    
     // Find transaction by ID
     const transaction = await Transaction.findOne({ transactionId: orderId });
-
+    
     if (!transaction) {
       return res.status(404).json({ error: 'Order not found' });
     }
-
+    
     // Find the product associated with the transaction
     const product = await Product.findOne({ name: transaction.item });
-
+    
     if (!product) {
       return res.status(404).json({ error: 'Product not found' });
     }
-
+    
+    // Find seller information if available
+    let sellerInfo = {};
+    if (product.sellerId) {
+      const seller = await Seller.findById(product.sellerId);
+      if (seller) {
+        sellerInfo = {
+          sellerId: seller._id,
+          sellerName: seller.name,
+          shopName: seller.shopName || '',
+          businessLocation: seller.businessLocation || '',
+          sellerPhone: seller.phone || ''
+        };
+      }
+    }
+    
     // Format response to match the DetailsOrder model expected by your Flutter app
     const orderDetails = [{
       id: product._id.toString(),
       nameProduct: product.name,
-      picture: product.image, // Assuming this is the image path
+      picture: product.image,
       quantity: transaction.quantity,
       total: transaction.amount.toFixed(2),
-      price: product.markup_price || product.new_price
+      price: product.markup_price || product.new_price,
+      ...sellerInfo
     }];
-
+    
     res.status(200).json(orderDetails);
+    
   } catch (error) {
     console.error('Error fetching order details:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -3252,11 +3181,15 @@ app.get("/api/get-orders-by-status/:status", async (req, res) => {
       id: transaction._id.toString(),
       name: transaction.name || 'Unknown',
       email: transaction.userId ? transaction.userId.email : 'N/A', // Optional
-      phone: transaction.contact || 'N/A',
+      contact: transaction.contact || 'N/A',
       address: transaction.address || 'N/A',
       date: transaction.date.toISOString(),
       amount: transaction.amount,
       status: transaction.status,
+      item: transaction.item,
+      quantity: transaction.quantity,
+      deliveryFee: transaction.deliveryFee,
+      deliveryComm: transaction.deliveryFee - transaction.deliveryComm,
       transactionId: transaction.transactionId
     }));
 
@@ -3641,6 +3574,38 @@ app.put('/api/rider/:id/online-status', async (req, res) => {
   } catch (error) {
     console.error('Error updating rider online status:', error);
     return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/seller/:sellerId', async (req, res) => {
+  try {
+    const sellerId = req.params.sellerId;
+    
+    // Validate ObjectID
+    if (!mongoose.Types.ObjectId.isValid(sellerId)) {
+      return res.status(400).json({ error: 'Invalid seller ID' });
+    }
+    
+    // Find seller by ID
+    const seller = await Seller.findById(sellerId);
+    
+    if (!seller) {
+      return res.status(404).json({ error: 'Seller not found' });
+    }
+    
+    // Return seller information
+    res.json({
+      id: seller._id,
+      name: seller.name,
+      shopName: seller.shopName || '',
+      businessLocation: seller.businessLocation || '',
+      phone: seller.phone || '',
+      email: seller.email
+    });
+    
+  } catch (error) {
+    console.error('Error fetching seller:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 

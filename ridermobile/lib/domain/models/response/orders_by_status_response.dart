@@ -34,14 +34,19 @@ class OrdersResponse {
   final double deliveryFee;
   final double deliveryComm;
   final String? email; // Optional if not available
-  final String phone; // Map from contact
+  final String? phone; // Map from contact
+  
+  final String sellerName;
+  final String shopName;
+  final String businessLocation;
+  final String sellerPhone;
 
   OrdersResponse({
     required this.id,
     required this.date,
     required this.name,
     this.email,
-    required this.phone,
+    this.phone,
     required this.contact,
     required this.item,
     required this.quantity,
@@ -54,6 +59,11 @@ class OrdersResponse {
     required this.markupValue,
     required this.deliveryFee,
     required this.deliveryComm,
+    
+    this.sellerName = '',
+    this.shopName = '',
+    this.businessLocation = '',
+    this.sellerPhone = '',
   });
 
   factory OrdersResponse.fromJson(Map<String, dynamic> json) => OrdersResponse(
@@ -74,6 +84,10 @@ class OrdersResponse {
   markupValue: (json["markupValue"] ?? 0).toDouble(),
   deliveryFee: (json["deliveryFee"] ?? 0).toDouble(),
   deliveryComm: (json["deliveryComm"] ?? 0).toDouble(),
+  sellerName: json['sellerName'] ?? '',
+  shopName: json['shopName'] ?? '',
+  businessLocation: json['businessLocation'] ?? '',
+  sellerPhone: json['sellerPhone'] ?? '',
 );
 }
 class UserId {

@@ -1301,7 +1301,7 @@ class _DeliveriesScreenState extends State<DeliveriesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      /*appBar: AppBar(
         title: const Text('Deliveries'),
         actions: [
           IconButton(
@@ -1309,7 +1309,7 @@ class _DeliveriesScreenState extends State<DeliveriesScreen> {
             onPressed: fetchPendingOrders,
           )
         ],
-      ),
+      ),*/
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : pendingOrders.isEmpty
@@ -1595,7 +1595,7 @@ Future<void> _initializeMapData() async {
                   child: const Text(
                     'Decline',
                     style: TextStyle(
-                      color: Colors.pink,
+                      color: Colors.red,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -1712,7 +1712,7 @@ Future<void> _initializeMapData() async {
                   child: ElevatedButton(
                     onPressed: widget.onAccept,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purple,
+                      backgroundColor: Colors.yellowbg,
                       foregroundColor: Colors.white,
                     ),
                     child: const Text(

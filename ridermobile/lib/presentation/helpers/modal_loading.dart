@@ -18,8 +18,8 @@ void modalLoading(BuildContext context){
             children: [
               Row(
                 children: const [
-                  TextCustom(text: 'Frave ', color: ColorsFrave.primaryColor, fontWeight: FontWeight.w500 ),
-                  TextCustom(text: 'Food', fontWeight: FontWeight.w500),
+                  TextCustom(text: 'BizGo ', color: ColorsFrave.loadingColor, fontWeight: FontWeight.w500 ),
+                  //TextCustom(text: 'Food', fontWeight: FontWeight.w500),
                 ],
               ),
               const Divider(),

@@ -46,20 +46,46 @@ class IntroScreen extends StatelessWidget {
                       textColor: Colors.white,
                       onPressed: () => Navigator.push(context, routeFrave(page: RegisterClientScreen())),
                       gradient: const LinearGradient(
-                        colors: [Color.fromARGB(255, 211, 124, 1), Color(0xFFFFB701)],
+                        colors: [Color.fromARGB(255, 202, 119, 4), Color.fromARGB(255, 145, 104, 2)],
                       ),
                     ),
-                    const SizedBox(height: 15.0), // Reduced top margin
+                    const SizedBox(height: 15.0),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: BtnFrave(
-                        text: 'Login',
-                        fontWeight: FontWeight.w500,
-                        borderRadius: 12.0,
-                        height: 50,
-                        fontSize: 20,
-                        color: const Color(0xFF3F51B5), // Indigo color
-                        onPressed: () => Navigator.push(context, routeFrave(page: LoginScreen())),
+                      child: GestureDetector(
+                        onTap: () => Navigator.push(context, routeFrave(page: LoginScreen())),
+                        child: Container(
+                          height: 50,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF3F51B5),
+                            borderRadius: BorderRadius.circular(12.0),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3),
+                                blurRadius: 10.0,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                FontAwesomeIcons.rightToBracket,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 10.0),
+                              TextCustom(
+                                text: 'Login',
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 50.0),
@@ -74,7 +100,7 @@ class IntroScreen extends StatelessWidget {
   }
 }
 
-// Modified _BtnSocial with new modern design and elevated effect
+// Modified _BtnSocial with centered content
 class _BtnSocial extends StatefulWidget {
   final IconData icon;
   final String text;
@@ -135,14 +161,14 @@ class __BtnSocialState extends State<_BtnSocial> {
               ],
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(width: isSmallScreen ? 20.0 : 30.0),
                 Icon(
                   widget.icon,
                   color: widget.isBorder ? Colors.black87 : widget.textColor,
                   size: isSmallScreen ? 18 : 20,
                 ),
-                SizedBox(width: isSmallScreen ? 15.0 : 20.0),
+                const SizedBox(width: 10.0),
                 TextCustom(
                   text: widget.text,
                   color: widget.textColor,

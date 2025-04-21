@@ -1,93 +1,478 @@
-.seller-management-container {
-  margin-top: 20px;
-  padding: 20px;
-  width: 1000px;
-  height: 670px; /* Set the desired height */
-  overflow-y: auto; /* Allow vertical scrolling */
-  border-radius: 10px; /* Optional: Round the corners */
-  background-color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Add shadow effect */
-  margin-left: 30px;
+/* Container styling */
+.seller-request-container {
+  max-width: 1300px;
+  margin: 20px auto;
+  padding: 30px;
+  background: linear-gradient(135deg, #ffffff, #f1f5f9);
+  border-radius: 24px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  min-height: 600px;
+  margin-left: 50px;
+  margin-right: 24px;
+  overflow: hidden; /* Prevent container-level scrolling */
 }
 
-.seller-management-container h1 {
-  font-size: 24px;
+/* Heading */
+.seller-request-container h1 {
+  font-size: 32px;
+  font-weight: 900;
+  color: #111827;
+  text-align: center;
+  margin-bottom: 10px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  background: linear-gradient(to right, #3b82f6, #10b981);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Search bar container */
+.search-bar-container {
   margin-bottom: 20px;
-  color: #333;
-  text-align: center; /* Center the heading */
+  max-width: 90%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.seller-table {
-  width: 100%;
-  border-collapse: collapse;
+/* Card grid with vertical scroll */
+.seller-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+  max-height: 470px; /* Limit height to enable vertical scrolling */
+  overflow-y: auto; /* Enable vertical scrollbar for card grid */
+  scroll-behavior: smooth;
+  padding-right: 10px; /* Space for scrollbar */
+}
+
+/* Custom scrollbar */
+.seller-card-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.seller-card-grid::-webkit-scrollbar-track {
+  background: #e5e7eb;
+  border-radius: 4px;
+}
+
+.seller-card-grid::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border-radius: 4px;
+}
+
+.seller-card-grid::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
+}
+
+/* Individual card */
+.seller-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  padding: 24px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: slideIn 0.6s ease forwards;
+  border: 1px solid #e5e7eb;
+}
+
+.seller-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.seller-card.expanded .card-content {
+  max-height: 600px;
+}
+
+/* Card header */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 12px;
+}
+
+.card-number {
+  background: #3b82f6;
+  color: white;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.card-header h3 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #111827;
+  flex: 1;
+  margin: 0 20px;
+}
+
+.toggle-button {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.toggle-button:hover {
+  background: linear-gradient(135deg, #4b5563, #374151);
+  transform: scale(1.05);
+}
+
+/* Card content */
+.card-content {
+  max-height: 180px;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card-content p {
+  margin: 0;
+  font-size: 15px;
+  color: #374151;
+  line-height: 1.6;
+}
+
+.card-content p strong {
+  color: #111827;
+  font-weight: 700;
+}
+
+/* Card images */
+.card-images {
+  display: flex;
+  gap: 20px;
+  flex-wrap: nowrap;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+}
+
+.image-wrapper {
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+.seller-image {
+  width: 120px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+}
+
+.seller-image:hover {
+  transform: scale(1.15);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  opacity: 0.9;
+}
+
+.image-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4b5563;
+  margin-top: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Image overlay for zoom effect */
+.image-wrapper::before {
+  content: '\f002'; /* FontAwesome magnifying glass icon */
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ffffff;
+  font-size: 20px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.image-wrapper:hover::before {
+  opacity: 0.7;
+}
+
+.image-wrapper:hover .seller-image {
+  filter: brightness(0.75);
+}
+
+/* Card actions */
+.card-actions {
   margin-top: 20px;
-}
-
-.seller-table th,
-.seller-table td {
-  border: 1px solid #ddd;
-  padding: 12px;
-  text-align: left;
-}
-
-.seller-table th {
-  background-color: #f4f4f4;
-  font-weight: bold;
-  color: #333;
-}
-
-.seller-table td {
-  color: #333;
-}
-
-.seller-table img {
-  width: 100px;
-  height: auto; /* Maintain aspect ratio */
-  border-radius: 4px; /* Optional: Rounded corners for images */
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
 }
 
 .action-button {
+  padding: 10px 20px;
   border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
-  font-size: 14px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
-  margin-right: 8px;
-  font-weight: 600;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
 }
 
 .action-button.approve {
-  background-color: #28a745; /* Green for approve */
+  background: #10b981;
   color: white;
+  box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3);
 }
 
 .action-button.approve:hover {
-  background-color: #218838; /* Darker green on hover */
+  background: #059669;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 14px rgba(16, 185, 129, 0.4);
 }
 
-.action-button.delete {
-  background-color: #dc3545; /* Red for delete */
+.action-button.reject {
+  background: #ef4444;
   color: white;
+  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3);
 }
 
-.action-button.delete:hover {
-  background-color: #c82333; /* Darker red on hover */
+.action-button.reject:hover {
+  background: #dc2626;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 14px rgba(239, 68, 68, 0.4);
+}
+
+.action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Loading container */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 250px;
+  font-size: 18px;
+  color: #4b5563;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 5px solid #3b82f6;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+/* Error and no-requests messages */
+.error-message,
+.no-requests {
+  text-align: center;
+  font-size: 20px;
+  padding: 40px;
+  font-weight: 600;
+}
+
+.error-message {
+  color: #ef4444;
+}
+
+.no-requests {
+  color: #6b7280;
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive design */
-@media (max-width: 768px) {
-  .seller-management-container {
-    width: 100%; /* Full width on mobile */
-    margin: 10px; /* Adjust margins */
+@media (max-width: 1300px) {
+  .seller-request-container {
+    max-width: 95%;
+    padding: 24px;
+    margin-left: 16px;
+    margin-right: 16px;
   }
 
-  .seller-table th, .seller-table td {
-    font-size: 12px; /* Smaller text on mobile */
-    padding: 10px; /* Adjust padding */
+  .seller-card-grid {
+    max-height: 420px; /* Adjusted for medium screens */
+  }
+}
+
+@media (max-width: 1024px) {
+  .seller-request-container {
+    max-width: 90%;
+    padding: 20px;
+  }
+
+  .seller-card-grid {
+    grid-template-columns: 1fr;
+    max-height: 400px; /* Adjusted for tablets */
+  }
+
+  .seller-card {
+    padding: 20px;
+  }
+
+  .card-header h3 {
+    font-size: 18px;
+  }
+
+  .card-number {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .seller-request-container h1 {
+    font-size: 28px;
+    margin-bottom: 32px;
+  }
+
+  .seller-request-container {
+    max-width: 92%;
+    padding: 16px;
+  }
+
+  .seller-card-grid {
+    max-height: 350px; /* Adjusted for mobile */
+  }
+
+  .seller-card {
+    padding: 16px;
+  }
+
+  .seller-image {
+    width: 100px;
+    height: 80px;
+  }
+
+  .card-content p {
+    font-size: 14px;
   }
 
   .action-button {
-    font-size: 12px; /* Smaller buttons on mobile */
-    padding: 6px 10px;
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  .toggle-button {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .image-label {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .seller-request-container {
+    max-width: 95%;
+    margin: 12px;
+    padding: 12px;
+  }
+
+  .seller-request-container h1 {
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+
+  .card-header h3 {
+    font-size: 16px;
+    margin: 0 16px;
+  }
+
+  .seller-image {
+    width: 100px;
+    height: 70px;
+  }
+
+  .card-content p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .card-images {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .image-wrapper::before {
+    font-size: 18px;
+  }
+
+  .card-actions {
+    gap: 10px;
+  }
+
+  .action-button {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .loading-container {
+    height: 200px;
+    font-size: 16px;
+  }
+
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border-width: 4px;
+  }
+
+  .error-message,
+  .no-requests {
+    font-size: 18px;
+    padding: 32px;
   }
 }

@@ -1,31 +1,36 @@
-/* Sidebar Styling - Modern and Responsive */
+/* Sidebar Styling - Enhanced Light and Modern Design */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
 /* Base styles */
 .sidebar {
   background: #ffffff;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-/* Hamburger menu icon (hidden by default, shown on mobile) */
+/* Hamburger menu icon */
 .hamburger {
-  display: none; /* Hidden on larger screens */
+  display: none;
   flex-direction: column;
   justify-content: space-between;
-  width: 30px;
-  height: 20px;
+  width: 32px;
+  height: 22px;
   cursor: pointer;
-  padding: 10px;
+  padding: 12px;
   position: fixed;
-  top: 10px;
-  left: 10px;
-  z-index: 1000;
+  top: 15px;
+  left: 15px;
+  z-index: 1001;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
 }
 
 .hamburger span {
   width: 100%;
   height: 3px;
   background: #505050;
+  border-radius: 2px;
   transition: all 0.3s ease;
 }
 
@@ -33,10 +38,9 @@
 .sidebar-items {
   display: flex;
   flex-direction: column;
-  padding-top: 30px;
-  padding-bottom: 20px;
-  gap: 20px;
-  width: 250px; /* Fixed width for desktop */
+  padding: 40px 0 20px;
+  gap: 12px;
+  width: 260px;
   height: 100vh;
   overflow-x: hidden;
 }
@@ -45,27 +49,52 @@
 .sidebar-item {
   display: flex;
   align-items: center;
-  margin: 0 20px;
-  padding: 10px 15px;
-  border-radius: 6px;
+  margin: 0 16px;
+  padding: 12px 20px;
+  border-radius: 8px;
   background: #f9f9f9;
-  gap: 15px;
+  gap: 16px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: #1890ff;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
 }
 
 .sidebar-item:hover {
   background: #e6e6e6;
+  transform: translateX(4px);
+}
+
+.sidebar-item:hover::before {
+  transform: translateX(0);
 }
 
 .sidebar-item:active {
   background: #dcdcdc;
+  transform: scale(0.98);
 }
 
 .sidebar-item img {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-item:hover img {
+  transform: scale(1.1);
 }
 
 .sidebar-item p {
@@ -76,6 +105,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color 0.3s ease;
 }
 
 /* Active state */
@@ -83,111 +113,141 @@
   background: #e6f7ff;
 }
 
+.sidebar-item.active::before {
+  transform: translateX(0);
+}
+
 .sidebar-item.active p {
   color: #1890ff;
+  font-weight: 600;
 }
 
 .sidebar-item.active img {
   filter: invert(39%) sepia(92%) saturate(7486%) hue-rotate(181deg) brightness(99%) contrast(97%);
+  transform: scale(1.1);
 }
 
-/* Desktop (default) - Vertical Sidebar */
+/* Desktop - Vertical Sidebar */
 @media (min-width: 801px) {
   .sidebar {
-    width: 250px;
-    min-width: 250px;
-    max-width: 250px;
+    width: 260px;
+    min-width: 260px;
+    max-width: 260px;
     height: 100vh;
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
   }
 
   .sidebar:hover {
-    border-radius: 4px;
+    box-shadow: 6px 0 20px rgba(0, 0, 0, 0.1);
   }
 }
 
-/* Tablet (800px and below) - Horizontal Top Navbar */
+/* Tablet - Horizontal Top Navbar */
 @media (max-width: 800px) {
   .sidebar {
     width: 100%;
     height: auto;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
   }
 
   .sidebar-items {
     flex-direction: row;
     justify-content: center;
-    padding: 10px 0;
+    padding: 12px 0;
     width: 100%;
     height: auto;
-    gap: 10px;
+    gap: 8px;
   }
 
   .sidebar-item {
-    margin: 0 10px;
-    padding: 8px 12px;
-    gap: 10px;
+    margin: 0 8px;
+    padding: 10px 16px;
+    gap: 12px;
+    border-radius: 6px;
+  }
+
+  .sidebar-item::before {
+    width: 100%;
+    height: 2px;
+    top: auto;
+    bottom: 0;
+    left: 0;
   }
 
   .sidebar-item img {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
   }
 
   .sidebar-item p {
     font-size: 14px;
   }
+
+  .sidebar-item.active img {
+    transform: scale(1.05);
+  }
 }
 
-/* Mobile (600px and below) - Hamburger Menu */
+/* Mobile - Hamburger Menu */
 @media (max-width: 600px) {
   .sidebar {
     width: 100%;
     height: auto;
     position: relative;
+    background: #ffffff;
   }
 
   .hamburger {
-    display: flex; /* Show hamburger icon on mobile */
+    display: flex;
   }
 
   .sidebar-items {
     flex-direction: column;
     position: fixed;
     top: 0;
-    left: -100%; /* Hidden by default */
-    width: 200px;
+    left: -100%;
+    width: 220px;
     height: 100vh;
     background: #ffffff;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    padding-top: 60px; /* Space for hamburger icon */
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.1);
+    padding-top: 70px;
     transition: left 0.3s ease;
-    z-index: 999;
+    z-index: 1000;
   }
 
   .sidebar-items.open {
-    left: 0; /* Slide in when open */
+    left: 0;
   }
 
   .sidebar-item {
-    margin: 0 10px;
-    padding: 15px;
-    gap: 0;
+    margin: 0 12px;
+    padding: 14px 20px;
+    gap: 14px;
     justify-content: flex-start;
+    border-radius: 6px;
   }
 
   .sidebar-item img {
-    display: none; /* Remove images on mobile */
+    display: block; /* Keep icons for better UX */
+    width: 24px;
+    height: 24px;
   }
 
   .sidebar-item p {
-    font-size: 16px;
+    font-size: 15px;
     color: #505050;
-    display: block; /* Ensure text is visible */
   }
 
-  /* Adjust hamburger icon when menu is open */
+  .sidebar-item::before {
+    width: 4px;
+    height: 100%;
+    top: 0;
+    bottom: auto;
+  }
+
   .hamburger.open span:nth-child(1) {
-    transform: rotate(45deg) translate(5px, 5px);
+    transform: rotate(45deg) translate(6px, 6px);
   }
 
   .hamburger.open span:nth-child(2) {
@@ -195,18 +255,26 @@
   }
 
   .hamburger.open span:nth-child(3) {
-    transform: rotate(-45deg) translate(5px, -5px);
+    transform: rotate(-45deg) translate(6px, -6px);
   }
 }
 
-/* Very Small Screens (480px and below) */
+/* Very Small Screens */
 @media (max-width: 480px) {
   .sidebar-items {
-    width: 180px;
+    width: 200px;
+    padding-top: 60px;
   }
 
   .sidebar-item {
-    padding: 12px;
+    margin: 0 10px;
+    padding: 12px 18px;
+    gap: 12px;
+  }
+
+  .sidebar-item img {
+    width: 22px;
+    height: 22px;
   }
 
   .sidebar-item p {
@@ -214,11 +282,14 @@
   }
 
   .hamburger {
-    width: 25px;
-    height: 18px;
+    width: 28px;
+    height: 20px;
+    padding: 10px;
+    top: 12px;
+    left: 12px;
   }
 
   .hamburger span {
-    height: 2px;
+    height: 2.5px;
   }
 }

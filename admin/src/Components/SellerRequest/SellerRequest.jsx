@@ -1,24 +1,25 @@
-// src/Components/SellerRequest/SellerRequest.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import SellerSearchBar from "../SearchBar/SellerSearchBar";
 import { toast } from "react-toastify";
 import "./SellerRequest.css";
-//import "./ViewUserModal.css";
+import ImageModal from "../ImageModal/ImageModal"; // Re-added for image enlargement
 
 function SellerRequest() {
   const [sellers, setSellers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [approving, setApproving] = useState(false);
   const [error, setError] = useState(null);
-  const [originalSellers, setOriginalSellers] = useState([]); // To keep original seller data
+  const [originalSellers, setOriginalSellers] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null); // For modal
+  const [modalOpen, setModalOpen] = useState(false); // For modal
+  const [expandedCard, setExpandedCard] = useState(null); // For card toggle
 
-  const adminToken = localStorage.getItem("admin_token"); // Ensure the key matches when storing
+  const adminToken = localStorage.getItem("admin_token");
 
   useEffect(() => {
     if (!adminToken) {
       toast.error("Admin not authenticated. Please log in.");
-      // Optionally, redirect to admin login page
       return;
     }
     fetchPendingSellers();
@@ -37,7 +38,7 @@ function SellerRequest() {
       );
       const fetchedSellers = Array.isArray(response.data) ? response.data : [];
       setSellers(fetchedSellers);
-      setOriginalSellers(fetchedSellers); // Save the original list for filtering
+      setOriginalSellers(fetchedSellers);
     } catch (error) {
       console.error("Error fetching pending sellers:", error);
       setError("Failed to fetch pending sellers.");
@@ -48,13 +49,12 @@ function SellerRequest() {
   };
 
   const handleApproveSeller = async (id) => {
-    if (!window.confirm("Are you sure you want to approve this seller?"))
-      return;
+    if (!window.confirm("Are you sure you want to approve this seller?")) return;
 
     setApproving(true);
     try {
       const response = await axios.patch(
-        `http://localhost:4000/api/seller/${id}/approve`, // Ensure this route matches your backend
+        `http://localhost:4000/api/seller/${id}/approve`,
         {},
         {
           headers: {
@@ -67,7 +67,6 @@ function SellerRequest() {
         toast.success(
           `Seller ${response.data.seller.name} approved successfully.`
         );
-        // Remove the approved seller from the list
         setSellers(sellers.filter((seller) => seller._id !== id));
         setOriginalSellers(
           originalSellers.filter((seller) => seller._id !== id)
@@ -112,63 +111,97 @@ function SellerRequest() {
     setSellers(filteredSellers);
   };
 
+  const handleImageClick = (imageUrl) => {
+    setSelectedImage(imageUrl);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setSelectedImage(null);
+  };
+
+  const toggleCard = (id) => {
+    setExpandedCard(expandedCard === id ? null : id);
+  };
+
   return (
-    <div className="seller-management-container">
+    <div className="seller-request-container">
       <h1>Manage Seller Requests</h1>
-      <SellerSearchBar sellers={originalSellers} onSearch={handleSearch} />{" "}
-      {/* Pass sellers and search handler */}
-      {loading ? (
-        <p>Loading pending sellers...</p>
-      ) : sellers.length === 0 ? (
-        <p>No pending seller requests.</p>
-      ) : (
-        <table className="seller-table">
-          <thead>
-            <tr>
-              <th>No.</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Shop Name</th>
-              <th>Business Location</th>
-              <th>Shop Image</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sellers.map((seller, index) => (
-              <tr key={seller._id}>
-                <td>{index + 1}</td>
-                <td>{seller.name}</td>
-                <td>{seller.email}</td>
-                <td>{seller.shopName}</td>
-                <td>{seller.businessLocation}</td>
-                <td>
-                  <img
-                    src={`http://localhost:4000/upload/${seller.idPicture}`} // Adjust this path to match your server's setup
-                    alt="ID Picture"
-                    style={{ width: "100px", height: "auto" }} // You can adjust the size as needed
-                  />
-                </td>
-                {/* Ensure 'idProfile' exists in Seller model */}
-                <td>
-                  <button
-                    className="action-button approve"
-                    onClick={() => handleApproveSeller(seller._id)}
-                    disabled={approving}
-                  >
-                    Accept
-                  </button>
-                  <button
-                    className="action-button delete"
-                    onClick={() => handleDeleteSeller(seller._id)}
-                  >
-                    Reject
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="search-bar-container">
+        <SellerSearchBar sellers={originalSellers} onSearch={handleSearch} />
+      </div>
+
+        <div className="seller-card-grid">
+          {sellers.map((seller, index) => (
+            <div
+              key={seller._id}
+              className={`seller-card ${expandedCard === seller._id ? "expanded" : ""}`}
+            >
+              <div className="card-header">
+                <span className="card-number">{index + 1}</span>
+                <h3>{seller.name}</h3>
+                <button
+                  className="toggle-button"
+                  onClick={() => toggleCard(seller._id)}
+                >
+                  {expandedCard === seller._id ? "Hide Details" : "Show Details"}
+                </button>
+              </div>
+              <div className="card-content">
+                <div className="card-info">
+                  <p>
+                    <strong>Email:</strong> {seller.email}
+                  </p>
+                  {expandedCard === seller._id && (
+                    <>
+                      <p>
+                        <strong>Shop Name:</strong> {seller.shopName}
+                      </p>
+                      <p>
+                        <strong>Business Location:</strong> {seller.businessLocation}
+                      </p>
+                    </>
+                  )}
+                </div>
+                <div className="card-images">
+                  <div className="image-wrapper">
+                    <img
+                      src={`http://localhost:4000/upload/${seller.idPicture}`}
+                      alt="ID Picture"
+                      className="seller-image"
+                      onClick={() =>
+                        handleImageClick(
+                          `http://localhost:4000/upload/${seller.idPicture}`
+                        )
+                      }
+                    />
+                    <span className="image-label">ID Picture</span>
+                  </div>
+                </div>
+              </div>
+              <div className="card-actions">
+                <button
+                  className="action-button approve"
+                  onClick={() => handleApproveSeller(seller._id)}
+                  disabled={approving}
+                >
+                  Accept
+                </button>
+                <button
+                  className="action-button reject"
+                  onClick={() => handleDeleteSeller(seller._id)}
+                >
+                  Reject
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      
+
+      {modalOpen && (
+        <ImageModal imageUrl={selectedImage} onClose={closeModal} />
       )}
     </div>
   );

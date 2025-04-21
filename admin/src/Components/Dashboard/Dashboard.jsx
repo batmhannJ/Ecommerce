@@ -5,7 +5,6 @@ import Chart from 'chart.js/auto';
 import html2canvas from 'html2canvas';
 import Plot from "react-plotly.js"; // Import Plotly
 
-
 export const Dashboard = () => {
   const [ribbonData, setRibbonData] = useState([]);
   const [totalRevenue, setTotalRevenue] = useState(0);
@@ -14,13 +13,12 @@ export const Dashboard = () => {
     mostProducedProduct: '',
   });
 
-  
-
   const [salesByCategoryData, setSalesByCategoryData] = useState([]);
   const [salesByProductData, setSalesByProductData] = useState([]);
   const [salesGrowthRateData, setSalesGrowthRateData] = useState([]);
   const [topPurchasesProductData, setTopPurchasesProductData] = useState([]);
 
+  // All useEffect hooks remain unchanged
   useEffect(() => {
     const fetchRibbonData = async () => {
       try {
@@ -28,27 +26,22 @@ export const Dashboard = () => {
           "https://raw.githubusercontent.com/plotly/datasets/master/3d-ribbon.json"
         );
         const figure = await response.json();
-        setRibbonData(figure.data); // Store fetched data
+        setRibbonData(figure.data);
       } catch (error) {
         console.error("Error fetching ribbon data:", error);
       }
     };
-
     fetchRibbonData();
   }, []);
 
   useEffect(() => {
     const fetchTotalRevenue = async () => {
       try {
-        // Fetch from the cleaned-up backend route
         const response = await fetch('http://localhost:4000/api/transactions/totalAmount');
-
         console.log('Response status:', response.status);
-
         if (!response.ok) {
           throw new Error(`Network response was not ok, status: ${response.status}`);
         }
-
         const data = await response.json();
         console.log('Total revenue data:', data);
         setTotalRevenue(data);
@@ -56,21 +49,17 @@ export const Dashboard = () => {
         console.error('Error fetching total revenue:', error);
       }
     };
-
     fetchTotalRevenue();
   }, []);
-
 
   useEffect(() => {
     const fetchAverageOrderValue = async () => {
       try {
         const response = await fetch('http://localhost:4000/api/transactions/averageOrderValue');
         console.log('AOV Response status:', response.status);
-  
         if (!response.ok) {
           throw new Error(`Network response was not ok, status: ${response.status}`);
         }
-  
         const data = await response.json();
         console.log('Average Order Value data:', data);
         setSalesData(prevData => ({
@@ -81,7 +70,6 @@ export const Dashboard = () => {
         console.error('Error fetching average order value:', error);
       }
     };
-  
     fetchAverageOrderValue();
   }, []);
 
@@ -90,11 +78,9 @@ export const Dashboard = () => {
       try {
         const response = await fetch('http://localhost:4000/api/transactions/mostProducedProduct');
         console.log('Most Produced Product Response status:', response.status);
-  
         if (!response.ok) {
           throw new Error(`Network response was not ok, status: ${response.status}`);
         }
-  
         const data = await response.json();
         console.log('Most Purchased Product data:', data);
         setSalesData(prevData => ({
@@ -105,7 +91,6 @@ export const Dashboard = () => {
         console.error('Error fetching most produced product:', error);
       }
     };
-  
     fetchMostProducedProduct();
   }, []);
 
@@ -115,31 +100,29 @@ export const Dashboard = () => {
         const response = await fetch('http://localhost:4000/api/transactions/salesByProduct');
         if (!response.ok) throw new Error(`Network response was not ok, status: ${response.status}`);
         const data = await response.json();
-        console.log('Sales by Product Data:', data); // Log the data fetched from the backend
+        console.log('Sales by Product Data:', data);
         setSalesByProductData(data);
       } catch (error) {
         console.error('Error fetching sales by product:', error);
       }
     };
-  
     fetchSalesByProduct();
   }, []);
-  
+
   useEffect(() => {
     const fetchSalesByCategory = async () => {
       try {
         const response = await fetch('http://localhost:4000/api/transactions/salesByCategory');
         if (!response.ok) throw new Error(`Network response was not ok, status: ${response.status}`);
         const data = await response.json();
-        console.log('Fetched Sales by Category Data:', data); // Add this line for debugging
+        console.log('Fetched Sales by Category Data:', data);
         setSalesByCategoryData(data);
       } catch (error) {
         console.error('Error fetching sales by category:', error);
       }
     };
-  
     fetchSalesByCategory();
-  }, []);  
+  }, []);
 
   useEffect(() => {
     const fetchSalesGrowthRate = async () => {
@@ -153,10 +136,9 @@ export const Dashboard = () => {
         console.error('Error fetching sales growth rate:', error);
       }
     };
-  
     fetchSalesGrowthRate();
-  }, []);  
-  
+  }, []);
+
   useEffect(() => {
     const fetchTopPurchasesProduct = async () => {
       try {
@@ -164,8 +146,6 @@ export const Dashboard = () => {
         if (!response.ok) throw new Error(`Network response was not ok, status: ${response.status}`);
         const data = await response.json();
         console.log('Top Purchases Product Data:', data);
-        
-        // Check if data is an array and has items
         if (Array.isArray(data) && data.length) {
           setTopPurchasesProductData(data);
         } else {
@@ -175,12 +155,10 @@ export const Dashboard = () => {
         console.error('Error fetching top purchases product:', error);
       }
     };
-  
     fetchTopPurchasesProduct();
   }, []);
-  
-  
-  // Dummy data for graphs, replace with actual fetched data
+
+  // Chart data preparation (unchanged)
   const salesByProduct = {
     labels: salesByProductData.length ? salesByProductData.map(item => item.product) : ['No data'],
     datasets: [
@@ -191,7 +169,6 @@ export const Dashboard = () => {
       },
     ],
   };
-  
 
   const salesByCategory = {
     labels: salesByCategoryData.map(item => item.category),
@@ -203,8 +180,7 @@ export const Dashboard = () => {
       },
     ],
   };
-  
-  
+
   const salesGrowthRate = {
     labels: salesGrowthRateData.map(item => item.date),
     datasets: [
@@ -217,7 +193,7 @@ export const Dashboard = () => {
       },
     ],
   };
-  
+
   const topPurchasesProduct = {
     labels: topPurchasesProductData.length ? topPurchasesProductData.map(item => item.product) : ['No data'],
     datasets: [
@@ -230,279 +206,220 @@ export const Dashboard = () => {
   };
 
   const getSalesChange = (currentSales, previousSales) => {
-    if (previousSales === null) return 'N/A'; // No previous day to compare
+    if (previousSales === null) return 'N/A';
     const difference = currentSales - previousSales;
     return difference >= 0 ? `Increase of ${difference}` : `Decrease of ${Math.abs(difference)}`;
   };
 
-// Function to export dashboard as PDF
-const generatePDF = async () => {
-  const jsPDF = (await import("jspdf")).default;
-  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4", putOnlyUsedFonts: true });
+  // PDF generation function with corrected typo
+  const generatePDF = async () => {
+    const jsPDF = (await import("jspdf")).default;
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4", putOnlyUsedFonts: true });
 
-  const fontUrl = "https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap";
+    const fontUrl = "https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap";
+    doc.addFileToVFS("Roboto-Regular.ttf", fontUrl);
+    doc.addFont("Roboto-Regular.ttf", "Roboto", "normal");
+    doc.setFont("Roboto");
 
-  // Load the font from Google Fonts (optional)
-  doc.addFileToVFS("Roboto-Regular.ttf", fontUrl);
-  doc.addFont("Roboto-Regular.ttf", "Roboto", "normal");
-  doc.setFont("Roboto");
+    const margin = 25.4;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const contentWidth = pageWidth - 2 * margin;
 
-  // Constants for margins
-  const margin = 25.4; // 1 inch in mm
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  const contentWidth = pageWidth - 2 * margin;
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    const title = "BizGo Sales Report";
+    const titleWidth = doc.getTextWidth(title);
+    const titleX = (pageWidth - titleWidth) / 2;
+    doc.text(title, titleX, margin);
 
-  // Title
-  doc.setFontSize(20);
-  doc.setFont("helvetica", "bold");
-  const title = "BizGo Sales Report";
-  const titleWidth = doc.getTextWidth(title);
-  const titleX = (pageWidth - titleWidth) / 2; // Centering the title
-  doc.text(title, titleX, margin);
+    doc.line(margin, margin + 5, pageWidth - margin, margin + 5);
 
-  // Add a line below the title
-  doc.line(margin, margin + 5, pageWidth - margin, margin + 5);
+    let currentY = margin + 15;
 
+    const checkPageOverflow = () => {
+      if (currentY > pageHeight - margin) {
+        doc.addPage();
+        currentY = margin;
+      }
+    };
 
-  // Initial Y-coordinate for text entries
-  let currentY = margin + 15;
+    const currentDate = new Date();
+    const formattedDate = `${currentDate.getMonth() + 1}/${currentDate.getDate()}/${currentDate.getFullYear()}`;
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text(`As of: ${formattedDate}`, doc.internal.pageSize.getWidth() - margin - 32, currentY);
+    currentY += 10;
+    checkPageOverflow();
 
-  // Function to check and add a new page if needed
-  const checkPageOverflow = () => {
-    if (currentY > pageHeight - margin) {
-      doc.addPage();
-      currentY = margin;
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Total Revenue: ", margin, currentY);
+    doc.setFont("helvetica", "normal");
+    doc.text(`PHP ${totalRevenue}.00`, margin + 30, currentY);
+    currentY += 10;
+    checkPageOverflow();
+
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Average Order Value: ", margin, currentY);
+    doc.setFont("helvetica", "normal");
+    doc.text(`PHP ${salesData.avgOrderValue.toFixed(2)}`, margin + 44, currentY);
+    currentY += 10;
+    checkPageOverflow();
+
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Most Purchased Product: ", margin, currentY);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${salesData.mostProducedProduct || 'N/A'}`, margin + 50, currentY);
+    currentY += 10;
+    checkPageOverflow();
+
+    doc.line(margin, currentY, pageWidth - margin, currentY);
+    currentY += 5;
+    checkPageOverflow();
+
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Sales by Category:", margin, currentY);
+    currentY += 10;
+    salesByCategoryData.forEach((item) => {
+      doc.setFont("helvetica", "normal");
+      doc.text(`    ${item.category}: PHP ${item.totalSales}.00`, margin, currentY);
+      currentY += 10;
+      checkPageOverflow();
+    });
+
+    doc.line(margin, currentY, pageWidth - margin, currentY);
+    currentY += 5;
+    checkPageOverflow();
+
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Sales by Product:", margin, currentY);
+    currentY += 10;
+    salesByProductData.forEach((item) => {
+      doc.setFont("helvetica", "normal");
+      doc.text(`    ${item.product}: PHP ${item.totalSales}.00`, margin, currentY);
+      currentY += 10;
+      checkPageOverflow();
+    });
+
+    doc.line(margin, currentY, pageWidth - margin, currentY);
+    currentY += 5;
+    checkPageOverflow();
+
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Sales Growth Rate", margin, currentY);
+    currentY += 10;
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    const headers = ["Date", "Sales", "Change"];
+    const columnWidths = [40, 40, 80];
+    const rowHeight = 8;
+
+    headers.forEach((header, index) => {
+      doc.text(header, margin + columnWidths.slice(0, index).reduce((a, b) => a + b, 0), currentY);
+    });
+    currentY += rowHeight;
+
+    doc.line(margin, currentY, pageWidth - margin, currentY);
+    currentY += 5;
+
+    let previousSales = null;
+
+    salesGrowthRateData.forEach((item, index) => {
+      const { date, totalSales } = item;
+      const salesChange = getSalesChange(totalSales, previousSales);
+
+      doc.setFont("helvetica", "normal");
+      doc.text(date, margin, currentY);
+      doc.text(`PHP ${totalSales}`, margin + columnWidths[0], currentY);
+      doc.text(salesChange, margin + columnWidths[0] + columnWidths[1], currentY);
+      previousSales = totalSales;
+      currentY += rowHeight;
+
+      if (currentY > pageHeight - margin) {
+        doc.addPage();
+        currentY = margin;
+      }
+    });
+
+    doc.save("dashboard_metrics.pdf");
+  };
+
+  const generateXLSX = async () => {
+    try {
+      const XLSX = await import('xlsx');
+      const wb = XLSX.utils.book_new();
+      const summaryData = [
+        ['BizGo Sales Report'],
+        [`As of: ${new Date().toLocaleDateString()}`],
+        [''],
+        ['Total Revenue', `₱${totalRevenue}`],
+        ['Average Order Value', `₱${salesData.avgOrderValue.toFixed(2)}`],
+        ['Most Purchased Product', salesData.mostProducedProduct || 'N/A'],
+        ['']
+      ];
+      const summaryWS = XLSX.utils.aoa_to_sheet(summaryData);
+      XLSX.utils.book_append_sheet(wb, summaryWS, 'Summary');
+      XLSX.writeFile(wb, 'bizgo_sales_data.xlsx');
+      console.log('Excel file generated successfully');
+    } catch (error) {
+      console.error('Error generating Excel file:', error);
     }
   };
 
-  // "As of" Date
-  const currentDate = new Date();
-  const formattedDate = `${currentDate.getMonth() + 1}/${currentDate.getDate()}/${currentDate.getFullYear()}`;
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.text(`As of: ${formattedDate}`, doc.internal.pageSize.getWidth() - margin - 32, currentY);
-  currentY += 10;
-  checkPageOverflow();
-
-  // Total Revenue
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.text("Total Revenue: ", margin, currentY);
-  doc.setFont("helvetica", "normal");
-  doc.text(`PHP ${totalRevenue}.00`, margin + 30, currentY);
-  currentY += 10; // Move down by 10mm after this entry
-  checkPageOverflow();
-
-  // Average Order Value
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.text("Average Order Value: ", margin, currentY);
-  doc.setFont("helvetica", "normal");
-  doc.text(`PHP ${salesData.avgOrderValue.toFixed(2)}`, margin + 44, currentY);
-  currentY += 10;
-  checkPageOverflow();
-
-  // Most Produced Product
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.text("Most Purchased Product: ", margin, currentY);
-  doc.setFont("helvetica", "normal");
-  doc.text(`${salesData.mostProducedProduct || 'N/A'}`, margin + 50, currentY);
-  currentY += 10;
-  checkPageOverflow();
-
-  // Add a line
-  doc.line(margin, currentY, pageWidth - margin, currentY);
-  currentY += 5;
-  checkPageOverflow();
-
-  // Sales by Category
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.text("Sales by Category:", margin, currentY);
-  currentY += 10;
-  salesByCategoryData.forEach((item) => {
-    doc.setFont("helvetica", "normal");
-    doc.text(`    ${item.category}: PHP ${item.totalSales}.00`, margin, currentY);
-    currentY += 10;
-    checkPageOverflow();
-  });
-
-  // Add a line
-  doc.line(margin, currentY, pageWidth - margin, currentY);
-  currentY += 5;
-  checkPageOverflow();
-
-  // Sales by Product
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.text("Sales by Product:", margin, currentY);
-  currentY += 10;
-  salesByProductData.forEach((item) => {
-    doc.setFont("helvetica", "normal");
-    doc.text(`    ${item.product}: PHP ${item.totalSales}.00`, margin, currentY);
-    currentY += 10;
-    checkPageOverflow();
-  });
-
-  // Add a line
-  doc.line(margin, currentY, pageWidth - margin, currentY);
-  currentY += 5;
-  checkPageOverflow();
-
-  // Sales Growth Rate
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.text("Sales Growth Rate", margin, currentY);
-  currentY += 10;
-
-  // Table headers
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "bold");
-  const headers = ["Date", "Sales", "Change"];
-  const columnWidths = [40, 40, 80]; // Set width for each column
-  const rowHeight = 8;
-
-  // Draw the table headers
-  headers.forEach((header, index) => {
-    doc.text(header, margin + columnWidths.slice(0, index).reduce((a, b) => a + b, 0), currentY);
-  });
-  currentY += rowHeight;
-
-  // Add a line after headers
-  doc.line(margin, currentY, pageWidth - margin, currentY);
-  currentY += 5;
-
-  // Variables to keep track of previous sales for calculating change
-  let previousSales = null;
-
-  // Iterate over sales growth rate data and generate rows
-  salesGrowthRateData.forEach((item, index) => {
-    const { date, totalSales } = item;
-    const salesChange = getSalesChange(totalSales, previousSales);
-
-    doc.setFont("helvetica", "normal");
-
-    // Add the date
-    doc.text(date, margin, currentY);
-
-    // Add the sales for the day
-    doc.text(`PHP ${totalSales}`, margin + columnWidths[0], currentY);
-
-    // Add the increase/decrease compared to the previous day
-    doc.text(salesChange, margin + columnWidths[0] + columnWidths[1], currentY);
-
-    // Update the previous sales value for the next row
-    previousSales = totalSales;
-
-    // Move to the next row
-    currentY += rowHeight;
-
-    // Check if we need to add a new page
-    if (currentY > pageHeight - margin) {
-      doc.addPage();
-      currentY = margin; // Reset Y coordinate for the new page
-    }
-  });
-
-  // Save the PDF
-  doc.save("dashboard_metrics.pdf");
-};
-
-// Function to export data to XLSX
-// Function to export data to XLSX
-const generateXLSX = async () => {
-  try {
-    // Dynamically import the xlsx library
-    const XLSX = await import('xlsx');
-    
-    // Create a new workbook
-    const wb = XLSX.utils.book_new();
-    
-    // Rest of your code remains the same...
-    
-    // Prepare the summary data
-    const summaryData = [
-      ['BizGo Sales Report'],
-      [`As of: ${new Date().toLocaleDateString()}`],
-      [''],
-      ['Total Revenue', `₱${totalRevenue}`],
-      ['Average Order Value', `₱${salesData.avgOrderValue.toFixed(2)}`],
-      ['Most Purchased Product', salesData.mostProducedProduct || 'N/A'],
-      ['']
-    ];
-    
-    // Create summary worksheet
-    const summaryWS = XLSX.utils.aoa_to_sheet(summaryData);
-    XLSX.utils.book_append_sheet(wb, summaryWS, 'Summary');
-    
-    // Rest of your code...
-    
-    // Save the Excel file
-    XLSX.writeFile(wb, 'bizgo_sales_data.xlsx');
-    
-    console.log('Excel file generated successfully');
-  } catch (error) {
-    console.error('Error generating Excel file:', error);
-  }
-};
-
-
-
   return (
-    <div class="dashboard-container">
-    <div className='dashboard'>
-        <h1 id="yourElement">Dashboard</h1>
-
-        <div className='dashboard-metrics'>
-            {/* Revenue */}
-            <div className='metric-box'>
-                <h3>Total Revenue</h3>
-                <p>₱{totalRevenue}</p>
-            </div>
-
-            {/* Average Order Value */}
-            <div className='metric-box'>
-                <h3>Average Order Value</h3>
-                <p>
-                    {salesData.avgOrderValue
-                    ? `₱${salesData.avgOrderValue.toFixed(2)}`
-                    : '₱0.00'}
-                </p>
-            </div>
-
-            {/* Most Produced Product */}
-            <div className='metric-box'>
-                <h3>Most Produced Product</h3>
-                <p>{salesData.mostProducedProduct || 'N/A'}</p>
-            </div>
+    <div className="dashboard-container">
+      <header className="dashboard-header">
+        <h1>BizGo Insights</h1>
+        <div className="action-buttons">
+          <button className="btn btn-pdf" onClick={generatePDF}>PDF</button>
+          <button className="btn btn-xlsx" onClick={generateXLSX}>XLSX</button>
         </div>
-        <div className="export-button-container">
-              {/* Export Buttons */}
-              <button className="action-button view" onClick={generatePDF}>Export to PDF</button>
-              <button className="action-button view" onClick={generateXLSX}>Export to XLSX</button>
+      </header>
+      <main className="dashboard-main">
+        <section className="metrics-section">
+          <div className="metric">
+            <span className="metric-label">Total Revenue</span>
+            <span className="metric-value">₱{totalRevenue}</span>
+          </div>
+          <div className="metric">
+            <span className="metric-label">Avg. Order Value</span>
+            <span className="metric-value">
+              {salesData.avgOrderValue ? `₱${salesData.avgOrderValue.toFixed(2)}` : '₱0.00'}
+            </span>
+          </div>
+          <div className="metric">
+            <span className="metric-label">Top Product</span>
+            <span className="metric-value">{salesData.mostProducedProduct || 'N/A'}</span>
+          </div>
+        </section>
+        <section className="charts-section">
+          <div className="chart">
+            <h2>Sales Growth</h2>
+            <div className="chart-content">
+              <Line data={salesGrowthRate} options={{ maintainAspectRatio: false }} />
             </div>
-                <div className='chart-container'>
-            {/* Sales Growth Rate Graph */}
-            <div className='chart1'>
-                <h3>Sales Growth Rate</h3>
-                <Line data={salesGrowthRate} />
+          </div>
+          <div className="chart">
+            <h2>By Category</h2>
+            <div className="chart-content">
+              <Pie data={salesByCategory} options={{ maintainAspectRatio: false }} />
             </div>
-
-            {/* Sales by Category Graph */}
-            <div className='chart3'>
-                <h3>Sales by Category</h3>
-                <Pie data={salesByCategory} />
+          </div>
+          <div className="chart chart-wide">
+            <h2>By Product</h2>
+            <div className="chart-content">
+              <Bar data={salesByProduct} options={{ maintainAspectRatio: false }} />
             </div>
-            
-        </div>
-        {/* Sales by Product Graph */}
-        <div className='chart2'>
-            <h3>Sales by Product</h3>
-            <Bar data={salesByProduct} />
-        </div>
-        </div>
+          </div>
+        </section>
+      </main>
     </div>
   );
 };

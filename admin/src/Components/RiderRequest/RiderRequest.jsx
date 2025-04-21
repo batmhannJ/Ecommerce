@@ -13,6 +13,7 @@ function RiderRequest() {
   const [originalRiders, setOriginalRiders] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [expandedCard, setExpandedCard] = useState(null);
 
   const adminToken = localStorage.getItem("admin_token");
 
@@ -48,8 +49,7 @@ function RiderRequest() {
   };
 
   const handleApproveRider = async (id) => {
-    if (!window.confirm("Are you sure you want to approve this rider?"))
-      return;
+    if (!window.confirm("Are you sure you want to approve this rider?")) return;
 
     setApproving(true);
     try {
@@ -64,13 +64,9 @@ function RiderRequest() {
       );
 
       if (response.data.success) {
-        toast.success(
-          `Rider ${response.data.rider.name} approved successfully.`
-        );
+        toast.success(`Rider ${response.data.rider.name} approved successfully.`);
         setRiders(rider.filter((r) => r._id !== id));
-        setOriginalRiders(
-          originalRiders.filter((r) => r._id !== id)
-        );
+        setOriginalRiders(originalRiders.filter((r) => r._id !== id));
       } else {
         toast.error("Failed to approve rider.");
       }
@@ -118,109 +114,106 @@ function RiderRequest() {
 
   const closeModal = () => {
     setModalOpen(false);
+    setSelectedImage(null);
+  };
+
+  const toggleCard = (id) => {
+    setExpandedCard(expandedCard === id ? null : id);
   };
 
   return (
-    <div className="seller-management-container">
+    <div className="rider-request-container">
       <h1>Manage Rider Requests</h1>
-      <SellerSearchBar sellers={originalRiders} onSearch={handleSearch} />
-      
-      {loading ? (
-        <p>Loading pending riders...</p>
-      ) : rider.length === 0 ? (
-        <p>No pending rider requests.</p>
-      ) : (
-        <table className="seller-table">
-          <thead>
-            <tr>
-              <th>No.</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Address</th>
-              <th>Plate Number</th>
-              <th>Vehicle Type</th>
-              <th>Id Picture</th>
-              <th>Vehicle Registration</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rider.map((r, index) => (
-              <tr key={r._id}>
-                <td>{index + 1}</td>
-                <td>{r.name}</td>
-                <td>{r.email}</td>
-                <td>{r.address}</td>
-                <td>{r.plateNumber}</td>
-                <td>{r.vehicleType}</td>
-                <td>
-                  <img
-                    src={`http://localhost:4000/upload/images/${r.idPicture}`}
-                    alt="ID Picture"
-                    style={{ 
-                      width: "100px", 
-                      height: "auto",
-                      cursor: "pointer",
-                      transition: "transform 0.2s ease",
-                      transformOrigin: "center center"
-                    }}
-                    className="zoomable-image"
-                    onClick={() =>
-                      handleImageClick(
-                        `http://localhost:4000/upload/images/${r.idPicture}`
-                      )
-                    }
-                    onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                  />
-                </td>
-                <td>
-                  <img
-                    src={`http://localhost:4000/upload/images/${r.vehicleRegistration}`}
-                    alt="Vehicle Registration"
-                    style={{ 
-                      width: "100px", 
-                      height: "auto",
-                      cursor: "pointer",
-                      transition: "transform 0.2s ease",
-                      transformOrigin: "center center"
-                    }}
-                    className="zoomable-image"
-                    onClick={() =>
-                      handleImageClick(
-                        `http://localhost:4000/upload/images/${r.vehicleRegistration}`
-                      )
-                    }
-                    onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                  />
-                </td>
-                <td>
-                  <button
-                    className="action-button approve"
-                    onClick={() => handleApproveRider(r._id)}
-                    disabled={approving}
-                  >
-                    Accept
-                  </button>
-                  <button
-                    className="action-button delete"
-                    onClick={() => handleDeleteRider(r._id)}
-                  >
-                    Reject
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <div className="search-bar-container">
+        <SellerSearchBar sellers={originalRiders} onSearch={handleSearch} />
+      </div>
+
+        <div className="rider-card-grid">
+          {rider.map((r, index) => (
+            <div
+              key={r._id}
+              className={`rider-card ${expandedCard === r._id ? "expanded" : ""}`}
+            >
+              <div className="card-header">
+                <span className="card-number">{index + 1}</span>
+                <h3>{r.name}</h3>
+                <button
+                  className="toggle-button"
+                  onClick={() => toggleCard(r._id)}
+                >
+                  {expandedCard === r._id ? "Hide Details" : "Show Details"}
+                </button>
+              </div>
+              <div className="card-content">
+                <div className="card-info">
+                  <p>
+                    <strong>Email:</strong> {r.email}
+                  </p>
+                  {expandedCard === r._id && (
+                    <>
+                      <p>
+                        <strong>Address:</strong> {r.address}
+                      </p>
+                      <p>
+                        <strong>Plate Number:</strong> {r.plateNumber}
+                      </p>
+                      <p>
+                        <strong>Vehicle Type:</strong> {r.vehicleType}
+                      </p>
+                    </>
+                  )}
+                </div>
+                <div className="card-images">
+                  <div className="image-wrapper">
+                    <img
+                      src={`http://localhost:4000/upload/images/${r.idPicture}`}
+                      alt="ID Picture"
+                      className="rider-image"
+                      onClick={() =>
+                        handleImageClick(
+                          `http://localhost:4000/upload/images/${r.idPicture}`
+                        )
+                      }
+                    />
+                    <span className="image-label">ID Picture</span>
+                  </div>
+                  <div className="image-wrapper">
+                    <img
+                      src={`http://localhost:4000/upload/images/${r.vehicleRegistration}`}
+                      alt="Vehicle Registration"
+                      className="rider-image"
+                      onClick={() =>
+                        handleImageClick(
+                          `http://localhost:4000/upload/images/${r.vehicleRegistration}`
+                        )
+                      }
+                    />
+                    <span className="image-label">Vehicle Registration</span>
+                  </div>
+                </div>
+              </div>
+              <div className="card-actions">
+                <button
+                  className="action-button approve"
+                  onClick={() => handleApproveRider(r._id)}
+                  disabled={approving}
+                >
+                  Accept
+                </button>
+                <button
+                  className="action-button reject"
+                  onClick={() => handleDeleteRider(r._id)}
+                 >
+                  Reject
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+    
 
       {modalOpen && (
-        <ImageModal
-          imageUrl={selectedImage}
-          onClose={closeModal}
-        />
+        <ImageModal imageUrl={selectedImage} onClose={closeModal} />
       )}
     </div>
   );

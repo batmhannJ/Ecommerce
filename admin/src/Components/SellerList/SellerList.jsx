@@ -124,47 +124,40 @@ function SellerList() {
       </div>
 
       <div className="user-list-container">
-        {loading ? (
-          <div className="loading-spinner">
-            <div className="spinner"></div>
-            <p>Loading sellers...</p>
+        <div className="user-list">
+          <div className="user-list-header">
+            <div className="view-column">VIEW</div>
+            <div className="shop-column">SHOP NAME</div>
+            <div className="email-column">EMAIL</div>
+            <div className="assignee-column">PROFILE</div>
           </div>
-        ) : (
-          <div className="user-list">
-  <div className="user-list-header">
-    <div className="view-column">VIEW</div>
-    <div className="shop-column">SHOP NAME</div>
-    <div className="email-column">EMAIL</div>
-    <div className="assignee-column">PROFILE</div>
-  </div>
 
-  {currentUsers.length > 0 ? (
-    currentUsers.map((user, index) => (
-      <div key={user._id} className="user-list-item">
-        <div className="view-column">
-          <button
-            className="view-btn"
-            onClick={() => handleViewUser(index)}
-          >
-            View
-          </button>
+          {currentUsers.length > 0 ? (
+            currentUsers.map((user, index) => (
+              <div key={user._id} className="user-list-item">
+                <div className="view-column">
+                  <button
+                    className="view-btn"
+                    onClick={() => handleViewUser(index)}
+                  >
+                    View
+                  </button>
+                </div>
+                <div className="shop-column">{user.shopName || "N/A"}</div>
+                <div className="email-column">{user.email}</div>
+                <div className="assignee-column">
+                  <div className="user-avatar">
+                    <div className="avatar-placeholder">
+                      {user.name ? user.name.charAt(0).toUpperCase() : "S"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="no-users">No sellers found.</div>
+          )}
         </div>
-        <div className="shop-column">{user.shopName || "N/A"}</div>
-        <div className="email-column">{user.email}</div>
-        <div className="assignee-column">
-          <div className="user-avatar">
-            <div className="avatar-placeholder">
-              {user.name ? user.name.charAt(0).toUpperCase() : "S"}
-            </div>
-          </div>
-        </div>
-      </div>
-    ))
-  ) : (
-    <div className="no-users">No sellers found.</div>
-  )}
-</div>
-        )}
         <div className="pagination">
           {Array.from({ length: totalPages }, (_, i) => (
             <button
@@ -178,91 +171,114 @@ function SellerList() {
         </div>
       </div>
 
-      {viewUser && (
-        <div className="user-details-panel">
-          <div className="panel-header">
-            <button
-              className="back-btn"
-              onClick={() => setViewUser(null)}
-              aria-label="Go back to seller list"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="back-icon"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+      <div className="user-details-container">
+        {viewUser ? (
+          <div className="user-details-panel">
+            <div className="panel-header">
+              <button
+                className="back-btn"
+                onClick={() => setViewUser(null)}
+                aria-label="Go back to seller list"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              Back
-            </button>
-            <button
-              className="close-btn"
-              onClick={() => setViewUser(null)}
-              aria-label="Close seller details"
-            >
-              ×
-            </button>
-          </div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="back-icon"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                Back
+              </button>
+              <button
+                className="close-btn"
+                onClick={() => setViewUser(null)}
+                aria-label="Close seller details"
+              >
+                ×
+              </button>
+            </div>
 
-          <div className="user-profile-card">
-            <div className="user-avatar-container">
-              <div className="avatar-placeholder">
-                {viewUser.name ? viewUser.name.charAt(0).toUpperCase() : "S"}
+            <div className="user-profile-card">
+              <div className="user-avatar-container">
+                <div className="avatar-placeholder">
+                  {viewUser.name ? viewUser.name.charAt(0).toUpperCase() : "S"}
+                </div>
+              </div>
+              <h2 className="user-name">{viewUser.name || "N/A"}</h2>
+              <p className="user-email">{viewUser.email || "N/A"}</p>
+            </div>
+
+            <div className="user-stats-section">
+              <h3 className="section-title">Seller Details</h3>
+              <div className="stats-grid">
+                <div className="stat-card">
+                  <span className="stat-label">Shop Name</span>
+                  <span className="stat-value">{viewUser.shopName || "N/A"}</span>
+                </div>
+                <div className="stat-card">
+                  <span by-user-id="ce4ce99f-8f97-4c54-8f65-3fa53d6852e2" className="stat-label">Contact Number</span>
+                  <span className="stat-value">{viewUser.phone || "N/A"}</span>
+                </div>
+                <div className="stat-card">
+                  <span className="stat-label">Role</span>
+                  <span className="stat-value">Seller</span>
+                </div>
+                <div className="stat-card">
+                  <span className="stat-label">Account Created</span>
+                  <span className="stat-value">
+                    {viewUser.date
+                      ? new Date(viewUser.date).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })
+                      : "N/A"}
+                  </span>
+                </div>
               </div>
             </div>
-            <h2 className="user-name">{viewUser.name || "N/A"}</h2>
-            <p className="user-email">{viewUser.email || "N/A"}</p>
-          </div>
 
-          <div className="user-stats-section">
-            <h3 className="section-title">Seller Details</h3>
-            <div className="stats-grid">
-              <div className="stat-card">
-                <span className="stat-label">Shop Name</span>
-                <span className="stat-value">{viewUser.shopName || "N/A"}</span>
-              </div>
-              <div className="stat-card">
-                <span className="stat-label">Contact Number</span>
-                <span className="stat-value">{viewUser.phone || "N/A"}</span>
-              </div>
-              <div className="stat-card">
-                <span className="stat-label">Role</span>
-                <span className="stat-value">Seller</span>
-              </div>
-              <div className="stat-card">
-                <span className="stat-label">Account Created</span>
-                <span className="stat-value">
-                  {viewUser.date
-                    ? new Date(viewUser.date).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })
-                    : "N/A"}
-                </span>
-              </div>
+            <div className="user-actions-section">
+              <button
+                className="action-btn edit-btn"
+                onClick={() =>
+                  handleEditUser(users.findIndex((u) => u._id === viewUser._id))
+                }
+              >
+                Edit Seller
+              </button>
             </div>
           </div>
-
-          <div className="user-actions-section">
-            <button
-              className="action-btn edit-btn"
-              onClick={() =>
-                handleEditUser(users.findIndex((u) => u._id === viewUser._id))
-              }
+        ) : (
+          <div className="user-details-placeholder">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="placeholder-icon"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
-              Edit Seller
-            </button>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5h6a2 2 0 012 2v10a2 2 0 01-2 2H9a2 2 0 01-2-2V7a2 2 0 012-2zm3 7v2m0 0v2m0-2h-2m2 0h2"
+              />
+            </svg>
+            <h3 className="placeholder-title">No Seller Selected</h3>
+            <p className="placeholder-text">
+              Click the "View" button on a seller to display their details here.
+            </p>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {editingUser !== null && (
         <div className="modal-overlay">

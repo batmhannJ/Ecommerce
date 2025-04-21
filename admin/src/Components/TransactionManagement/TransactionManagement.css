@@ -1,135 +1,335 @@
+/* Modern Teal-Themed Transaction Management Styling */
+:root {
+  --primary: #14b8a6; /* Vibrant teal */
+  --primary-light: #2dd4bf;
+  --primary-dark: #0f766e;
+  --secondary: #f59e0b; /* Warm yellow accent */
+  --text-dark: #111827;
+  --text-medium: #6b7280;
+  --text-light: #d1d5db;
+  --background: #f3f4f6; /* Soft gray background */
+  --white: #ffffff;
+  --border-light: #e5e7eb;
+  --shadow: 0 3px 10px rgba(20, 184, 166, 0.1); /* Teal-tinted shadow */
+  --success: #22c55e;
+  --warning: #eab308;
+  --info: #3b82f6;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Main container */
 .transaction-management-container {
-  margin-top: 20px;
-  padding: 20px;
-  width: 1150px;
-  height: 670px; /* Set the desired height */
-  overflow-y: auto; /* Allow vertical scrolling */
-  border-radius: 10px; /* Optional: Round the corners */
-  background-color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Add shadow effect */
-  margin-left: 15px;
-}
-
-.transaction-management-container h1 {
-  font-size: 24px;
-  margin-bottom: 20px;
-  color: #333;
-  text-align: center; /* Center text */
-}
-
-.transaction-search {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1400px; /* Wider container */
+  height: 90vh; /* Taller for spacious feel */
+  padding: clamp(20px, 2.5vw, 24px);
+  border-radius: 16px;
+  background: var(--white);
+  box-shadow: var(--shadow);
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  overflow-y: auto;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-light);
+  margin: 24px auto; /* Maintain vertical centering */
+  transform: translateX(10%); /* Shift right on large screens */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Heading */
+.transaction-management-container h1 {
+  font-size: 32px;
+  font-weight: 900;
+  color: #111827;
+  text-align: center;
+  margin-bottom: 10px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  background: linear-gradient(to right, #3b82f6, #10b981);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Search controls */
+.transaction-search {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-light);
+  border-radius: 8px; /* Fixed: replaced --border-radius */
+  font-size: 0.95rem;
+  color: var(--text-dark); /* Fixed: replaced --text-primary */
+  background: #f8fafc;
+  transition: all 0.3s ease; /* Fixed: replaced --transition */
   margin-bottom: 20px;
 }
 
 .transaction-search input {
-  padding: 8px;
+  padding: 10px 14px 10px 40px;
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
+  background: var(--background);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 14px;
-  border: 2px solid #ddd;
-  border-radius: 4px;
-  margin-right: 10px;
-  width: 300px; /* Default width */
-}
-
-.transaction-search button {
-  padding: 8px 16px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.transaction-search button:hover {
-  background-color: #0056b3;
-}
-
-.transaction-table {
+  color: var(--text-dark);
+  outline: none;
+  transition: all 0.3s ease;
   width: 100%;
-  border-collapse: collapse;
+  box-shadow: 0 2px 5px rgba(20, 184, 166, 0.05);
 }
 
-.transaction-table th,
-.transaction-table td {
-  border: 1px solid #ddd;
-  padding: 12px;
-  text-align: left;
+.transaction-search input:focus,
+.transaction-search input:hover {
+  border-color: var(--primary-light);
+  box-shadow: 0 3px 8px rgba(20, 184, 166, 0.15);
+  transform: translateY(-1px);
 }
 
-.transaction-table th {
-  background-color: #f4f4f4;
-  font-weight: bold;
+/* Transaction list */
+.transaction-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Two-column grid */
+  gap: 14px; /* Compact gap */
+  width: 100%; /* Allows scaling */
 }
 
-.transaction-table td {
-  color: #333;
+/* Transaction item */
+.transaction-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--white);
+  box-shadow: 0 3px 8px rgba(20, 184, 166, 0.08);
+  border: 1px solid var(--border-light);
+  transition: all 0.3s ease;
+  position: relative;
+  max-width: 400px; /* Compact card width */
+  margin: 0 auto; /* Center within grid column */
+}
+
+.transaction-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 12px rgba(20, 184, 166, 0.15);
+  border-color: #5b7fa7;
+}
+
+/* Transaction ID badge */
+.transaction-id {
+  display: inline-flex;
+  align-items: center;
+  background: #5b7fa7;
+  color: var(--white);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  transition: all 0.3s ease;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.transaction-id:hover {
+  background: #3d5f86;
+  transform: scale(1.05);
+}
+
+/* Transaction details (Receipt-like design) */
+.transaction-details {
+  display: flex;
+  flex-direction: column; /* Vertical list for receipt style */
+  gap: 6px;
+  padding: 10px;
+  border-top: 1px dotted var(--border-light);
+  border-bottom: 1px dotted var(--border-light);
+  background: #fafafa; /* Subtle background for receipt effect */
+}
+
+.transaction-detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.detail-label {
+  font-size: 12px;
+  color: var(--text-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  font-weight: 500;
+  flex: 0 0 40%; /* Fixed width for labels */
+}
+
+.detail-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dark);
+  flex: 1;
+  text-align: right; /* Right-aligned for receipt style */
+}
+
+.price-value {
+  color: #1173a0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* Transaction actions */
+.transaction-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-light);
 }
 
 .action-button {
-  border: none;
   padding: 8px 12px;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  margin-right: 8px;
+  border-radius: 8px;
+  border: none;
+  background: var(--primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
   font-weight: 600;
-}
-
-.action-button.view {
-  background-color: #28a745;
-  color: white;
-}
-
-.action-button.edit {
-  background-color: #007bff;
-  color: white;
+  color: var(--white);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
 }
 
 .action-button.delete {
-  background-color: #dc3545;
-  color: white;
+  background: #ef4444;
 }
 
 .action-button:hover {
-  opacity: 0.9;
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+.action-button.delete:hover {
+  background: #dc2626;
+}
+
+/* Empty state */
+.empty-transactions {
+  grid-column: 1 / -1; /* Span both columns */
+  padding: 20px;
+  text-align: center;
+  background: var(--background);
+  border-radius: 12px;
+  border: 1px dashed var(--border-light);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.empty-transactions p {
+  font-size: 16px;
+  color: var(--text-medium);
+  margin: 0;
+  font-weight: 500;
 }
 
 /* Responsive design */
+@media (min-width: 1800px) {
+  .transaction-management-container {
+    max-width: 1500px; /* Widened to match base */
+  }
+
+  .transaction-item {
+    max-width: 450px; /* Slightly larger for bigger screens */
+  }
+}
+
+@media (max-width: 1200px) {
+  .transaction-management-container {
+    max-width: 95%;
+    margin-right: 200px;
+    margin-left: -50px;
+  }
+}
+
+@media (max-width: 992px) {
+  .transaction-management-container {
+    padding: 16px;
+    height: 92vh;
+    margin: 20px auto;
+    margin-left: 10px;
+    transform: translateX(5%); /* Shifted less right for small screens */
+  }
+
+  .transaction-list {
+    grid-template-columns: 1fr; /* Single column on smaller screens */
+  }
+
+  .transaction-item {
+    max-width: 500px; /* Slightly wider for single column */
+  }
+}
+
 @media (max-width: 768px) {
+  .transaction-management-container {
+    margin: 16px auto;
+    padding: 14px;
+    height: 93vh;
+  }
+
   .transaction-search {
-    flex-direction: column; /* Stack search bar items */
-    align-items: flex-start; /* Align to the start */
+    justify-content: center;
+    width: 100%;
   }
 
   .transaction-search input {
-    width: 100%; /* Full width */
-    margin-bottom: 10px; /* Add space below */
+    width: 100%;
+    min-width: unset;
   }
+}
 
-  .transaction-search button {
-    width: 100%; /* Full width */
-  }
-
-  .transaction-table th, 
-  .transaction-table td {
-    padding: 8px; /* Reduce padding for smaller screens */
-    font-size: 12px; /* Adjust font size */
-  }
-
+@media (max-width: 576px) {
   .transaction-management-container {
-    height: auto; /* Adjust height for smaller screens */
+    padding: 12px;
+    margin-right: 160px;
+    margin-left: -10px;
+  }
+
+  .transaction-search {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .transaction-list {
+    gap: 10px;
+  }
+
+  .transaction-id {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+
+  .transaction-item {
+    padding: 12px;
+    max-width: 100%;
   }
 }
 
 @media (max-width: 480px) {
-  .transaction-management-container h1 {
-    font-size: 20px; /* Smaller font size */
+  .transaction-management-container {
+    padding: 10px;
+    margin-right: 160px;
+    
   }
 
-  .transaction-search input,
-  .transaction-search button {
-    font-size: 12px; /* Smaller font size */
+  .transaction-search input {
+    padding: 8px 12px 8px 36px;
+    font-size: 13px;
+  }
+
+  .detail-label {
+    font-size: 11px;
+    flex: 0 0 50%; /* Adjust for smaller screens */
+  }
+
+  .detail-value {
+    font-size: 11px;
   }
 }

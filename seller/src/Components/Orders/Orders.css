@@ -1,5 +1,4 @@
 /* Modern Purple-Themed Order Page Styling - Enhanced Design */
-
 :root {
   --primary: #6a5acd; /* Main purple */
   --primary-light: #8a7ddb;
@@ -46,6 +45,27 @@ html, body {
   border: 1px solid var(--border-light);
   margin: 0 auto;
   margin-top: 10px;
+}
+
+/* Order add container */
+.order.add {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1020px; /* Narrower than main order page for focus */
+  min-height: 650px; /* Ensure enough space for form */
+  padding: clamp(20px, 3vw, 30px);
+  border-radius: 16px;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  transition: all 0.3s ease;
+  position: relative;
+  left: 55%;
+  transform: translateX(-50%);
+  border: 1px solid var(--border-light);
+  margin: 20px auto;
 }
 
 /* Section heading - bold and modern */
@@ -133,27 +153,27 @@ html, body {
 /* Order ID badge - Integrated into order-details */
 .order-id {
   display: inline-block;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark)); /* Gradient background */
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: var(--white);
   padding: 6px 12px;
-  border-radius: 20px; /* More rounded */
+  border-radius: 20px;
   font-size: clamp(11px, 1vw, 12px);
   font-weight: 600;
   letter-spacing: 0.8px;
-  cursor: pointer; /* Indicate it's clickable */
+  cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(106, 90, 205, 0.3); /* Subtle shadow */
+  box-shadow: 0 2px 8px rgba(106, 90, 205, 0.3);
   text-align: center;
 }
 
 .order-id:hover {
-  transform: scale(1.05); /* Slight scale on hover */
-  background: linear-gradient(135deg, var(--primary-light), var(--primary)); /* Reverse gradient on hover */
-  box-shadow: 0 4px 12px rgba(106, 90, 205, 0.4); /* Enhanced shadow on hover */
+  transform: scale(1.05);
+  background: linear-gradient(135deg, var(--primary-light), var(--primary));
+  box-shadow: 0 4px 12px rgba(106, 90, 205, 0.4);
 }
 
 .order-id:active {
-  transform: scale(0.95); /* Slight scale down on click */
+  transform: scale(0.95);
 }
 
 /* Order item header */
@@ -226,9 +246,9 @@ html, body {
 }
 
 .order-detail-item.order-id-container {
-  grid-column: span 2; /* Make the order-id span both columns */
+  grid-column: span 2;
   display: flex;
-  justify-content: flex-start; /* Align to the left */
+  justify-content: flex-start;
   align-items: center;
 }
 
@@ -319,9 +339,37 @@ html, body {
 }
 
 /* Responsive design */
+@media (min-width: 1800px) {
+  .order {
+    max-width: 1700px;
+  }
+
+  .order-list {
+    gap: 25px;
+  }
+
+  .order-item {
+    padding: 25px;
+  }
+
+  .order.add {
+    max-width: 1100px;
+    min-height: 700px;
+    padding: clamp(25px, 3vw, 35px);
+    left: 50%;
+  }
+}
+
 @media (max-width: 1200px) {
   .order {
     max-width: 98%;
+  }
+
+  .order.add {
+    max-width: 900px;
+    min-height: 600px;
+    padding: clamp(16px, 2vw, 22px);
+    left: 50%;
   }
 }
 
@@ -336,6 +384,13 @@ html, body {
 
   .order-item {
     padding: 15px;
+  }
+
+  .order.add {
+    max-width: 85%;
+    min-height: 550px;
+    padding: clamp(14px, 1.8vw, 18px);
+    left: 50%;
   }
 }
 
@@ -362,6 +417,13 @@ html, body {
   .order-item-food {
     font-size: clamp(14px, 1.3vw, 15px);
   }
+
+  .order.add {
+    max-width: 90%;
+    min-height: 500px;
+    padding: clamp(12px, 1.5vw, 16px);
+    left: 50%;
+  }
 }
 
 @media (max-width: 576px) {
@@ -380,7 +442,7 @@ html, body {
   }
 
   .order-list {
-    grid-template-columns: 1fr; /* Switch to single column */
+    grid-template-columns: 1fr;
     gap: 12px;
   }
 
@@ -396,6 +458,13 @@ html, body {
   .order-id {
     font-size: 11px;
     padding: 5px 10px;
+  }
+
+  .order.add {
+    max-width: 95%;
+    min-height: 450px;
+    padding: clamp(10px, 1.2vw, 14px);
+    left: 50%;
   }
 }
 
@@ -423,18 +492,11 @@ html, body {
     font-size: 10px;
     padding: 4px 8px;
   }
-}
 
-@media (min-width: 1800px) {
-  .order {
-    max-width: 1700px;
-  }
-
-  .order-list {
-    gap: 25px;
-  }
-
-  .order-item {
-    padding: 25px;
+  .order.add {
+    max-width: 98%;
+    min-height: 400px;
+    padding: clamp(8px, 1vw, 12px);
+    left: 50%;
   }
 }

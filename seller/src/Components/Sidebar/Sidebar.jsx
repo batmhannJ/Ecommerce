@@ -23,6 +23,9 @@ export const Sidebar = () => {
 
       {/* Sidebar Items */}
       <div className={`sidebar-items ${isMenuOpen ? 'open' : ''}`}>
+        {/* Close Button for Mobile */}
+        <div className="close-button" onClick={toggleMenu}></div>
+
         <Link to={'addproduct'} style={{ textDecoration: "none" }} onClick={() => setIsMenuOpen(false)}>
           <div className="sidebar-item">
             <img src={add_product_icon} alt="Add Product" />

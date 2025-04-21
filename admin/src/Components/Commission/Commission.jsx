@@ -49,7 +49,6 @@ const Commission = () => {
 
         const newData = { ...data };
 
-        // Ensure monthlyRevenue is always an array
         newData.monthlyRevenue = Array.isArray(monthlyResponse.data.monthlyRevenue)
           ? monthlyResponse.data.monthlyRevenue
           : [];
@@ -119,12 +118,10 @@ const Commission = () => {
     if (data.monthlyRevenue.length > 0) {
       const ctx = document.getElementById("monthlyCommissionChart").getContext("2d");
 
-      // Destroy existing chart if it exists to prevent overlap
       if (window.monthlyCommissionChart instanceof Chart) {
         window.monthlyCommissionChart.destroy();
       }
 
-      // Compute max value for dynamic scaling
       const maxCommission = Math.max(
         ...data.monthlyRevenue.map((month) => month.seller + month.rider)
       );
@@ -196,121 +193,142 @@ const Commission = () => {
   }, [data.monthlyRevenue]);
 
   return (
-    <div className="bg-gray-50 min-h-screen p-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">BizGo Admin Commission Dashboard</h1>
-          <p className="text-gray-500">Income generated from Seller and Rider commissions</p>
-        </div>
+    <div className="dashboard-container">
+      <header className="dashboard-header">
+        <h1 className="header-title">BizGo Commission Dashboard</h1>
+        <p className="header-subtitle">Track income from Seller and Rider commissions</p>
+      </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-blue-600 text-lg font-semibold mb-2">Partner Commission</div>
-            <div className="text-3xl font-bold">₱{data.totalCommissions.fromSeller.toLocaleString()}</div>
-            <div className="text-gray-500 text-sm mt-1">Based on markup values</div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-green-600 text-lg font-semibold mb-2">Commission from Rider</div>
-            <div className="text-3xl font-bold">₱{data.totalCommissions.fromRider.toLocaleString()}</div>
-            <div className="text-gray-500 text-sm mt-1">Based on delivery commission</div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-purple-600 text-lg font-semibold mb-2">Total Commission</div>
-            <div className="text-3xl font-bold">₱{data.totalCommissions.total.toLocaleString()}</div>
-            <div className="text-gray-500 text-sm mt-1">Combined income from all sources</div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">Monthly Commission Income</h2>
-          <div className="h-64">
-            {data.monthlyRevenue.length > 0 ? (
-              <canvas id="monthlyCommissionChart" className="w-full h-full"></canvas>
-            ) : (
-              <div className="h-64 flex items-center justify-center text-gray-500">
-                No monthly commission data available
+      <main className="dashboard-main">
+        {/* Summary and Chart Section */}
+        <section className="summary-chart-grid">
+          {/* Summary Cards */}
+          <div className="summary-column">
+            <div className="summary-card">
+              <div className="card-content">
+                <div className="card-text">
+                  <div className="card-header">
+                    <h3 className="card-title seller">Seller Commission</h3>
+                  </div>
+                  <p className="card-value">₱{data.totalCommissions.fromSeller.toLocaleString()}</p>
+                  <p className="card-subtitle">From markup values</p>
+                </div>
+                <div className="card-icon-container">
+                  <i className="fas fa-store card-icon"></i>
+                </div>
               </div>
-            )}
+            </div>
+            <div className="summary-card">
+              <div className="card-content">
+                <div className="card-text">
+                  <div className="card-header">
+                    <h3 className="card-title rider">Rider Commission</h3>
+                  </div>
+                  <p className="card-value">₱{data.totalCommissions.fromRider.toLocaleString()}</p>
+                  <p className="card-subtitle">From delivery fees</p>
+                </div>
+                <div className="card-icon-container">
+                  <i className="fas fa-motorcycle card-icon"></i>
+                </div>
+              </div>
+            </div>
+            <div className="summary-card">
+              <div className="card-content">
+                <div className="card-text">
+                  <div className="card-header">
+                    <h3 className="card-title total">Total Commission</h3>
+                  </div>
+                  <p className="card-value">₱{data.totalCommissions.total.toLocaleString()}</p>
+                  <p className="card-subtitle">Combined income</p>
+                </div>
+                <div className="card-icon-container">
+                  <i className="fas fa-money-bill card-icon"></i>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Top Sellers</h2>
-            <div className="space-y-4">
+          {/* Chart */}
+          <div className="chart-column">
+            <div className="chart-card">
+              <h2 className="chart-title">Monthly Commission Trend</h2>
+              <div className="chart-container">
+                {data.monthlyRevenue.length > 0 ? (
+                  <canvas id="monthlyCommissionChart"></canvas>
+                ) : (
+                  <div className="chart-placeholder">
+                    No monthly commission data available
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Top Performers Section */}
+        <section className="performers-grid">
+          {/* Top Sellers */}
+          <div className="performers-card">
+            <h2 className="performers-title">Top Sellers</h2>
+            <div className="performers-list">
               {data.topPerformers.sellers.length > 0 ? (
                 data.topPerformers.sellers.map((seller, index) => (
-                  <div key={seller.id || `seller-${index}`} className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                          index === 0
-                            ? "bg-yellow-100 text-yellow-800"
-                            : index === 1
-                            ? "bg-gray-100 text-gray-800"
-                            : "bg-orange-100 text-orange-800"
-                        }`}
-                      >
+                  <div key={seller.id || `seller-${index}`} className="performer-item">
+                    <div className="performer-info">
+                      <span className={`rank-badge rank-${index + 1}`}>
                         {index + 1}
-                      </div>
-                      <div className="ml-3">
-                        <div className="font-medium">
+                      </span>
+                      <div className="performer-details">
+                        <p className="performer-name">
                           {seller.name} ({seller.shopName})
                           {seller.debugItems && seller.name === 'Unknown Seller' && (
-                            <span className="text-xs text-red-500 ml-2">
-                              Unmatched items: {seller.debugItems.join(', ')}
+                            <span className="debug-info">
+                              Unmatched: {seller.debugItems.join(', ')}
                             </span>
                           )}
-                        </div>
-                        <div className="text-sm text-gray-500">Sales: ₱{seller.sales.toLocaleString()}</div>
+                        </p>
+                        <p className="performer-stats">Sales: ₱{seller.sales.toLocaleString()}</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="font-semibold text-blue-600">₱{seller.commission.toLocaleString()}</div>
-                      <div className="text-xs text-gray-500">Commission</div>
+                    <div className="performer-commission">
+                      <p className="commission-value">₱{seller.commission.toLocaleString()}</p>
+                      <p className="commission-label">Commission</p>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-gray-500">
-                  No top sellers found. Ensure transaction items match product names and are linked to sellers.
-                </div>
+                <p className="no-data">
+                  No top sellers found. Check transaction item mappings.
+                </p>
               )}
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Top Riders</h2>
-            <div className="space-y-4">
+          {/* Top Riders */}
+          <div className="performers-card">
+            <h2 className="performers-title">Top Riders</h2>
+            <div className="performers-list">
               {data.topPerformers.riders.map((rider, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        index === 0
-                          ? "bg-yellow-100 text-yellow-800"
-                          : index === 1
-                          ? "bg-gray-100 text-gray-800"
-                          : "bg-orange-100 text-orange-800"
-                      }`}
-                    >
+                <div key={index} className="performer-item">
+                  <div className="performer-info">
+                    <span className={`rank-badge rank-${index + 1}`}>
                       {index + 1}
-                    </div>
-                    <div className="ml-3">
-                      <div className="font-medium">{rider.name}</div>
-                      <div className="text-sm text-gray-500">Deliveries: {rider.deliveries}</div>
+                    </span>
+                    <div className="performer-details">
+                      <p className="performer-name">{rider.name}</p>
+                      <p className="performer-stats">Deliveries: {rider.deliveries}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-semibold text-green-600">₱{rider.commission.toLocaleString()}</div>
-                    <div className="text-xs text-gray-500">Commission</div>
+                  <div className="performer-commission">
+                    <p className="commission-value">₱{rider.commission.toLocaleString()}</p>
+                    <p className="commission-label">Commission</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   );
 };

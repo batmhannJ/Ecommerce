@@ -1,187 +1,534 @@
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #fafafa;
+  color: #1a202c;
+  overflow-x: hidden; /* Prevent horizontal scroll on narrow screens */
+}
+
+/* Dashboard Container */
 .dashboard-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Center the dashboard horizontally */
-    width: 100%;
-    max-width: 1200px; /* Matches the max-width of the dashboard */
-    max-height: 100vh; /* Ensure it does not exceed viewport height */
-    overflow-y: auto; /* Adds vertical scroll if content overflows */
-    margin-left: auto; /* Center the container if the sidebar takes full height */
-    margin-right: auto;
-    padding: 0 10px; /* Add padding to ensure content does not touch edges */
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px;
+  min-height: 100vh;
+  width: 100%; /* Ensure full width on all screens */
 }
 
-/* Existing Dashboard Styles */
-.dashboard {
-    padding-top: 90px;
-    padding-right: 30px;
-    padding-left: 30px;
-    padding-bottom: 40px;
-    min-height: 100vh; /* Ensures the dashboard takes up at least the full viewport height */
-    min-width: 320px; /* Minimum width for the dashboard */
-    font-family: 'Poppins', sans-serif; /* Font for the dashboard */
-    width: 100%; /* Ensures the background spans the full width */
-    max-width: 1200px; /* Ensures the maximum width */
-    box-sizing: border-box; /* Ensures padding is included in the element's total width and height */
-    margin-left: 10px; /* Moves the entire dashboard to the right */
-    margin-right: auto; /* Keeps the right margin automatic */
-    
-  border-radius: 10px; /* Optional: Round the corners */
+/* Header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
   background-color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Add shadow effect */
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 24px;
+  flex-wrap: wrap; /* Allow wrapping on narrow screens */
 }
 
-/* Dashboard Heading */
-.dashboard h1 {
-    text-align: center;
-    color: #2c3e50;
-    margin-top: -70px; /* Adjusted to move the heading higher */
-    margin-bottom: 40px;
-    font-size: 2.5rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+.dashboard-header h1 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #2d3748;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap; /* Allow buttons to wrap on small screens */
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-pdf {
+  background-color: #e53e3e;
+  color: #ffffff;
+}
+
+.btn-xlsx {
+  background-color: #38a169;
+  color: #ffffff;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
 }
 
 /* Metrics Section */
-.dashboard-metrics {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 25px;
-    margin-bottom: 50px;
+.metrics-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
-.metric-box {
-    background: linear-gradient(145deg, #ffffff, #f0f0f0);
-    border-radius: 15px;
-    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-    padding: 10px;
-    text-align: center;
-    width: 30%; /* Adjusted width for better responsiveness */
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid #ddd;
+.metric {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  transition: box-shadow 0.2s;
 }
 
-.export-button-container {
-    display: flex;
-    justify-content: flex-end; /* Aligns the button to the right */
-    margin-top: -20px;
-    margin-bottom: 10px;
+.metric:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.metric-label {
+  display: block;
+  font-size: 0.875rem;
+  color: #718096;
+  margin-bottom: 8px;
+}
+
+.metric-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2b6cb0;
+}
+
+/* Charts Section */
+.charts-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.chart {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  transition: box-shadow 0.2s;
+  width: 530px;
+}
+
+.chart-wide {
+  grid-column: span 2;
+}
+
+.chart:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.chart h2 {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #2d3748;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.chart-content {
+  height: 200px; /* Compact chart height */
+  position: relative;
+}
+
+/* Ensure charts are responsive */
+.chart-content canvas {
+  max-height: 200px !important;
+  width: 100% !important;
+}
+
+/* Responsive Design */
+
+/* Ultra-Large Screens (1440px and above, e.g., 4K monitors, ultra-wide) */
+@media (min-width: 1440px) {
+  .dashboard-container {
+    max-width: 1600px; /* Slightly wider for ultra-large screens */
+    padding: 24px;
   }
-  
-.metric-box:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
-}
 
-.metric-box h3 {
-    color: #34495e;
+  .dashboard-header {
+    padding: 20px 32px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .btn {
+    padding: 10px 20px;
     font-size: 1rem;
-    margin-bottom: 10px;
-    letter-spacing: 0.5px;
-}
+  }
 
-.metric-box p {
-    font-size: 1.5rem;
-    color: #1abc9c;
-    font-weight: 700;
-}
+  .metrics-section {
+    gap: 24px;
+  }
 
-/* General chart styles */
-.chart-container {
-    display: flex;
-    flex-wrap: wrap; /* Allows charts to wrap on smaller screens */
-    gap: 15px; /* Reduced gap between charts */
-    margin-bottom: 30px; /* Space between charts and other sections */
-}
-
-/* Sales Growth Rate Graph */
-.chart1 {
-    flex: 1;
-    max-width: 100%; /* Adjusts to the container width */
-    max-height: 310px; /* Constrained height */
-    background: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+  .metric {
     padding: 20px;
-    margin-right: 0; /* Removed right margin for wrapping */
+  }
+
+  .metric-label {
+    font-size: 1rem;
+  }
+
+  .metric-value {
+    font-size: 1.5rem;
+  }
+
+  .charts-section {
+    gap: 24px;
+  }
+
+  .chart {
+    padding: 20px;
+  }
+
+  .chart h2 {
+    font-size: 1.125rem;
+  }
+
+  .chart-content {
+    height: 240px; /* Slightly larger charts for large screens */
+  }
+
+  .chart-content canvas {
+    max-height: 240px !important;
+  }
 }
 
+/* Large Screens (1024px to 1440px, e.g., laptops, desktops) */
+@media (max-width: 1440px) and (min-width: 1024px) {
+  .dashboard-container {
+    max-width: 1280px;
+    padding: 20px;
+  }
 
-/* Sales by Product Graph */
-.chart2 {
-    flex: 1;
-    max-width: 100%; /* Adjusts to the container width */
-    height: 510px;
-    background: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-    padding: 30px;
-    margin-left: 0; /* Removed left margin for wrapping */
+  .dashboard-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+  }
+
+  .metrics-section {
+    gap: 20px;
+  }
+
+  .metric {
+    padding: 16px;
+  }
+
+  .metric-value {
+    font-size: 1.25rem;
+  }
+
+  .charts-section {
+    gap: 20px;
+  }
+
+  .chart-content {
+    height: 200px;
+  }
 }
 
-/* Sales by Category Graph */
-.chart3 {
-    flex: 1;
-    width: 48%; /* Set width while allowing flexibility */
-    max-width: 100%; /* Ensures it doesn't exceed the container width */
-    max-height: 310px; /* Constrained height */
-    background: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-    padding: 30px;
-    box-sizing: border-box; /* Ensure padding is included in the width */
-    display: flex; /* Use flexbox to center content */
-    flex-direction: column; /* Arrange items vertically */
-    align-items: center; /* Center items horizontally */
-    justify-content: center; /* Center items vertically */
-    margin: 0 auto; /* Center the chart horizontally */
+/* Medium Screens (768px to 1024px, e.g., tablets, small laptops) */
+@media (max-width: 1024px) {
+  .charts-section {
+    grid-template-columns: 1fr; /* Stack charts vertically */
+  }
+
+  .chart-wide {
+    grid-column: span 1;
+  }
+
+  .dashboard-container {
+    padding: 16px;
+  }
+
+  .dashboard-header {
+    padding: 14px 20px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.375rem;
+  }
+
+  .btn {
+    padding: 7px 14px;
+    font-size: 0.8125rem;
+  }
+
+  .metrics-section {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+  }
+
+  .metric {
+    padding: 14px;
+  }
+
+  .metric-label {
+    font-size: 0.8125rem;
+  }
+
+  .metric-value {
+    font-size: 1.125rem;
+  }
+
+  .chart {
+    padding: 14px;
+    width: 500px;
+  }
+
+  .chart h2 {
+    font-size: 0.9375rem;
+  }
+
+  .chart-content {
+    height: 180px; /* Slightly smaller charts */
+  }
+
+  .chart-content canvas {
+    max-height: 180px !important;
+  }
 }
 
-/* Heading styles for each chart */
-.chart1 h1, .chart2 h1, .chart3 h1 {
-    color: #34495e;
-    font-size: 1.8rem;
-    margin-bottom: 20px;
-    text-align: center;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* Responsive Design for Charts */
+/* Small Screens (480px to 768px, e.g., large phones, small tablets) */
 @media (max-width: 768px) {
-    .dashboard h1 {
-        font-size: 2rem;
-    }
+  .dashboard-header {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+    padding: 12px 16px;
+  }
 
-    .chart-container {
-        flex-direction: column; /* Stacks charts vertically on small screens */
-    }
+  .action-buttons {
+    justify-content: center;
+  }
 
-    .metric-box {
-        width: 100%; /* Full width on small screens */
-    }
+  .metrics-section {
+    grid-template-columns: 1fr; /* Single column for metrics */
+    gap: 12px;
+  }
 
-    .chart1, .chart2, .chart3 {
-        margin-bottom: 25px; /* Space between stacked charts */
-    }
+  .metric {
+    padding: 12px;
+  }
+
+  .metric-label {
+    font-size: 0.75rem;
+  }
+
+  .metric-value {
+    font-size: 1rem;
+  }
+
+  .charts-section {
+    gap: 12px;
+  }
+
+  .chart {
+    padding: 12px;
+    width: 350px;
+  }
+
+  .chart h2 {
+    font-size: 0.875rem;
+  }
+
+  .chart-content {
+    height: 160px; /* Even smaller charts */
+  }
+
+  .chart-content canvas {
+    max-height: 160px !important;
+  }
 }
 
+/* Ultra-Small Screens (below 480px, e.g., small phones, narrow devices) */
 @media (max-width: 480px) {
-    .dashboard h1 {
-        font-size: 1.8rem;
-    }
+  .dashboard-container {
+    padding: 12px;
+  }
 
-    .metric-box {
-        width: 95%; /* Adjusted width for better fit */
-    }
+  .dashboard-header {
+    padding: 10px 12px;
+  }
 
-    .metric-box p {
-        font-size: 1.8rem;
-    }
+  .dashboard-header h1 {
+    font-size: 1.25rem;
+  }
 
-    .chart1 h3, .chart2 h3, .chart3 h3 {
-        font-size: 1.3rem;
-    }
+  .action-buttons {
+    gap: 6px;
+  }
+
+  .btn {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+  }
+
+  .metrics-section {
+    gap: 10px;
+  }
+
+  .metric {
+    padding: 10px;
+  }
+
+  .metric-label {
+    font-size: 0.6875rem;
+  }
+
+  .metric-value {
+    font-size: 0.9375rem;
+  }
+
+  .charts-section {
+    gap: 10px;
+  }
+
+  .chart {
+    padding: 10px;
+  }
+
+  .chart h2 {
+    font-size: 0.8125rem;
+  }
+
+  .chart-content {
+    height: 140px; /* Smallest chart size for narrow screens */
+  }
+
+  .chart-content canvas {
+    max-height: 140px !important;
+  }
+}
+
+/* Edge Case: Very Narrow Screens (below 360px, e.g., old phones, foldables) */
+@media (max-width: 360px) {
+  .dashboard-container {
+    padding: 8px;
+  }
+
+  .dashboard-header {
+    padding: 8px 10px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.125rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn {
+    width: 100%; /* Full-width buttons */
+    padding: 8px;
+    font-size: 0.75rem;
+  }
+
+  .metrics-section {
+    gap: 8px;
+  }
+
+  .metric {
+    padding: 8px;
+  }
+
+  .metric-label {
+    font-size: 0.625rem;
+  }
+
+  .metric-value {
+    font-size: 0.875rem;
+  }
+
+  .chart {
+    padding: 8px;
+  }
+
+  .chart h2 {
+    font-size: 0.75rem;
+  }
+
+  .chart-content {
+    height: 120px; /* Minimal chart height */
+  }
+
+  .chart-content canvas {
+    max-height: 120px !important;
+  }
+}
+
+/* Edge Case: Ultra-Wide Screens (above 1920px, e.g., 4K, ultra-wide monitors) */
+@media (min-width: 1920px) {
+  .dashboard-container {
+    max-width: 1800px; /* Support for ultra-wide screens */
+    padding: 32px;
+  }
+
+  .dashboard-header {
+    padding: 24px 40px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 2rem;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    font-size: 1.125rem;
+  }
+
+  .metrics-section {
+    gap: 32px;
+  }
+
+  .metric {
+    padding: 24px;
+  }
+
+  .metric-label {
+    font-size: 1.125rem;
+  }
+
+  .metric-value {
+    font-size: 1.75rem;
+  }
+
+  .charts-section {
+    gap: 32px;
+  }
+
+  .chart {
+    padding: 24px;
+  }
+
+  .chart h2 {
+    font-size: 1.25rem;
+  }
+
+  .chart-content {
+    height: 280px; /* Larger charts for ultra-wide screens */
+  }
+
+  .chart-content canvas {
+    max-height: 280px !important;
+  }
 }

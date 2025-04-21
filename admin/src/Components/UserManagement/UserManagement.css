@@ -93,8 +93,6 @@
   transition: var(--transition);
 }
 
-
-
 .search-bar-container button {
   padding: 0.75rem 1.25rem;
   border: none;
@@ -281,31 +279,6 @@
   font-weight: 500;
 }
 
-/* Loading Spinner */
-.loading-spinner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem;
-  color: var(--text-secondary);
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-top: 4px solid var(--accent-blue);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin-bottom: 1.25rem;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 /* User Details Panel */
 .user-details-panel {
   position: fixed;
@@ -318,15 +291,35 @@
   padding: 2rem;
   overflow-y: auto;
   z-index: 10;
-  animation: slideIn 0.4s ease;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  animation: slideIn 0.4s ease; /* Default animation for large screens */
 }
 
 @keyframes slideIn {
   from { transform: translateX(100%); }
   to { transform: translateX(0); }
+}
+
+/* User Details Placeholder */
+.user-details-placeholder {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 450px;
+  height: 100vh;
+  background: var(--card-bg);
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.08);
+  padding: 2rem;
+  overflow-y: auto;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: slideIn 0.4s ease; /* Default animation for large screens */
+  align-items: center;
+  justify-content: center;
 }
 
 /* Panel Header */
@@ -687,6 +680,89 @@
   transform: translateY(-2px);
 }
 
+/* Toggle Button for User Details Panel */
+.toggle-panel-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  z-index: 15;
+}
+
+.toggle-panel-btn:hover {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+.toggle-icon {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+/* Collapsed State for User Details Panel and Placeholder (for small/medium screens) */
+.user-details-panel.collapsed,
+.user-details-placeholder.collapsed {
+  transform: translateY(calc(100% - 40px)); /* Keep toggle button visible */
+  visibility: visible; /* Ensure toggle button remains accessible */
+  opacity: 1;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+/* Expanded State (for small/medium screens) */
+.user-details-panel,
+.user-details-placeholder {
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+/* Ensure toggle button is visible only on small/medium screens */
+@media (min-width: 769px) {
+  .toggle-panel-btn {
+    display: none;
+  }
+
+  /* Revert to original fixed-right design on large screens */
+  .user-details-panel,
+  .user-details-placeholder {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 450px;
+    height: 100vh;
+    transform: none !important; /* Override any transform */
+    transition: none !important; /* Disable sliding transitions */
+    visibility: visible !important; /* Always visible */
+    opacity: 1 !important; /* Always fully opaque */
+    animation: slideIn 0.4s ease; /* Original slide-in animation */
+  }
+
+  .user-details-panel.collapsed,
+  .user-details-placeholder.collapsed {
+    transform: none !important; /* Prevent collapsing */
+  }
+
+  .user-details-panel.expanded,
+  .user-details-placeholder.expanded {
+    transform: none !important; /* Prevent sliding */
+  }
+}
+
+/* Adjust user-details-container to position toggle button correctly */
+.user-details-container {
+  position: relative;
+}
+
 /* Responsive Design */
 
 /* Large Tablets (1024px and below) */
@@ -695,17 +771,34 @@
     padding: 2rem;
   }
 
-  .user-details-panel {
+  .user-list-container {
     width: 100%;
-    max-width: 400px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
   }
 
   .user-list-header {
     font-size: 0.85rem;
+    padding: 1rem;
+    background: #f1f5f9;
+    border-bottom: 1px solid var(--border-light);
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .user-list-item {
     padding: 0.75rem;
+    border-bottom: 1px solid var(--border-light);
+    background: #ffffff;
+  }
+
+  .user-list-item:hover {
+    background: #f8fafc;
+    transform: translateX(2px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   }
 
   .view-column {
@@ -724,290 +817,254 @@
   .status-column {
     flex: 0 0 100px;
   }
+
+  .user-details-panel,
+  .user-details-placeholder {
+    width: 100%;
+    max-width: 400px;
+  }
 }
 
-/* Tablets (768px and below) */
 @media (max-width: 768px) {
   .user-management-wrapper {
     padding: 1.5rem;
   }
 
-  .user-management-header h1 {
-    font-size: 1.75rem;
-  }
-
-  .header-controls {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-
-  .header-actions {
-    justify-content: flex-start;
-    width: 100%;
-  }
-
-  .header-actions .action-btn {
-    padding: 0.6rem 1rem;
-    font-size: 0.8rem;
-  }
-
-  .search-bar-container {
-    max-width: 100%;
-  }
-
   .user-list-header {
-    font-size: 0.8rem;
-    padding: 1rem;
-  }
-
-  /* Hide less critical columns on smaller screens */
-  .working-time-column,
-  .status-column {
-    display: none;
-  }
-
-  .user-list-header .working-time-column,
-  .user-list-header .status-column {
-    display: none;
-  }
-
-  .user-list-item {
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    display: flex; /* Ensure header is visible */
+    font-size: 0.75rem;
     padding: 0.75rem;
+    gap: 30px;
   }
 
-  .view-column {
-    flex: 0 0 60px;
+  .user-list-header .view-column {
+    flex: 0 0 50px;
   }
 
-  .view-btn {
-    padding: 0.4rem 0.8rem;
+  .user-list-header .username-column {
+    flex: 1;
+  }
+
+  .user-list-header .status-column {
+    display: flex; /* Show status in header */
+    flex: 0 0 80px;
     font-size: 0.75rem;
   }
 
+  .user-list-header .working-time-column {
+    display: flex; /* Show usage time in header */
+    flex: 0 0 100px;
+    font-size: 0.75rem;
+  }
+
+  .user-list-header .assignee-column {
+    flex: 0 0 40px;
+  }
+
+  .user-list-item {
+    flex-wrap: nowrap; /* Keep columns in a row */
+    gap: 0.3rem;
+    padding: 0.5rem;
+  }
+
+  .view-column {
+    flex: 0 0 50px;
+  }
+
+  .view-btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.7rem;
+  }
+
   .username-column {
-    font-size: 0.9rem;
-    flex: 1 1 100%;
+    flex: 1;
+    font-size: 0.85rem;
     order: 1;
+  }
+
+  .status-column {
+    display: flex; /* Show status */
+    flex: 0 0 80px;
+    font-size: 0.8rem;
+    justify-content: center;
+  }
+
+  .status-column span {
+    padding: 0.2rem 0.6rem;
+    font-size: 100rem;
+  }
+
+  .working-time-column {
+    display: flex; /* Show usage time */
+    flex: 0 0 10  px;
+    font-size: 0.8rem;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .time-progress {
+    width: 80px;
   }
 
   .assignee-column {
-    flex: 0 0 40px;
-    order: 0;
-  }
-
-  .user-details-panel {
-    width: 100%;
-    padding: 1.5rem;
-    max-width: none;
-    height: auto;
-    top: auto;
-    bottom: 0;
-    animation: slideUp 0.4s ease;
-  }
-
-  @keyframes slideUp {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
-  }
-
-  .user-profile-card {
-    padding: 1.5rem;
-  }
-
-  .edit-modal {
-    max-width: 90%;
-    padding: 2rem;
+    flex: 0 0 36px;
   }
 }
 
-/* Mobile Devices (480px and below) */
 @media (max-width: 480px) {
-  .user-management-wrapper {
-    padding: 1rem;
-  }
-
-  .user-management-header h1 {
-    font-size: 1.5rem;
-  }
-
-  .header-actions .action-btn {
-    padding: 0.5rem 0.8rem;
-    font-size: 0.75rem;
-  }
-
   .user-list-header {
-    display: none;
+    display: flex; /* Show header */
+    font-size: 0.7rem;
+    padding: 0.5rem;
+  }
+
+  .user-list-header .view-column {
+    flex: 0 0 45px;
+  }
+
+  .user-list-header .username-column {
+    flex: 1;
+  }
+
+  .user-list-header .status-column {
+    display: flex;
+    flex: 0 0 70px;
+    font-size: 0.7rem;
+  }
+
+  .user-list-header .working-time-column {
+    display: flex;
+    flex: 0 0 90px;
+    font-size: 0.7rem;
+  }
+
+  .user-list-header .assignee-column {
+    flex: 0 0 32px;
   }
 
   .user-list-item {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 0.75rem;
-    gap: 0.5rem;
-    border-bottom: 1px solid var(--border-light);
+    flex-direction: row; /* Maintain row layout */
+    flex-wrap: nowrap;
+    align-items: center;
+    padding: 0.5rem;
+    gap: 0.2rem;
   }
 
   .view-column {
-    flex: 1 1 100%;
-    justify-content: flex-start;
-    order: 2;
+    flex: 0 0 45px;
   }
 
   .view-btn {
-    width: 100%;
-    text-align: center;
-    padding: 0.5rem;
-    font-size: 0.85rem;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.65rem;
   }
 
   .username-column {
-    font-size: 0.85rem;
-    flex: 1 1 100%;
-    order: 1;
+    flex: 1;
+    font-size: 0.8rem;
+  }
+
+  .status-column {
+    display: flex;
+    flex: 0 0 70px;
+    font-size: 0.75rem;
+    justify-content: center;
+  }
+
+  .status-column span {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .working-time-column {
+    display: flex;
+    flex: 0 0 10px;
+    font-size: 0.75rem;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .time-progress {
+    width: 70px;
   }
 
   .assignee-column {
     flex: 0 0 32px;
-    order: 0;
-  }
-
-  .user-avatar {
-    width: 32px;
-    height: 32px;
-  }
-
-  .pagination {
-    padding: 1rem;
-    gap: 0.5rem;
-  }
-
-  .pagination button {
-    padding: 0.5rem 0.8rem;
-    font-size: 0.8rem;
-  }
-
-  .user-details-panel {
-    padding: 1rem;
-  }
-
-  .user-avatar-container {
-    width: 60px;
-    height: 60px;
-  }
-
-  .user-name {
-    font-size: 1.25rem;
-  }
-
-  .user-email {
-    font-size: 0.85rem;
-  }
-
-  .section-title {
-    font-size: 1.1rem;
-  }
-
-  .stat-card {
-    padding: 0.75rem;
-  }
-
-  .stat-label,
-  .stat-value {
-    font-size: 0.85rem;
-  }
-
-  .action-btn {
-    padding: 0.6rem 1.5rem;
-    font-size: 0.9rem;
-  }
-
-  .modal-header h2 {
-    font-size: 1.5rem;
-  }
-
-  .modal-close-btn {
-    font-size: 1.5rem;
-  }
-
-  .form-field label {
-    font-size: 0.85rem;
-  }
-
-  .form-field input {
-    padding: 0.75rem;
-    font-size: 0.9rem;
-  }
-
-  .form-actions {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .submit-btn, .cancel-btn {
-    padding: 0.75rem;
-    font-size: 0.9rem;
-  }
-}
-
-/* Very Small Devices (360px and below) */
-@media (max-width: 360px) {
-  .user-management-wrapper {
-    padding: 0.75rem;
-  }
-
-  .user-management-header h1 {
-    font-size: 1.25rem;
-  }
-
-  .header-actions .action-btn {
-    padding: 0.4rem 0.6rem;
-    font-size: 0.7rem;
-  }
-
-  .user-list-item {
-    padding: 0.5rem;
-  }
-
-  .view-btn {
-    padding: 0.4rem;
-    font-size: 0.8rem;
   }
 
   .user-avatar {
     width: 28px;
     height: 28px;
   }
+}
 
-  .avatar-placeholder {
-    font-size: 0.9rem;
+@media (max-width: 360px) {
+  .user-list-header {
+    font-size: 0.65rem;
+    padding: 0.4rem;
   }
 
-  .pagination button {
-    padding: 0.4rem 0.6rem;
+  .user-list-header .view-column {
+    flex: 0 0 40px;
+  }
+
+  .user-list-header .status-column {
+    flex: 0 0 60px;
+  }
+
+  .user-list-header .working-time-column {
+    flex: 0 0 80px;
+  }
+
+  .user-list-header .assignee-column {
+    flex: 0 0 28px;
+  }
+
+  .user-list-item {
+    padding: 0.4rem;
+    gap: 0.2rem;
+  }
+
+  .view-column {
+    flex: 0 0 40px;
+  }
+
+  .view-btn {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.6rem;
+  }
+
+  .username-column {
     font-size: 0.75rem;
   }
 
-  .user-details-panel {
-    padding: 0.75rem;
+  .status-column {
+    flex: 0 0 60px;
+    font-size: 0.7rem;
   }
 
-  .user-profile-card {
-    padding: 1rem;
+  .status-column span {
+    padding: 0.15rem 0.4rem;
+    font-size: 0.65rem;
   }
 
-  .user-avatar-container {
-    width: 50px;
-    height: 50px;
+  .working-time-column {
+    flex: 0 0 10px;
+    font-size: 0.7rem;
   }
 
-  .user-name {
-    font-size: 1.1rem;
+  .time-progress {
+    width: 60px;
   }
 
-  .edit-modal {
-    padding: 1.5rem;
+  .assignee-column {
+    flex: 0 0 28px;
+  }
+
+  .user-avatar {
+    width: 26px;
+    height: 26px;
   }
 }
+
+

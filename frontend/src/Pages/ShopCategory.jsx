@@ -616,15 +616,6 @@ const ShopCategory = (props) => {
                     )}
                   </div>
                   
-                  {/* Additional Specs (for gadgets) */}
-                  {props.category === 'gadgets' && (
-                    <div className="product-specs">
-                      {item.ram && <span className="spec">{item.ram}</span>}
-                      {item.storage && <span className="spec">{item.storage}</span>}
-                      {item.processor && <span className="spec">{item.processor}</span>}
-                    </div>
-                  )}
-                  
                   {/* List View Additional Information */}
                   {viewMode === 'list' && (
                     <div className="product-description">

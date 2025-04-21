@@ -53,6 +53,9 @@ flutter:
     - Assets/svg/
     - Assets/Logo/introbg.png
     - Assets/Logo/logobg.png
+    - Assets/Logo/bg.png
+    - Assets/Logo/loginbg.png
+
 
 
 

@@ -44,13 +44,9 @@ class _MainDeliveryLayoutState extends State<MainDeliveryLayout> {
   @override
   Widget build(BuildContext context) {
     print("MainDeliveryLayout: Building with statusKey: $_statusKey");
-    return ChangeNotifierProvider<ShiftProvider>(
-      create: (_) {
-        final provider = ShiftProvider();
-        print("MainDeliveryLayout: Created ShiftProvider instance: $provider");
-        return provider;
-      },
-      child: Scaffold(
+    final shiftProvider = Provider.of<ShiftProvider>(context, listen: false);
+
+      return Scaffold(
         appBar: AppBar(
           title: Text(_titles[_currentIndex]),
           actions: [
@@ -106,7 +102,6 @@ class _MainDeliveryLayoutState extends State<MainDeliveryLayout> {
             ),
           ],
         ),
-      ),
     );
   }
 
@@ -283,16 +278,15 @@ class DeliveryHomeScreenAsDrawer extends StatelessWidget {
 }
 
 class StatusScreen extends StatelessWidget {
+  const StatusScreen({Key? key}) : super(key: key);
+  
   @override
   Widget build(BuildContext context) {
     print("StatusScreen: Building widget tree");
-    final shiftProvider = Provider.of<ShiftProvider>(context, listen: true);
-    print("StatusScreen: Using ShiftProvider instance: $shiftProvider");
-
-    return ListenableBuilder(
-      listenable: shiftProvider,
-      builder: (context, child) {
-        print("StatusScreen: ListenableBuilder rebuilding with isShiftActive: ${shiftProvider.isShiftActive}");
+    
+    return Consumer<ShiftProvider>(
+      builder: (context, shiftProvider, _) {
+        print("StatusScreen: Consumer rebuilding with isShiftActive: ${shiftProvider.isShiftActive}");
         final DateTime now = DateTime.now();
         final Map<String, dynamic> nextShift = getNextShift(now);
 
@@ -316,15 +310,17 @@ class StatusScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 20),
-              shiftProvider.isShiftActive && shiftProvider.activeShift != null
-                  ? _buildCurrentShiftUI(context, shiftProvider)
-                  : _buildUpcomingShiftUI(context, nextShift),
+              if (shiftProvider.isShiftActive && shiftProvider.activeShift != null)
+                _buildCurrentShiftUI(context, shiftProvider)
+              else
+                _buildUpcomingShiftUI(context, nextShift),
             ],
           ),
         );
       },
     );
   }
+
 
   Widget _buildCurrentShiftUI(BuildContext context, ShiftProvider shiftProvider) {
     final activeShift = shiftProvider.activeShift!;
@@ -422,7 +418,7 @@ class StatusScreen extends StatelessWidget {
                     mainDeliveryLayoutState?.updateStatusKey();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
+                    backgroundColor: Colors.yellowbg,
                     minimumSize: Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -907,13 +903,8 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
   shiftProvider.startShift(widget.nextShift, vehicleType ?? 'Unknown', selectedBagType);
   print("StartShiftScreen: After startShift, isShiftActive: ${shiftProvider.isShiftActive}");
 
-  shiftProvider.notifyListeners();
+  widget.onShiftStarted();
   Navigator.of(context).pop();
-  // Force rebuild by navigating to Status tab
-  Navigator.of(context).pushAndRemoveUntil(
-    MaterialPageRoute(builder: (context) => MainDeliveryLayout()),
-    (route) => false,
-  );
 }
 
   @override
@@ -1067,6 +1058,10 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
 }
 
 class ShiftProvider with ChangeNotifier {
+  static final ShiftProvider _instance = ShiftProvider._internal();
+  factory ShiftProvider() => _instance;
+  ShiftProvider._internal();
+
   bool _isShiftActive = false;
   Map<String, dynamic>? _activeShift;
   String _vehicleType = '';

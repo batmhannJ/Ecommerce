@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
@@ -15,8 +14,22 @@ import 'package:restaurant/presentation/screens/delivery/list_orders_delivery_sc
 import 'package:restaurant/presentation/screens/delivery/order_on_way_screen.dart';
 import 'package:restaurant/presentation/screens/delivery/order_delivered_screen.dart';
 import 'package:restaurant/presentation/screens/intro/checking_login_screen.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'dart:async';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'dart:convert';
+import 'package:location/location.dart' as loc;
+import 'package:geolocator/geolocator.dart' as geo;
+import 'dart:math' show pi, sin, cos, asin, atan2;
+import 'package:geocoding/geocoding.dart' as geocoding;
 
 class MainDeliveryLayout extends StatefulWidget {
+  const MainDeliveryLayout({super.key});
+
   @override
   State<MainDeliveryLayout> createState() => _MainDeliveryLayoutState();
 }
@@ -26,7 +39,7 @@ class _MainDeliveryLayoutState extends State<MainDeliveryLayout> {
   String _statusKey = UniqueKey().toString();
 
   List<Widget> get _screens => [
-        StatusScreen(),
+        const StatusScreen(),
         DeliveriesScreen(),
         MapScreen(),
         HistoryScreen(),
@@ -51,12 +64,12 @@ class _MainDeliveryLayoutState extends State<MainDeliveryLayout> {
           title: Text(_titles[_currentIndex]),
           actions: [
             IconButton(
-              icon: Icon(Icons.notifications_outlined, color: Colors.yellowbg),
+              icon: const Icon(Icons.notifications_outlined, color: Colors.yellowbg),
               onPressed: () {},
             ),
           ],
         ),
-        drawer: Drawer(
+        drawer: const Drawer(
           child: DeliveryHomeScreenAsDrawer(),
         ),
         body: IndexedStack(
@@ -74,7 +87,7 @@ class _MainDeliveryLayoutState extends State<MainDeliveryLayout> {
           type: BottomNavigationBarType.fixed,
           selectedItemColor: Colors.yellowbg,
           unselectedItemColor: Colors.grey,
-          items: [
+          items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.check_circle_outline),
               activeIcon: Icon(Icons.check_circle),
@@ -114,8 +127,9 @@ class _MainDeliveryLayoutState extends State<MainDeliveryLayout> {
   }
 }
 
-// Create a modified version of your DeliveryHomeScreen that works as a drawer
 class DeliveryHomeScreenAsDrawer extends StatelessWidget {
+  const DeliveryHomeScreenAsDrawer({super.key});
+
   @override
   Widget build(BuildContext context) {
     final authBloc = BlocProvider.of<AuthBloc>(context);
@@ -169,7 +183,6 @@ class DeliveryHomeScreenAsDrawer extends StatelessWidget {
                   ],
                 );
               }
-              // Fallback UI when not in SuccessAuthState or user is null
               return const Column(
                 children: [
                   Center(
@@ -212,7 +225,7 @@ class DeliveryHomeScreenAsDrawer extends StatelessWidget {
             colorIcon: 0xffE62755,
             onPressed: () => Navigator.pushAndRemoveUntil(context, routeFrave(page: SelectRoleScreen()), (route) => false),
           ),
-          ItemAccount(
+          const ItemAccount(
             text: 'Dark mode',
             icon: Icons.dark_mode_rounded,
             colorIcon: 0xff051E2F,
@@ -241,22 +254,22 @@ class DeliveryHomeScreenAsDrawer extends StatelessWidget {
           const SizedBox(height: 15.0),
           const TextCustom(text: 'Personal', color: Colors.grey),
           const SizedBox(height: 10.0),
-          ItemAccount(
+          const ItemAccount(
             text: 'Privacy & Policy',
             icon: Icons.policy_rounded,
             colorIcon: 0xff6dbd63,
           ),
-          ItemAccount(
+          const ItemAccount(
             text: 'Security',
             icon: Icons.lock_outline_rounded,
             colorIcon: 0xff1F252C,
           ),
-          ItemAccount(
+          const ItemAccount(
             text: 'Term & Conditions',
             icon: Icons.description_outlined,
             colorIcon: 0xff458bff,
           ),
-          ItemAccount(
+          const ItemAccount(
             text: 'Help',
             icon: Icons.help_outline,
             colorIcon: 0xff4772e6,
@@ -296,7 +309,7 @@ class StatusScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: shiftProvider.isShiftActive ? Colors.green[100] : Colors.grey[200],
                   borderRadius: BorderRadius.circular(20),
@@ -309,7 +322,7 @@ class StatusScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               if (shiftProvider.isShiftActive && shiftProvider.activeShift != null)
                 _buildCurrentShiftUI(context, shiftProvider)
               else
@@ -332,11 +345,11 @@ class StatusScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'Current Shift',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         Card(
           elevation: 2,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -349,7 +362,7 @@ class StatusScreen extends StatelessWidget {
                   children: [
                     Container(
                       width: 60,
-                      padding: EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: Colors.grey[100],
                         borderRadius: BorderRadius.circular(8),
@@ -359,22 +372,22 @@ class StatusScreen extends StatelessWidget {
                           Text(_getMonth(activeShift['date']),
                               style: TextStyle(color: Colors.grey[600], fontSize: 12)),
                           Text(activeShift['date'].day.toString(),
-                              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                           Text(isToday ? 'Today' : _getWeekday(activeShift['date']),
                               style: TextStyle(color: Colors.grey[600], fontSize: 12)),
                         ],
                       ),
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           '${activeShift['startTime']} - ${activeShift['endTime']} (${activeShift['hours']}h)',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                        SizedBox(height: 4),
-                        Row(
+                        const SizedBox(height: 4),
+                        const Row(
                           children: [
                             Icon(Icons.check_circle, color: Colors.green, size: 16),
                             SizedBox(width: 4),
@@ -388,15 +401,15 @@ class StatusScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 12),
-                Divider(),
-                SizedBox(height: 8),
+                const SizedBox(height: 12),
+                const Divider(),
+                const SizedBox(height: 8),
                 Text('Settings', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    const Text(
                       'Available for Shift Extension',
                       style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
                     ),
@@ -409,7 +422,7 @@ class StatusScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
                     shiftProvider.endShift();
@@ -419,12 +432,12 @@ class StatusScreen extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.yellowbg,
-                    minimumSize: Size(double.infinity, 50),
+                    minimumSize: const Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: Text(
+                  child: const Text(
                     'End Shift',
                     style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
@@ -437,13 +450,11 @@ class StatusScreen extends StatelessWidget {
     );
   }
 
-
-
   Widget _buildUpcomingShiftUI(BuildContext context, Map<String, dynamic> nextShift) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
@@ -456,7 +467,7 @@ class StatusScreen extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         Card(
           elevation: 2,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -467,7 +478,7 @@ class StatusScreen extends StatelessWidget {
                 Row(
                   children: [
                     Container(
-                      padding: EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: Colors.grey[200],
                         borderRadius: BorderRadius.circular(8),
@@ -477,41 +488,39 @@ class StatusScreen extends StatelessWidget {
                           Text(_getMonth(nextShift['date']),
                               style: TextStyle(color: Colors.grey[600])),
                           Text(nextShift['date'].day.toString(),
-                              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                           Text(_getWeekday(nextShift['date']),
                               style: TextStyle(color: Colors.grey[600])),
                         ],
                       ),
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           '${nextShift['startTime']} - ${nextShift['endTime']} (${nextShift['hours']}h)',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         Text(
                           'Starting in ${formatTimeRemaining(nextShift['minutesUntilStart'])}',
-                          style: TextStyle(color: Colors.green, fontWeight: FontWeight.w500),
+                          style: const TextStyle(color: Colors.green, fontWeight: FontWeight.w500),
                         ),
                       ],
                     ),
                   ],
                 ),
-                SizedBox(height: 16),
-                Text('Are you ready?'),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
+                const Text('Are you ready?'),
+                const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
-                    // Pass the callback to StartShiftScreen
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => StartShiftScreen(
                           nextShift: nextShift,
                           onShiftStarted: () {
-                            // Find MainDeliveryLayoutState and call updateStatusKey
                             final mainDeliveryLayoutState = context.findAncestorStateOfType<_MainDeliveryLayoutState>();
                             mainDeliveryLayoutState?.updateStatusKey();
                           },
@@ -521,12 +530,12 @@ class StatusScreen extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.yellowbg,
-                    minimumSize: Size(double.infinity, 50),
+                    minimumSize: const Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: Text(
+                  child: const Text(
                     'Start Shift Now',
                     style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
@@ -592,9 +601,7 @@ class StatusScreen extends StatelessWidget {
   }
 
   
-  // Logic to determine the next shift based on current time
   Map<String, dynamic> getNextShift(DateTime now) {
-  // Define shift times
   final List<Map<String, dynamic>> shifts = [
     {
       'name': '1st shift',
@@ -628,23 +635,18 @@ class StatusScreen extends StatelessWidget {
       'endMinute': 0,
       'hours': 5
     },
-    // Non-working hours (2AM - 6AM) are implicitly covered as not being in any shift
   ];
   
-  // Get the current hour and minute
   final int currentHour = now.hour;
   final int currentMinute = now.minute;
   
-  // Determine if we're currently in a shift
   bool isWorkingNow = false;
   String currentShiftName = '';
   
-  // Check if we're in a shift now
   for (var shift in shifts) {
     final startHour = shift['startHour'];
     final endHour = shift['endHour'];
     
-    // Special case for the 4th shift which spans across midnight
     if (shift['name'] == '4th shift') {
       if ((currentHour >= startHour) || (currentHour < endHour)) {
         isWorkingNow = true;
@@ -652,15 +654,13 @@ class StatusScreen extends StatelessWidget {
         break;
       }
     } 
-    // Regular case for other shifts
     else if (currentHour >= startHour && currentHour < endHour) {
       isWorkingNow = true;
       currentShiftName = shift['name'];
       break;
     }
   }
-  
-  // Set default next shift
+
   Map<String, dynamic> nextShift = {
     'name': '1st shift',
     'startHour': 7,
@@ -672,18 +672,10 @@ class StatusScreen extends StatelessWidget {
   };
   
   DateTime shiftDate = now;
-  
-  // Find the next shift
-  
-  // If it's after 9PM and before 2AM (4th shift), the next shift is 1st shift the next day
   if (currentHour >= 21 || currentHour < 2) {
-    // If we're in 4th shift
     if (currentHour >= 21) {
-      // Next shift is 1st shift the next day
       shiftDate = DateTime(now.year, now.month, now.day + 1);
     } else {
-      // We're after midnight but before 2AM, still in 4th shift
-      // Next shift is 1st shift the same day
       shiftDate = DateTime(now.year, now.month, now.day);
     }
     nextShift = {
@@ -696,7 +688,6 @@ class StatusScreen extends StatelessWidget {
       'date': shiftDate
     };
   }
-  // If it's after 2AM and before 7AM (non-working hours), next shift is 1st shift
   else if (currentHour >= 2 && currentHour < 7) {
     nextShift = {
       'name': '1st shift',
@@ -708,7 +699,6 @@ class StatusScreen extends StatelessWidget {
       'date': shiftDate
     };
   }
-  // If it's after 7AM and before 11AM (1st shift), next shift is 2nd shift
   else if (currentHour >= 7 && currentHour < 11) {
     nextShift = {
       'name': '2nd shift',
@@ -720,7 +710,6 @@ class StatusScreen extends StatelessWidget {
       'date': shiftDate
     };
   }
-  // If it's after 11AM and before 4PM (2nd shift), next shift is 3rd shift
   else if (currentHour >= 11 && currentHour < 16) {
     nextShift = {
       'name': '3rd shift',
@@ -732,7 +721,6 @@ class StatusScreen extends StatelessWidget {
       'date': shiftDate
     };
   }
-  // If it's after 4PM and before 9PM (3rd shift), next shift is 4th shift
   else if (currentHour >= 16 && currentHour < 21) {
     nextShift = {
       'name': '4th shift',
@@ -745,7 +733,6 @@ class StatusScreen extends StatelessWidget {
     };
   }
   
-  // Calculate minutes until next shift starts
   DateTime nextShiftStartTime = DateTime(
     shiftDate.year,
     shiftDate.month,
@@ -756,9 +743,7 @@ class StatusScreen extends StatelessWidget {
   
   int minutesUntilStart = nextShiftStartTime.difference(now).inMinutes;
   
-  // Handle negative minutes (if nextShiftStartTime is before now)
   if (minutesUntilStart < 0) {
-    // We might need to add a day in some edge cases
     nextShiftStartTime = DateTime(
       shiftDate.year,
       shiftDate.month,
@@ -769,7 +754,6 @@ class StatusScreen extends StatelessWidget {
     minutesUntilStart = nextShiftStartTime.difference(now).inMinutes;
   }
   
-  // Format times for display
   String formatTime(int hour, int minute) {
     String period = hour >= 12 ? 'PM' : 'AM';
     int displayHour = hour % 12;
@@ -806,7 +790,6 @@ String formatTimeRemaining(int minutes) {
   }
 }
 }
-
 
 class StartShiftScreen extends StatefulWidget {
   final Map<String, dynamic> nextShift;
@@ -1107,24 +1090,18 @@ class ShiftProvider with ChangeNotifier {
     _isAvailableForExtension = isAvailable;
     notifyListeners();
     
-    // You can also update this preference in your backend if needed
     _updateExtensionAvailability(isAvailable);
   }
   
-  // Function to update online status in backend
   Future<void> _updateOnlineStatus(bool isOnline) async {
     try {
-      // Get rider ID from secure storage
       final riderId = await secureStorage.readUserId();
       
       if (riderId == null) {
         throw Exception('User ID not found in secure storage');
       }
-      
-      // Base URL of your API
       const String baseUrl = 'http://localhost:4000';
       
-      // Make the API request to update online status
       final response = await http.put(
         Uri.parse('$baseUrl/api/rider/$riderId/online-status'),
         headers: {
@@ -1143,21 +1120,17 @@ class ShiftProvider with ChangeNotifier {
       print('Error updating online status: $e');
     }
   }
-  
-  // New function to update extension availability
+
   Future<void> _updateExtensionAvailability(bool isAvailable) async {
     try {
-      // Get rider ID from secure storage
       final riderId = await secureStorage.readUserId();
       
       if (riderId == null) {
         throw Exception('User ID not found in secure storage');
       }
       
-      // Base URL of your API
       const String baseUrl = 'http://localhost:4000';
       
-      // Make the API request to update extension availability
       final response = await http.put(
         Uri.parse('$baseUrl/api/rider/$riderId/extension-availability'),
         headers: {
@@ -1178,7 +1151,6 @@ class ShiftProvider with ChangeNotifier {
   }
 }
 
-// Create placeholder screens for other tabs
 class DeliveriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -1186,10 +1158,523 @@ class DeliveriesScreen extends StatelessWidget {
   }
 }
 
-class MapScreen extends StatelessWidget {
+class MapScreen extends StatefulWidget {
+  @override
+  _MapScreenState createState() => _MapScreenState();
+}
+
+class _MapScreenState extends State<MapScreen> {
+  GoogleMapController? _controller;
+  Set<Polygon> _polygons = {};
+  Set<Marker> _markers = {};
+  bool _isLoading = true;
+  bool _mapInitialized = false;
+  String? _currentMunicipality;
+  
+  // Location data
+  geo.Position? _currentPosition;
+  StreamSubscription<geo.Position>? _positionStreamSubscription;
+  
+  @override
+  void initState() {
+    super.initState();
+    // Slight delay to ensure widgets are properly initialized before accessing location
+    Future.delayed(Duration(milliseconds: 300), () {
+      _initializeLocation();
+    });
+  }
+  
+  @override
+  void dispose() {
+    // Make sure to cancel subscription before disposing
+    if (_positionStreamSubscription != null) {
+      _positionStreamSubscription!.cancel();
+      _positionStreamSubscription = null;
+    }
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _initializeLocation() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      
+      // Check if location is available
+      bool serviceEnabled = await geo.Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (!kIsWeb) {
+          serviceEnabled = await geo.Geolocator.openLocationSettings();
+        }
+        if (!serviceEnabled) {
+          throw 'Location services are disabled';
+        }
+      }
+      
+      // Check permissions
+      geo.LocationPermission permission = await geo.Geolocator.checkPermission();
+      if (permission == geo.LocationPermission.denied) {
+        permission = await geo.Geolocator.requestPermission();
+        if (permission == geo.LocationPermission.denied) {
+          throw 'Location permissions are denied';
+        }
+      }
+      
+      if (permission == geo.LocationPermission.deniedForever) {
+        throw 'Location permissions are permanently denied';
+      }
+      
+      // Increase timeout period and use last known position as fallback
+      try {
+        _currentPosition = await geo.Geolocator.getCurrentPosition(
+          desiredAccuracy: geo.LocationAccuracy.high
+        ).timeout(Duration(seconds: 20), onTimeout: () async {
+          // Fallback to last known position if current position times out
+          final lastPosition = await geo.Geolocator.getLastKnownPosition();
+          if (lastPosition != null) {
+            return lastPosition;
+          }
+          throw 'Location request timed out and no last known position available';
+        });
+      } catch (e) {
+        print('Error getting current position: $e');
+        // Try with lower accuracy if high accuracy fails
+        _currentPosition = await geo.Geolocator.getCurrentPosition(
+          desiredAccuracy: geo.LocationAccuracy.low
+        ).timeout(Duration(seconds: 10));
+      }
+      
+      // Set up location stream ONLY if we successfully got the initial position
+      if (_currentPosition != null) {
+        // Make sure we don't have an active subscription before creating a new one
+        if (_positionStreamSubscription != null) {
+          await _positionStreamSubscription!.cancel();
+          _positionStreamSubscription = null;
+        }
+      
+        const locationSettings = geo.LocationSettings(
+          accuracy: geo.LocationAccuracy.high,
+          distanceFilter: 10,
+        );
+        
+        _positionStreamSubscription = geo.Geolocator.getPositionStream(
+          locationSettings: locationSettings
+        ).listen(
+          (geo.Position position) {
+            if (mounted) {
+              setState(() {
+                _currentPosition = position;
+                _updateMarkerPosition();
+                
+                // Avoid camera movement if map isn't initialized yet
+                if (_controller != null && _mapInitialized) {
+                  _controller!.animateCamera(
+                    CameraUpdate.newCameraPosition(
+                      CameraPosition(
+                        target: LatLng(position.latitude, position.longitude),
+                        zoom: 14,
+                      ),
+                    ),
+                  );
+                }
+              });
+              
+              _determineMunicipalityName(position.latitude, position.longitude);
+            }
+          },
+          onError: (e) {
+            print('Position stream error: $e');
+          },
+          cancelOnError: false, // Don't cancel on error, just log it
+        );
+      }
+      
+      // Process current location
+      await _processCurrLocation();
+      
+    } catch (e) {
+      print('Error initializing location: $e');
+      _handleLocationError();
+    }
+  }
+  
+  Future<void> _processCurrLocation() async {
+    if (_currentPosition == null) {
+      _handleLocationError();
+      return;
+    }
+    
+    try {
+      // Get municipality name
+      await _determineMunicipalityName(_currentPosition!.latitude, _currentPosition!.longitude);
+      
+      // Add marker for rider's position
+      _updateMarkerPosition();
+      
+      // Add municipality boundary
+      _fetchMunicipalityBoundary();
+      
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _mapInitialized = true;
+        });
+      }
+    } catch (e) {
+      print('Error processing location: $e');
+      _handleLocationError();
+    }
+  }
+  
+  void _updateMarkerPosition() {
+    if (_currentPosition == null || !mounted) return;
+    
+    setState(() {
+      _markers.clear();
+      _markers.add(
+        Marker(
+          markerId: MarkerId('rider'),
+          position: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+          infoWindow: InfoWindow(title: 'Your Current Location'),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+        )
+      );
+    });
+  }
+  
+  // Use geocoding package to determine municipality name
+  Future<void> _determineMunicipalityName(double latitude, double longitude) async {
+    try {
+      if (kIsWeb) {
+        // For web, try to use a free geocoding API service
+        final response = await http.get(
+          Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=10')
+        ).timeout(Duration(seconds: 5));
+        
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          String? municipality;
+          
+          // Try to find the most appropriate administrative unit
+          if (data['address'] != null) {
+            municipality = data['address']['city'] ?? 
+                          data['address']['town'] ?? 
+                          data['address']['village'] ?? 
+                          data['address']['municipality'] ??
+                          data['address']['county'];
+          }
+          
+          if (mounted) {
+            setState(() {
+              _currentMunicipality = municipality ?? 
+                "Area ${latitude.toStringAsFixed(2)}, ${longitude.toStringAsFixed(2)}";
+            });
+          }
+        } else {
+          throw Exception('Failed to get municipality name from API');
+        }
+      } else {
+        // For mobile, use geocoding package
+        try {
+          List<geocoding.Placemark> placemarks = 
+              await geocoding.placemarkFromCoordinates(latitude, longitude);
+          
+          if (placemarks.isNotEmpty) {
+            geocoding.Placemark place = placemarks.first;
+            String municipalityName = place.locality ?? 
+                                      place.subAdministrativeArea ?? 
+                                      place.administrativeArea ?? 
+                                      "Unknown";
+            
+            if (mounted) {
+              setState(() {
+                _currentMunicipality = municipalityName;
+              });
+            }
+          }
+        } catch (e) {
+          print('Geocoding error: $e');
+          // Fallback to coordinate-based name
+          if (mounted) {
+            setState(() {
+              _currentMunicipality = "Area ${latitude.toStringAsFixed(2)}, ${longitude.toStringAsFixed(2)}";
+            });
+          }
+        }
+      }
+    } catch (e) {
+      print('Error determining municipality: $e');
+      if (mounted) {
+        setState(() {
+          _currentMunicipality = "Unknown Municipality";
+        });
+      }
+    }
+  }
+  
+  void _fetchMunicipalityBoundary() {
+    try {
+      if (_currentPosition == null) {
+        _handleLocationError();
+        return;
+      }
+      
+      // Clear existing polygons
+      if (mounted) {
+        setState(() {
+          _polygons.clear();
+        });
+      }
+      
+      // Define a fixed radius for simplicity
+      double municipalityRadiusKm = 3.0;
+      
+      List<LatLng> boundaryPoints = _generateCircularBoundary(
+        _currentPosition!.latitude, 
+        _currentPosition!.longitude,
+        municipalityRadiusKm,
+        32 // More points for smoother circle
+      );
+      
+      if (mounted) {
+        setState(() {
+          _polygons.add(
+            Polygon(
+              polygonId: PolygonId('municipality_boundary'),
+              points: boundaryPoints,
+              fillColor: Colors.blue.withOpacity(0.3),
+              strokeColor: Colors.blue,
+              strokeWidth: 2,
+            )
+          );
+        });
+      }
+    } catch (e) {
+      print('Error fetching municipality boundary: $e');
+      _addDefaultBoundary();
+    }
+  }
+  
+  void _addDefaultBoundary() {
+    if (_currentPosition == null) {
+      // If we don't have location, use default Philippines coordinates
+      LatLng defaultPosition = LatLng(15.4875, 121.1053);
+      _addBoundaryFromCenter(defaultPosition, 3.0);
+    } else {
+      // Use current location with a default radius
+      _addBoundaryFromCenter(
+        LatLng(_currentPosition!.latitude, _currentPosition!.longitude), 
+        3.0
+      );
+    }
+  }
+  
+  void _addBoundaryFromCenter(LatLng center, double radiusKm) {
+    List<LatLng> boundaryPoints = _generateCircularBoundary(
+      center.latitude,
+      center.longitude,
+      radiusKm,
+      32
+    );
+    
+    if (mounted) {
+      setState(() {
+        _polygons.clear();
+        _polygons.add(
+          Polygon(
+            polygonId: PolygonId('default_boundary'),
+            points: boundaryPoints,
+            fillColor: Colors.blue.withOpacity(0.3),
+            strokeColor: Colors.blue,
+            strokeWidth: 2,
+          )
+        );
+      });
+    }
+  }
+  
+  void _handleLocationError() {
+    if (!mounted) return;
+    
+    setState(() {
+      _isLoading = false;
+      _mapInitialized = true;
+      
+      // Fallback to default position
+      final LatLng defaultPosition = LatLng(15.4875, 121.1053); // Philippines
+      
+      // Clear markers and add default marker
+      _markers.clear();
+      _markers.add(
+        Marker(
+          markerId: MarkerId('default'),
+          position: defaultPosition,
+          infoWindow: InfoWindow(title: 'Default Location')
+        )
+      );
+      
+      // Add default boundary
+      _addBoundaryFromCenter(defaultPosition, 3.0);
+      
+      _currentMunicipality = "Unknown Municipality";
+    });
+  }
+  
+  // Utility function to generate circular boundary points
+  List<LatLng> _generateCircularBoundary(
+    double centerLat, 
+    double centerLng, 
+    double radiusKm, 
+    int numPoints
+  ) {
+    List<LatLng> points = [];
+    
+    // Earth's radius in kilometers
+    const double earthRadius = 6371.0;
+    
+    // Convert radius from kilometers to radians
+    double radiusRadians = radiusKm / earthRadius;
+    
+    for (int i = 0; i < numPoints; i++) {
+      double angle = 2 * pi * i / numPoints;
+      
+      // Calculate point coordinates on the circle
+      double latRadians = asin(sin(centerLat * pi / 180) * cos(radiusRadians) +
+          cos(centerLat * pi / 180) * sin(radiusRadians) * cos(angle));
+          
+      double lngRadians = centerLng * pi / 180 + atan2(
+          sin(angle) * sin(radiusRadians) * cos(centerLat * pi / 180),
+          cos(radiusRadians) - sin(centerLat * pi / 180) * sin(latRadians));
+      
+      // Convert back to degrees
+      double lat = latRadians * 180 / pi;
+      double lng = lngRadians * 180 / pi;
+      
+      points.add(LatLng(lat, lng));
+    }
+    
+    return points;
+  }
+  
+  void _refreshLocation() {
+    // Cancel existing subscription before refreshing
+    if (_positionStreamSubscription != null) {
+      _positionStreamSubscription!.cancel();
+      _positionStreamSubscription = null;
+    }
+    
+    if (mounted) {
+      setState(() {
+        _polygons.clear();
+        _markers.clear();
+        _isLoading = true;
+      });
+    }
+    
+    _initializeLocation();
+  }
+  
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('Map Screen'));
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Rider Map'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: _refreshLocation,
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              Expanded(
+                child: _isLoading 
+                  ? Center(child: CircularProgressIndicator()) 
+                  : GoogleMap(
+                      initialCameraPosition: CameraPosition(
+                        target: _currentPosition != null
+                            ? LatLng(_currentPosition!.latitude, _currentPosition!.longitude)
+                            : LatLng(15.4875, 121.1053), // Default Philippines
+                        zoom: 14,
+                      ),
+                      markers: _markers,
+                      polygons: _polygons,
+                      myLocationEnabled: !kIsWeb, // This doesn't work well on web
+                      myLocationButtonEnabled: !kIsWeb, // This doesn't work well on web
+                      onMapCreated: (GoogleMapController controller) {
+                        setState(() {
+                          _controller = controller;
+                        });
+                        
+                        // Move camera to current location if available
+                        if (_currentPosition != null) {
+                          controller.animateCamera(
+                            CameraUpdate.newCameraPosition(
+                              CameraPosition(
+                                target: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+                                zoom: 14,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+              ),
+              Container(
+                padding: EdgeInsets.all(12),
+                color: Colors.blue.shade100,
+                width: double.infinity,
+                child: Text(
+                  'Delivery Area: ${_currentMunicipality ?? "Loading..."}',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              if (kIsWeb)
+                Container(
+                  padding: EdgeInsets.all(8),
+                  color: Colors.amber.shade100,
+                  width: double.infinity,
+                  child: Text(
+                    'Running in web mode',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+            ],
+          ),
+          if (!_isLoading && _currentPosition == null)
+            Positioned(
+              top: 20,
+              left: 0,
+              right: 0,
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red),
+                ),
+                child: Text(
+                  'Location access is required. Please enable location services and try again.',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _refreshLocation,
+        child: Icon(Icons.my_location),
+        backgroundColor: Colors.blue,
+      ),
+    );
   }
 }
 

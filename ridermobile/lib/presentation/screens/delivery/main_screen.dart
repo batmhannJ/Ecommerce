@@ -28,6 +28,7 @@ import 'package:location/location.dart' as loc;
 import 'package:geolocator/geolocator.dart' as geo;
 import 'dart:math' show pi, sin, cos, asin, atan2;
 import 'package:geocoding/geocoding.dart' as geocoding;
+import 'dart:math' as math;
 
 class MainDeliveryLayout extends StatefulWidget {
   const MainDeliveryLayout({super.key});
@@ -1379,7 +1380,7 @@ class _DeliveriesScreenState extends State<DeliveriesScreen> {
     );
   }
 }
-class NewOrderCard extends StatelessWidget {
+class NewOrderCard extends StatefulWidget {
   final OrdersResponse order;
   final VoidCallback onAccept;
   final VoidCallback onDecline;
@@ -1392,29 +1393,183 @@ class NewOrderCard extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _NewOrderCardState createState() => _NewOrderCardState();
+}
+
+class _NewOrderCardState extends State<NewOrderCard> {
+  LatLng? pickupLocation;
+  LatLng? dropoffLocation;
+  bool isLoading = true;
+  GoogleMapController? mapController;
+  Set<Marker> markers = {};
+  Set<Polyline> polylines = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeMapData();
+  }
+
+  @override
+  void dispose() {
+    mapController?.dispose();
+    super.dispose();
+  }
+
+  Future<LatLng?> getCoordinatesFromAddress(String address) async {
+  try {
+    // Replace with your actual API key
+    final apiKey = 'AIzaSyCfeMqzu93-w0aWnBTs1TTU62_Od49c9iI';
+    final encodedAddress = Uri.encodeComponent(address);
+    final url = 'https://maps.googleapis.com/maps/api/geocode/json?address=$encodedAddress&key=$apiKey';
+    
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['results'] != null && data['results'].isNotEmpty) {
+        final location = data['results'][0]['geometry']['location'];
+        return LatLng(location['lat'], location['lng']);
+      }
+    }
+    print('Geocoding failed for address: $address. Status code: ${response.statusCode}');
+    return null;
+  } catch (e) {
+    print('Error in geocoding: $e');
+    return null;
+  }
+}
+
+// Update your _initializeMapData method to use this function
+Future<void> _initializeMapData() async {
+  setState(() {
+    isLoading = true;
+  });
+
+  try {
+    // For pickup location - use businessLocation
+    if (widget.order.businessLocation.isNotEmpty) {
+      final LatLng? coordinates = await getCoordinatesFromAddress(widget.order.businessLocation);
+      if (coordinates != null) {
+        pickupLocation = coordinates;
+      } else {
+        // Default to a central location in the Philippines if geocoding fails
+        pickupLocation = const LatLng(14.5995, 120.9842); // Manila coordinates
+        print('Could not geocode pickup location: ${widget.order.businessLocation}');
+      }
+    } else {
+      // Default location if no business location provided
+      pickupLocation = const LatLng(14.5995, 120.9842);
+    }
+    
+    // For dropoff location - use address
+    if (widget.order.address.isNotEmpty) {
+      final LatLng? coordinates = await getCoordinatesFromAddress(widget.order.address);
+      if (coordinates != null) {
+        dropoffLocation = coordinates;
+      } else {
+        // Use a location slightly offset from pickup if geocoding fails
+        dropoffLocation = LatLng(
+          pickupLocation!.latitude + 0.01,
+          pickupLocation!.longitude + 0.01
+        );
+        print('Could not geocode dropoff location: ${widget.order.address}');
+      }
+    } else {
+      // Default location if no address provided (slightly offset from pickup)
+      dropoffLocation = LatLng(
+        pickupLocation!.latitude + 0.01,
+        pickupLocation!.longitude + 0.01
+      );
+    }
+
+    // Update markers with the geocoded locations
+    markers = {
+      Marker(
+        markerId: const MarkerId('pickup'),
+        position: pickupLocation!,
+        infoWindow: InfoWindow(
+          title: 'Pickup',
+          snippet: widget.order.shopName.isNotEmpty ? widget.order.shopName : 'Shop',
+        ),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      ),
+      Marker(
+        markerId: const MarkerId('dropoff'),
+        position: dropoffLocation!,
+        infoWindow: InfoWindow(
+          title: 'Drop-off',
+          snippet: widget.order.name.isNotEmpty ? widget.order.name : 'Customer',
+        ),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+      ),
+    };
+
+    // Set up polyline between the two points
+    polylines = {
+      Polyline(
+        polylineId: const PolylineId('route'),
+        points: [pickupLocation!, dropoffLocation!],
+        color: Colors.blue,
+        width: 5,
+      ),
+    };
+  } catch (e) {
+    print('Error in _initializeMapData: $e');
+    // Set default locations if anything fails
+    pickupLocation = const LatLng(14.5995, 120.9842); // Manila
+    dropoffLocation = const LatLng(14.6095, 120.9942); // Slightly offset
+    
+    // Set default markers
+    markers = {
+      Marker(
+        markerId: const MarkerId('pickup'),
+        position: pickupLocation!,
+        infoWindow: const InfoWindow(title: 'Pickup'),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      ),
+      Marker(
+        markerId: const MarkerId('dropoff'),
+        position: dropoffLocation!,
+        infoWindow: const InfoWindow(title: 'Drop-off'),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+      ),
+    };
+    
+    // Set default polyline
+    polylines = {
+      Polyline(
+        polylineId: const PolylineId('route'),
+        points: [pickupLocation!, dropoffLocation!],
+        color: Colors.blue,
+        width: 5,
+      ),
+    };
+  } finally {
+    setState(() {
+      isLoading = false;
+    });
+  }
+}
+
+  @override
   Widget build(BuildContext context) {
     final DateFormat formatter = DateFormat('MMM d, yyyy');
     String formattedDate = '';
     
     try {
-      final DateTime date = DateTime.parse(order.date);
+      final DateTime date = DateTime.parse(widget.order.date);
       formattedDate = formatter.format(date);
     } catch (e) {
-      formattedDate = order.date;
+      formattedDate = widget.order.date;
     }
     
-    // For demonstration, we'll use fixed locations based on address
-    // In a real application, you would get actual coordinates from your backend
-    const LatLng pickupLocation = LatLng(14.5995, 120.9842); // Example location
-    const LatLng dropoffLocation = LatLng(14.6091, 120.9976); // Example location
-    
     // Get seller information or use a default value
-    final String shopDisplay = order.shopName.isNotEmpty 
-        ? order.shopName 
+    final String shopDisplay = widget.order.shopName.isNotEmpty 
+        ? widget.order.shopName 
         : "Shop information not available";
     
-    final String locationDisplay = order.businessLocation.isNotEmpty
-        ? order.businessLocation
+    final String locationDisplay = widget.order.businessLocation.isNotEmpty
+        ? widget.order.businessLocation
         : "Location not available";
     
     return Card(
@@ -1436,7 +1591,7 @@ class NewOrderCard extends StatelessWidget {
                   ),
                 ),
                 TextButton(
-                  onPressed: onDecline,
+                  onPressed: widget.onDecline,
                   child: const Text(
                     'Decline',
                     style: TextStyle(
@@ -1452,32 +1607,26 @@ class NewOrderCard extends StatelessWidget {
             height: 150,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(4),
-              child: GoogleMap(
-                initialCameraPosition: CameraPosition(
-                  target: LatLng(
-                    (pickupLocation.latitude + dropoffLocation.latitude) / 2,
-                    (pickupLocation.longitude + dropoffLocation.longitude) / 2,
+              child: isLoading 
+                ? const Center(child: CircularProgressIndicator())
+                : GoogleMap(
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(
+                        (pickupLocation!.latitude + dropoffLocation!.latitude) / 2,
+                        (pickupLocation!.longitude + dropoffLocation!.longitude) / 2,
+                      ),
+                      zoom: 15.0,
+                    ),
+                    zoomControlsEnabled: false,
+                    mapToolbarEnabled: false,
+                    myLocationEnabled: false,
+                    myLocationButtonEnabled: false,
+                    markers: markers,
+                    polylines: polylines,
+                    onMapCreated: (GoogleMapController controller) {
+                      mapController = controller;
+                    },
                   ),
-                  zoom: 13.0,
-                ),
-                markers: {
-                  Marker(
-                    markerId: const MarkerId('pickup'),
-                    position: pickupLocation,
-                    infoWindow: const InfoWindow(title: 'Pickup'),
-                    icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-                  ),
-                  Marker(
-                    markerId: const MarkerId('dropoff'),
-                    position: dropoffLocation,
-                    infoWindow: const InfoWindow(title: 'Drop-off'),
-                    icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-                  ),
-                },
-                myLocationEnabled: false,
-                zoomControlsEnabled: false,
-                mapToolbarEnabled: false,
-              ),
             ),
           ),
           Padding(
@@ -1503,7 +1652,7 @@ class NewOrderCard extends StatelessWidget {
                         children: [
                           const Text('Pickup', style: TextStyle(color: Colors.grey)),
                           Text(shopDisplay),
-                          if (order.businessLocation.isNotEmpty)
+                          if (widget.order.businessLocation.isNotEmpty)
                             Text(
                               locationDisplay,
                               style: const TextStyle(fontSize: 12, color: Colors.grey),
@@ -1524,7 +1673,7 @@ class NewOrderCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text('Drop-off', style: TextStyle(color: Colors.grey)),
-                          Text(order.address),
+                          Text(widget.order.address),
                         ],
                       ),
                     ),
@@ -1547,7 +1696,7 @@ class NewOrderCard extends StatelessWidget {
                         style: TextStyle(fontSize: 16),
                       ),
                       Text(
-                        '₱ ${order.deliveryComm} ',
+                        '₱ ${widget.order.deliveryComm} ',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -1561,7 +1710,7 @@ class NewOrderCard extends StatelessWidget {
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton(
-                    onPressed: onAccept,
+                    onPressed: widget.onAccept,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.purple,
                       foregroundColor: Colors.white,
@@ -1579,44 +1728,44 @@ class NewOrderCard extends StatelessWidget {
                   children: [
                     ListTile(
                       title: const Text('Customer'),
-                      subtitle: Text(order.name),
+                      subtitle: Text(widget.order.name),
                       leading: const Icon(Icons.person),
                     ),
                     ListTile(
                       title: const Text('Contact'),
-                      subtitle: Text(order.contact),
+                      subtitle: Text(widget.order.contact),
                       leading: const Icon(Icons.phone),
                     ),
-                    if (order.sellerName.isNotEmpty)
+                    if (widget.order.sellerName.isNotEmpty)
                       ListTile(
                         title: const Text('Seller'),
-                        subtitle: Text(order.sellerName),
+                        subtitle: Text(widget.order.sellerName),
                         leading: const Icon(Icons.business),
                       ),
-                    if (order.sellerPhone.isNotEmpty)
+                    if (widget.order.sellerPhone.isNotEmpty)
                       ListTile(
                         title: const Text('Seller Contact'),
-                        subtitle: Text(order.sellerPhone),
+                        subtitle: Text(widget.order.sellerPhone),
                         leading: const Icon(Icons.phone),
                       ),
                     ListTile(
                       title: const Text('Item'),
-                      subtitle: Text(order.item),
+                      subtitle: Text(widget.order.item),
                       leading: const Icon(Icons.shopping_bag),
                     ),
                     ListTile(
                       title: const Text('Quantity'),
-                      subtitle: Text('${order.quantity}'),
+                      subtitle: Text('${widget.order.quantity}'),
                       leading: const Icon(Icons.format_list_numbered),
                     ),
                     ListTile(
                       title: const Text('Amount'),
-                      subtitle: Text('₱${order.amount.toStringAsFixed(2)}'),
+                      subtitle: Text('₱${widget.order.amount.toStringAsFixed(2)}'),
                       leading: const Icon(Icons.attach_money),
                     ),
                     ListTile(
                       title: const Text('Delivery Fee'),
-                      subtitle: Text('₱${order.deliveryFee.toStringAsFixed(2)}'),
+                      subtitle: Text('₱${widget.order.deliveryFee.toStringAsFixed(2)}'),
                       leading: const Icon(Icons.delivery_dining),
                     ),
                   ],
@@ -1629,7 +1778,6 @@ class NewOrderCard extends StatelessWidget {
     );
   }
 }
-
 
 class MapScreen extends StatefulWidget {
   @override

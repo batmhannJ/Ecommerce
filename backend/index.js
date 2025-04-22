@@ -69,6 +69,11 @@ const allowedOrigins = [
   'http://localhost:51549',
   'http://localhost:60375',
   'http://localhost:8888',
+  'http://10.0.2.2:8080', // Android emulator special IP for localhost
+  'http://127.0.0.1:8080',
+  'http://192.168.x.x:8080', // Your actual local network IP
+  'http://localhost:5554', // Your actual local network IP
+  'http://10.0.2.2:4000',
 ];
 
 app.use(

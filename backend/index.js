@@ -3621,6 +3621,168 @@ app.get('/api/rider/:riderId/online-status', (req, res) => {
   res.json({ isOnline: rider.isOnline });
 });
 
+app.patch('/api/assign-rider', async (req, res) => {
+  try {
+    const { transactionId, riderId } = req.body;
+    
+    if (!transactionId || !riderId) {
+      return res.status(400).json({
+        resp: false,
+        msg: 'Order ID and Rider ID are required'
+      });
+    }
+    
+    // Update the order in your database
+    // This assumes you have a collection/table named 'orders'
+    const updatedOrder = await Transaction.findOneAndUpdate(
+      { transactionId: transactionId },  // Find by transactionId field instead of _id
+      { riderId: riderId },
+      { new: true }
+    );
+    
+    if (!updatedOrder) {
+      return res.status(404).json({
+        resp: false,
+        msg: 'Order not found'
+      });
+    }
+    
+    return res.json({
+      resp: true,
+      msg: 'Rider assigned successfully',
+      order: updatedOrder
+    });
+    
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      resp: false,
+      msg: 'Error assigning rider to order'
+    });
+  }
+});
+
+app.post('/api/update-order-status', async (req, res) => {
+  try {
+    const { orderId, status } = req.body;
+    
+    if (!orderId || !status) {
+      return res.status(400).json({
+        resp: false,
+        msg: 'Order ID and status are required'
+      });
+    }
+    
+    const validStatuses = ['Accepted', 'ArrivedAtVendor', 'PickedUp', 'InTransit', 'Delivered', 'Canceled'];
+    
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        resp: false,
+        msg: 'Invalid status'
+      });
+    }
+    
+    // Update the order in your database
+    const updatedOrder = await Transaction.findByIdAndUpdate(
+      orderId,
+      { status: status },
+      { new: true }
+    );
+    
+    if (!updatedOrder) {
+      return res.status(404).json({
+        resp: false,
+        msg: 'Order not found'
+      });
+    }
+    
+    return res.json({
+      resp: true,
+      msg: 'Order status updated successfully',
+      order: updatedOrder
+    });
+    
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      resp: false,
+      msg: 'Error updating order status'
+    });
+  }
+});
+
+// Endpoint to get order details by status (modified to include rider information)
+app.get('/api/orders-by-rider/:riderId', async (req, res) => {
+  try {
+    const { riderId } = req.params;
+    
+    if (!riderId) {
+      return res.status(400).json({
+        resp: false,
+        msg: 'Rider ID is required'
+      });
+    }
+    
+    // Find all orders assigned to this rider
+    const orders = await Transaction.find({ riderId: riderId });
+    
+    return res.json({
+      resp: true,
+      msg: 'Orders retrieved successfully',
+      ordersResponse: orders
+    });
+    
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      resp: false,
+      msg: 'Error retrieving rider orders'
+    });
+  }
+});
+
+// Endpoint to get active order for a rider (for resuming delivery after app restart)
+app.get('/api/active-order/:riderId', async (req, res) => {
+  try {
+    const { riderId } = req.params;
+    
+    if (!riderId) {
+      return res.status(400).json({
+        resp: false,
+        msg: 'Rider ID is required'
+      });
+    }
+    
+    // Find the rider's active order (any order that's not Delivered or Canceled)
+    const activeOrder = await Transaction.findOne({
+      riderId: riderId,
+      status: { $nin: ['Delivered', 'Canceled'] }
+    });
+    
+    if (!activeOrder) {
+      return res.json({
+        resp: true,
+        msg: 'No active orders found',
+        hasActiveOrder: false
+      });
+    }
+    
+    return res.json({
+      resp: true,
+      msg: 'Active order retrieved',
+      hasActiveOrder: true,
+      order: activeOrder
+    });
+    
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      resp: false,
+      msg: 'Error retrieving active order'
+    });
+  }
+});
+
 // Admin Routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/", adminRoutes);

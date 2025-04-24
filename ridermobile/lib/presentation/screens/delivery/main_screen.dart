@@ -4,11 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:restaurant/data/env/environment.dart';
 import 'package:restaurant/data/local_secure/secure_storage.dart';
 import 'package:restaurant/domain/bloc/blocs.dart';
 import 'package:restaurant/domain/models/response/orders_by_status_response.dart';
 import 'package:restaurant/presentation/components/components.dart';
 import 'package:restaurant/presentation/helpers/helpers.dart';
+import 'package:restaurant/presentation/screens/delivery/accepted_order_screen.dart';
 import 'package:restaurant/presentation/screens/profile/edit_Prodile_screen.dart';
 import 'package:restaurant/presentation/screens/profile/change_password_screen.dart';
 import 'package:restaurant/presentation/screens/home/select_role_screen.dart';
@@ -31,15 +33,24 @@ import 'package:geocoding/geocoding.dart' as geocoding;
 import 'dart:math' as math;
 
 class MainDeliveryLayout extends StatefulWidget {
-  const MainDeliveryLayout({super.key});
+  final int initialIndex;
+
+  const MainDeliveryLayout({super.key, this.initialIndex = 0});
 
   @override
   State<MainDeliveryLayout> createState() => _MainDeliveryLayoutState();
 }
 
 class _MainDeliveryLayoutState extends State<MainDeliveryLayout> {
-  int _currentIndex = 0;
+  late int _currentIndex;
   String _statusKey = UniqueKey().toString();
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
+
 
   List<Widget> get _screens => [
         const StatusScreen(),
@@ -1238,7 +1249,7 @@ class _DeliveriesScreenState extends State<DeliveriesScreen> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.254.157:4000/api/get-orders-by-status/Cart%20Processing'),
+        Uri.parse('http://localhost:4000/api/get-orders-by-status/Cart%20Processing'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -1256,7 +1267,7 @@ class _DeliveriesScreenState extends State<DeliveriesScreen> {
           for (final order in unassignedOrders) {
             try {
               final detailsResponse = await http.get(
-                Uri.parse('http://192.168.254.157:4000/api/get-details-order-by-id/${order.transactionId}'),
+                Uri.parse('http://localhost:4000/api/get-details-order-by-id/${order.transactionId}'),
                 headers: {'Content-Type': 'application/json'},
               );
 
@@ -1266,7 +1277,7 @@ class _DeliveriesScreenState extends State<DeliveriesScreen> {
                   final productDetails = detailsData[0];
                   if (productDetails['sellerId'] != null) {
                     final sellerResponse = await http.get(
-                      Uri.parse('http://192.168.254.157:4000/api/seller/${productDetails['sellerId']}'),
+                      Uri.parse('http://localhost:4000/api/seller/${productDetails['sellerId']}'),
                       headers: {'Content-Type': 'application/json'},
                     );
 
@@ -1393,39 +1404,62 @@ class _DeliveriesScreenState extends State<DeliveriesScreen> {
     );
   }
 
-  Future<void> _acceptOrder(String orderId) async {
-    try {
-      final response = await http.patch(
-        Uri.parse('http://192.168.254.157:4000/api/orders/assign-rider'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'orderId': orderId,
-          'riderId': riderId,
-        }),
-      );
+ Future<void> _acceptOrder(String orderId) async {
+  try {
 
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Order accepted!')),
-        );
-        await fetchPendingOrders();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to accept order. Please try again.')),
-        );
-      }
-    } catch (e) {
-      print('Error accepting order: $e');
+    final order = pendingOrders.firstWhere((order) => order.id == orderId);
+    // Get the transactionId from the order
+    final transactionId = order.transactionId;
+    final riderId = await secureStorage.readUserId();
+
+    if (transactionId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('An error occurred. Please try again.')),
+        const SnackBar(content: Text('Invalid transaction ID. Cannot accept order.')),
+      );
+      return;
+    }
+    
+    
+    final response = await http.patch(
+      Uri.parse('http://localhost:4000/api/assign-rider'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'transactionId': transactionId,  // Using transactionId here instead of orderId
+        'riderId': riderId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // Find the accepted order
+      final acceptedOrder = pendingOrders.firstWhere((order) => order.id == orderId);
+      
+      // Navigate to accepted order page
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => AcceptedOrderPage(order: acceptedOrder),
+        ),
+      );
+      
+      await fetchPendingOrders();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to accept order. Please try again.')),
       );
     }
+  } catch (e) {
+    print('Error accepting order: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('An error occurred. Please try again.')),
+    );
   }
+}
 
   Future<void> _declineOrder(String orderId) async {
+    // Remove the order from local list only, since declining just means the rider won't take it
     setState(() {
       pendingOrders.removeWhere((order) => order.id == orderId);
     });
+    
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Order declined')),
     );

@@ -2255,7 +2255,7 @@ class _MapScreenState extends State<MapScreen> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              /*if (kIsWeb)
+              if (kIsWeb)
                 Container(
                   padding: EdgeInsets.all(8),
                   color: Colors.amber.shade100,
@@ -2265,7 +2265,7 @@ class _MapScreenState extends State<MapScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
-                ),*/
+                ),
             ],
           ),
           if (!_isLoading && _currentPosition == null)
@@ -2292,8 +2292,8 @@ class _MapScreenState extends State<MapScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _refreshLocation,
-        child: const Icon(Icons.my_location),
-        backgroundColor: Colors.yellowbg,
+        child: Icon(Icons.my_location),
+        backgroundColor: Colors.blue,
       ),
     );
   }

@@ -1,19 +1,19 @@
-/* Modern Teal-Themed Transaction Management Styling */
+/* Transaction Management Styling (Enhanced to Match AML Dashboard) */
 :root {
-  --primary: #14b8a6; /* Vibrant teal */
-  --primary-light: #2dd4bf;
-  --primary-dark: #0f766e;
-  --secondary: #f59e0b; /* Warm yellow accent */
-  --text-dark: #111827;
-  --text-medium: #6b7280;
-  --text-light: #d1d5db;
-  --background: #f3f4f6; /* Soft gray background */
-  --white: #ffffff;
-  --border-light: #e5e7eb;
-  --shadow: 0 3px 10px rgba(20, 184, 166, 0.1); /* Teal-tinted shadow */
+  --primary: #00c4b4; /* Teal for buttons and accents */
+  --primary-light: #5eead4;
+  --primary-dark: #00a69a;
+  --secondary: #f97316; /* Orange for highlights */
+  --error: #ef4444;
   --success: #22c55e;
-  --warning: #eab308;
-  --info: #3b82f6;
+  --pending: #f59e0b;
+  --text-dark: #1e293b;
+  --text-medium: #64748b;
+  --text-light: #e2e8f0;
+  --background: #f8fafc;
+  --white: #ffffff;
+  --border-light: #e2e8f0;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -21,206 +21,309 @@
 .transaction-management-container {
   box-sizing: border-box;
   width: 100%;
-  max-width: 1400px; /* Wider container */
-  height: 90vh; /* Taller for spacious feel */
-  padding: clamp(20px, 2.5vw, 24px);
-  border-radius: 16px;
+  max-width: 1050px;
+  height: 95vh; /* Fixed height */
+  padding: 24px;
+  border-radius: 12px;
   background: var(--white);
   box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  transition: all 0.3s ease;
-  border: 1px solid var(--border-light);
-  margin: 24px auto; /* Maintain vertical centering */
-  transform: translateX(10%); /* Shift right on large screens */
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-family);
+  margin-left: 30px; /* Shift container to the right */
+  margin-right: auto;
+  margin-top: 20px;
+  overflow-y: auto; /* Scrollbar for the main container */
 }
 
-/* Heading */
-.transaction-management-container h1 {
-  font-size: 32px;
-  font-weight: 900;
-  color: #111827;
-  text-align: center;
-  margin-bottom: 10px;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  background: linear-gradient(to right, #3b82f6, #10b981);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+/* Header section */
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-shrink: 0; /* Prevent header from shrinking */
+}
+
+.header-section h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0;
 }
 
 /* Search controls */
 .transaction-search {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border-light);
-  border-radius: 8px; /* Fixed: replaced --border-radius */
-  font-size: 0.95rem;
-  color: var(--text-dark); /* Fixed: replaced --text-primary */
-  background: #f8fafc;
-  transition: all 0.3s ease; /* Fixed: replaced --transition */
-  margin-bottom: 20px;
+  width: 250px;
+  position: relative; /* For positioning the clear button */
 }
 
 .transaction-search input {
-  padding: 10px 14px 10px 40px;
-  border-radius: 10px;
+  width: 100%;
+  padding: 10px 40px 10px 40px;
+  border-radius: 8px;
   border: 1px solid var(--border-light);
-  background: var(--background);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--white);
+  font-family: var(--font-family);
   font-size: 14px;
   color: var(--text-dark);
   outline: none;
   transition: all 0.3s ease;
-  width: 100%;
-  box-shadow: 0 2px 5px rgba(20, 184, 166, 0.05);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="%2364748b" viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M18.5 10.5a8 8 0 1 0-16 0 8 8 0 0 0 16 0z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  background-size: 20px;
 }
 
 .transaction-search input:focus,
 .transaction-search input:hover {
-  border-color: var(--primary-light);
-  box-shadow: 0 3px 8px rgba(20, 184, 166, 0.15);
-  transform: translateY(-1px);
+  border-color: var(--primary);
+  box-shadow: 0 2px 6px rgba(0, 196, 180, 0.1);
+}
+
+.transaction-search .clear-search {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.transaction-search .clear-search:hover {
+  background: var(--border-light);
+}
+
+.transaction-search .clear-icon {
+  font-size: 14px;
+  color: var(--text-medium);
+  font-weight: 600;
 }
 
 /* Transaction list */
 .transaction-list {
+  flex: 1;
+  /* Removed overflow-y: auto to prevent nested scrollbar */
+}
+
+/* Table header */
+.transaction-table-header {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Two-column grid */
-  gap: 14px; /* Compact gap */
-  width: 100%; /* Allows scaling */
+  grid-template-columns: 150px 150px 150px 150px 100px 100px 120px;
+  gap: clamp(12px, 1.5vw, 16px);
+  padding: 12px 16px;
+  background: #f1f5f9;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Transaction item */
 .transaction-item {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 14px;
-  border-radius: 12px;
-  background: var(--white);
-  box-shadow: 0 3px 8px rgba(20, 184, 166, 0.08);
-  border: 1px solid var(--border-light);
-  transition: all 0.3s ease;
-  position: relative;
-  max-width: 400px; /* Compact card width */
-  margin: 0 auto; /* Center within grid column */
+  border-bottom: 1px solid var(--border-light);
 }
 
-.transaction-item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 12px rgba(20, 184, 166, 0.15);
-  border-color: #5b7fa7;
-}
-
-/* Transaction ID badge */
-.transaction-id {
-  display: inline-flex;
+/* Transaction summary (table row) */
+.transaction-summary {
+  display: grid;
+  grid-template-columns: 150px 150px 150px 150px 100px 100px 120px;
+  gap: clamp(12px, 1.5vw, 16px);
+  padding: 16px;
   align-items: center;
-  background: #5b7fa7;
-  color: var(--white);
-  padding: 4px 10px;
-  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.transaction-summary.even {
+  background: var(--white);
+}
+
+.transaction-summary.odd {
+  background: #fafafa;
+}
+
+.transaction-summary:hover {
+  background: rgba(0, 196, 180, 0.1);
+}
+
+/* Transaction fields */
+.transaction-date,
+.transaction-id,
+.transaction-name,
+.transaction-bank,
+.transaction-amount {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-dark);
+}
+
+.transaction-id {
+  font-weight: 600;
+  color: var(--primary-dark);
+}
+
+.transaction-amount {
+  font-weight: 600;
+}
+
+/* Status badge */
+.transaction-status .status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-badge.errorWAN {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error);
+}
+
+.status-badge.completed {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--success);
+}
+
+.status-badge.pending {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--pending);
+}
+
+/* Action buttons */
+.action-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.toggle-details,
+.action-button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: var(--font-family);
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.6px;
+  cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: transparent;
+  border: 1px solid;
+  min-width: 70px;
+  text-align: center;
 }
 
-.transaction-id:hover {
-  background: #3d5f86;
-  transform: scale(1.05);
+.toggle-details {
+  border-color: #5b7fa7;
+  color: #5b7fa7;
 }
 
-/* Transaction details (Receipt-like design) */
+.toggle-details:hover {
+  background: #5b7fa7;
+  color: var(--white);
+}
+
+.action-button.delete {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: var(--font-family);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: transparent;
+  border: 1px solid;
+  min-width: 70px;
+  text-align: center;
+}
+
+.action-button.delete {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.action-button.delete:hover {
+  background: var(--error);
+  color: var(--white);
+}
+
+/* Transaction details (expanded panel) */
 .transaction-details {
-  display: flex;
-  flex-direction: column; /* Vertical list for receipt style */
-  gap: 6px;
-  padding: 10px;
-  border-top: 1px dotted var(--border-light);
-  border-bottom: 1px dotted var(--border-light);
-  background: #fafafa; /* Subtle background for receipt effect */
+  display: none;
+  padding: 24px;
+  background: var(--white);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  margin: 0 16px 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.transaction-details.open {
+  display: block;
+}
+
+.details-section {
+  margin-bottom: 24px;
+}
+
+.details-section:last-child {
+  margin-bottom: 0;
+}
+
+.details-section h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .transaction-detail-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px 0;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .detail-label {
   font-size: 12px;
+  font-weight: 500;
   color: var(--text-medium);
   text-transform: uppercase;
-  letter-spacing: 0.3px;
-  font-weight: 500;
-  flex: 0 0 40%; /* Fixed width for labels */
 }
 
 .detail-value {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-dark);
-  flex: 1;
-  text-align: right; /* Right-aligned for receipt style */
 }
 
 .price-value {
-  color: #1173a0;
-  font-size: 20px;
+  color: var(--primary-dark);
   font-weight: 700;
-}
-
-/* Transaction actions */
-.transaction-actions {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 10px;
-  border-top: 1px solid var(--border-light);
-}
-
-.action-button {
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: none;
-  background: var(--primary);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--white);
-  cursor: pointer;
-  outline: none;
-  transition: all 0.3s ease;
-}
-
-.action-button.delete {
-  background: #ef4444;
-}
-
-.action-button:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.1);
-}
-
-.action-button.delete:hover {
-  background: #dc2626;
 }
 
 /* Empty state */
 .empty-transactions {
-  grid-column: 1 / -1; /* Span both columns */
-  padding: 20px;
+  padding: 24px;
   text-align: center;
   background: var(--background);
-  border-radius: 12px;
+  border-radius: 8px;
   border: 1px dashed var(--border-light);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  margin: 16px;
 }
 
 .empty-transactions p {
@@ -231,105 +334,130 @@
 }
 
 /* Responsive design */
-@media (min-width: 1800px) {
-  .transaction-management-container {
-    max-width: 1500px; /* Widened to match base */
-  }
-
-  .transaction-item {
-    max-width: 450px; /* Slightly larger for bigger screens */
-  }
-}
-
-@media (max-width: 1200px) {
-  .transaction-management-container {
-    max-width: 95%;
-    margin-right: 200px;
-    margin-left: -50px;
-  }
-}
-
 @media (max-width: 992px) {
   .transaction-management-container {
+    max-width: 90%;
     padding: 16px;
-    height: 92vh;
-    margin: 20px auto;
-    margin-left: 10px;
-    transform: translateX(5%); /* Shifted less right for small screens */
+    margin-left: 20px;
   }
 
-  .transaction-list {
-    grid-template-columns: 1fr; /* Single column on smaller screens */
+  .header-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
   }
 
-  .transaction-item {
-    max-width: 500px; /* Slightly wider for single column */
+  .transaction-search {
+    width: 100%;
+  }
+
+  .transaction-table-header,
+  .transaction-summary {
+    grid-template-columns: 120px 120px 120px 80px 80px 100px;
+    gap: clamp(8px, 1vw, 12px);
+  }
+
+  .transaction-bank {
+    display: none;
   }
 }
 
 @media (max-width: 768px) {
-  .transaction-management-container {
-    margin: 16px auto;
-    padding: 14px;
-    height: 93vh;
+  .transaction-table-header,
+  .transaction-summary {
+    grid-template-columns: 120px 120px 80px 80px 100px;
+    gap: clamp(6px, 0.8vw, 10px);
   }
 
-  .transaction-search {
-    justify-content: center;
-    width: 100%;
-  }
-
-  .transaction-search input {
-    width: 100%;
-    min-width: unset;
+  .transaction-name {
+    display: none;
   }
 }
 
 @media (max-width: 576px) {
   .transaction-management-container {
     padding: 12px;
-    margin-right: 160px;
-    margin-left: -10px;
+    margin-left: 10px;
   }
 
-  .transaction-search {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .transaction-list {
-    gap: 10px;
+  .transaction-table-header,
+  .transaction-summary {
+    grid-template-columns: 120px 80px 80px 100px;
+    gap: clamp(4px, 0.6vw, 8px);
   }
 
   .transaction-id {
-    font-size: 11px;
-    padding: 3px 8px;
+    display: none;
   }
 
-  .transaction-item {
-    padding: 12px;
-    max-width: 100%;
+  .toggle-details,
+  .action-button {
+    padding: 5px 10px;
+    font-size: 11px;
+    min-width: 60px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .transaction-search .clear-search {
+    right: 8px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .transaction-search .clear-icon {
+    font-size: 12px;
   }
 }
 
 @media (max-width: 480px) {
   .transaction-management-container {
     padding: 10px;
-    margin-right: 160px;
-    
+    margin-left: 0; /* Tanggalin ang left margin para masulit ang espasyo */
+    overflow-x: auto; /* Ito ang magpapagana sa horizontal scrolling */
   }
 
   .transaction-search input {
-    padding: 8px 12px 8px 36px;
+    padding: 8px 36px 8px 36px;
     font-size: 13px;
   }
 
-  .detail-label {
-    font-size: 11px;
-    flex: 0 0 50%; /* Adjust for smaller screens */
+  .transaction-table {
+    width: auto; /* Hahayaan ang table na lumapad batay sa content nito */
+    min-width: 600px; /* Halimbawa ng minimum width para hindi masyadong siksik */
   }
 
-  .detail-value {
+  .transaction-table-header,
+  .transaction-summary {
+    display: grid;
+    grid-template-columns: 120px 100px 100px; /* Ibalik ang mga columns at bigyan ng sapat na lapad */
+    gap: clamp(3px, 0.5vw, 6px);
+  }
+
+  .transaction-date,
+  .transaction-amount,
+  .detail-label,
+  .detail-value,
+  .transaction-status {
+    font-size: 12px;
+    white-space: nowrap; /* Pigilan ang text na bumaba sa bagong linya */
+  }
+
+  .transaction-search .clear-search {
+    right: 6px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .transaction-search .clear-icon {
     font-size: 11px;
   }
+}
+
+/* Siguraduhin na ang container ng table ay may overflow-x */
+.transaction-table-container {
+  overflow-x: auto;
 }

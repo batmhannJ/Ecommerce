@@ -1634,17 +1634,6 @@ class _MapScreenState extends State<MapScreen> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              if (kIsWeb)
-                Container(
-                  padding: EdgeInsets.all(8),
-                  color: Colors.amber.shade100,
-                  width: double.infinity,
-                  child: Text(
-                    'Running in web mode',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
             ],
           ),
           if (!_isLoading && _currentPosition == null)
@@ -1672,7 +1661,7 @@ class _MapScreenState extends State<MapScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: _refreshLocation,
         child: Icon(Icons.my_location),
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.yellowbg,
       ),
     );
   }

@@ -1,10 +1,78 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import UserSearchBar from "../SearchBar/SearchBar";
 import { toast } from "react-toastify";
 import "./UserManagement.css";
 
-// Utility function to format the date
+const UserSearchBar = ({ onSearch }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleInputChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleSearch = () => {
+    onSearch(searchTerm);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  const handleClear = () => {
+    setSearchTerm("");
+    onSearch("");
+  };
+
+  return (
+    <div className="um-modern-search-wrapper">
+      <div className="um-modern-search-box">
+        <span className="um-modern-icon">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </span>
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={handleInputChange}
+          onKeyPress={handleKeyPress}
+          placeholder="Search users by name or email..."
+          className="um-modern-input"
+        />
+        {searchTerm && (
+          <button className="um-modern-clear-btn" onClick={handleClear}>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        )}
+        <button className="um-modern-search-btn" onClick={handleSearch}>
+          Search
+        </button>
+      </div>
+    </div>
+  );
+};
+
+
 const formatDate = (dateString) => {
   const date = new Date(dateString);
   if (isNaN(date.getTime())) {
@@ -22,7 +90,6 @@ function UserManagement() {
   const [editingUser, setEditingUser] = useState(null);
   const [newUser, setNewUser] = useState({ name: "", email: "", password: "" });
   const [viewUser, setViewUser] = useState(null);
-  const [isPanelExpanded, setIsPanelExpanded] = useState(false); // For small/medium screens only
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 8;
   const usersRef = useRef([]);
@@ -41,15 +108,6 @@ function UserManagement() {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
-
-  // Sync isPanelExpanded with viewUser changes for small/medium screens
-  useEffect(() => {
-    if (viewUser) {
-      setIsPanelExpanded(true); // Expand panel when a user is viewed
-    } else {
-      setIsPanelExpanded(false); // Collapse panel when no user is viewed
-    }
-  }, [viewUser]);
 
   const fetchUsers = async () => {
     try {
@@ -207,17 +265,8 @@ function UserManagement() {
     }
   };
 
-  const togglePanel = () => {
-    setIsPanelExpanded(!isPanelExpanded);
-  };
-
-  const handleClosePanel = () => {
-    setViewUser(null);
-    setIsPanelExpanded(false); // Ensure panel collapses when closed
-  };
-
   const getStatusClass = (status) => {
-    return status === "Active" ? "status-active" : "status-offline";
+    return status === "Active" ? "um-status-active" : "um-status-offline";
   };
 
   const indexOfLastUser = currentPage * usersPerPage;
@@ -228,74 +277,93 @@ function UserManagement() {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
-    <div className="user-management-wrapper">
-      <div className="user-management-header">
-        <div className="header-controls">
-          <h1>User List</h1>
+    <div className="um-wrapper">
+      <div className="um-header">
+        <div className="um-header-controls">
+          <h1 className="um-title">User List</h1>
         </div>
-        <div className="search-bar-container">
+        <div className="um-search-container">
           <UserSearchBar onSearch={handleSearch} />
         </div>
       </div>
 
-      <div className="user-list-container">
-        <div className="user-list">
-          <div className="user-list-header">
-            <div className="view-column">VIEW</div>
-            <div className="username-column">USERNAME</div>
-            <div className="status-column">STATUS</div>
-            <div className="working-time-column">USAGE TIME</div>
-            <div className="assignee-column">PROFILE</div>
-          </div>
+      <div className="um-table-container">
+        <table className="um-table">
+          <thead>
+            <tr>
+              <th className="um-th-view">View</th>
+              <th className="um-th-username">Username</th>
+              <th className="um-th-status">Status</th>
+              <th className="um-th-working-time">Usage Time</th>
+              <th className="um-th-profile">Profile</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentUsers.length > 0 ? (
+              currentUsers.map((user, index) => (
+                <tr key={user._id} className="um-table-row">
+                  <td className="um-td-view">
+                    <button
+                      className="um-view-btn"
+                      onClick={() => handleViewUser(index)}
+                    >
+                      View
+                    </button>
+                  </td>
+                  <td className="um-td-username">{user.name}</td>
+                  <td className="um-td-status">
+                    <span className={`um-status-badge ${getStatusClass(user.status)}`}>
+                      {user.status}
+                    </span>
+                  </td>
+                  <td className="um-td-working-time">
+                    <div className="um-time-progress-container">
+                      <div
+                        className="um-time-bar"
+                        style={{ width: `${getWorkingTimePercentage(user)}%` }}
+                      ></div>
+                    </div>
+                    <span className="um-time-value">{user.workingTime || "00:00:00"}</span>
+                  </td>
+                  <td className="um-td-profile">
+                    <div className="um-avatar">
+                      {user.imageUrl ? (
+                        <img
+                          src={user.imageUrl}
+                          alt={user.name}
+                          className="um-avatar-img"
+                        />
+                      ) : (
+                        <div className="um-avatar-placeholder">
+                          {user.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <span className={`um-status-indicator ${user.status === 'Active' ? 'active' : 'offline'}`}></span>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="um-no-users">
+                  No users found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-          {currentUsers.length > 0 ? (
-            currentUsers.map((user, index) => (
-              <div key={user._id} className="user-list-item">
-                <div className="view-column">
-                  <button className="view-btn" onClick={() => handleViewUser(index)}>
-                    View
-                  </button>
-                </div>
-                <div className="username-column">{user.name}</div>
-                <div className="status-column">
-                  <span className={getStatusClass(user.status)}>{user.status}</span>
-                </div>
-                <div className="working-time-column">
-                  <div className="time-progress">
-                    <div
-                      className="time-bar"
-                      style={{ width: `${getWorkingTimePercentage(user)}%` }}
-                    ></div>
-                  </div>
-                  <span>{user.workingTime || "00:00:00"}</span>
-                </div>
-                <div className="assignee-column">
-                  <div className="user-avatar">
-                    {user.imageUrl ? (
-                      <img
-                        src={user.imageUrl}
-                        alt={user.name}
-                        className="user-avatar-img"
-                      />
-                    ) : (
-                      <div className="avatar-placeholder">
-                        {user.name.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="no-users">No users found.</div>
-          )}
+      <div className="um-pagination">
+        <div className="um-pagination-info">
+          Displaying {indexOfFirstUser + 1} - {Math.min(indexOfLastUser, users.length)} of {users.length} records
         </div>
-        <div className="pagination">
+        <div className="um-pagination-buttons">
           {Array.from({ length: totalPages }, (_, i) => (
             <button
               key={i + 1}
               onClick={() => paginate(i + 1)}
-              className={currentPage === i + 1 ? "active" : ""}
+              className={`um-page-btn ${currentPage === i + 1 ? 'active' : ''}`}
             >
               {i + 1}
             </button>
@@ -303,231 +371,192 @@ function UserManagement() {
         </div>
       </div>
 
-      <div className="user-details-container">
-        {viewUser ? (
-          <div className={`user-details-panel ${isPanelExpanded ? 'expanded' : 'collapsed'}`}>
-            <button
-              className="toggle-panel-btn"
-              onClick={togglePanel}
-              aria-label="Toggle user details panel"
-              aria-expanded={isPanelExpanded}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="toggle-icon"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d={isPanelExpanded ? "M19 9l-7 7-7-7" : "M5 15l7-7 7 7"}
-                />
-              </svg>
-            </button>
-            <div className="panel-header">
+      {viewUser && (
+        <div className="um-modal-backdrop">
+          <div className="um-modal-content">
+            <div className="um-modal-header">
+              <h2>User Profile</h2>
               <button
-                className="back-btn"
-                onClick={handleClosePanel}
-                aria-label="Go back to user list"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="back-icon"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-                Back
-              </button>
-              <button
-                className="close-btn"
-                onClick={handleClosePanel}
+                className="um-close-button"
+                onClick={() => setViewUser(null)}
                 aria-label="Close user details"
               >
-                ×
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
               </button>
             </div>
-
-            <div className="user-profile-card">
-              <div className="user-avatar-container">
+            <div className="um-profile-section">
+              <div className="um-avatar-row">
                 {viewUser.imageUrl ? (
                   <img
                     src={viewUser.imageUrl}
                     alt={viewUser.name}
-                    className="user-avatar-img"
+                    className="um-profile-image"
                   />
                 ) : (
-                  <div className="avatar-placeholder">
+                  <div className="um-profile-placeholder">
                     {viewUser.name.charAt(0).toUpperCase()}
                   </div>
                 )}
+                <span className={`um-status-indicator ${viewUser.status === 'Active' ? 'active' : 'offline'}`}></span>
               </div>
-              <h2 className="user-name">{viewUser.name || "N/A"}</h2>
-              <p className="user-email">{viewUser.email || "N/A"}</p>
-            </div>
-
-            <div className="user-stats-section">
-              <h3 className="section-title">User Details</h3>
-              <div className="stats-grid">
-                <div className="stat-card">
-                  <span className="stat-label">Role</span>
-                  <span className="stat-value">{viewUser.role || "User"}</span>
-                </div>
-                <div className="stat-card">
-                  <span className="stat-label">Last Login</span>
-                  <span className="stat-value">
-                    {viewUser.lastLogin ? formatDate(viewUser.lastLogin) : "N/A"}
-                  </span>
-                </div>
-                <div className="stat-card">
-                  <span className="stat-label">Account Created</span>
-                  <span className="stat-value">
-                    {viewUser.date ? formatDate(viewUser.date) : "N/A"}
-                  </span>
-                </div>
-                <div className="stat-card">
-                  <span className="stat-label">Status</span>
-                  <span className="stat-value">{viewUser.status || "N/A"}</span>
-                </div>
-                <div className="stat-card">
-                  <span className="stat-label">Usage Time</span>
-                  <span className="stat-value">
-                    {viewUser.workingTime || "00:00:00"}
-                  </span>
-                </div>
+              <div className="um-info-row">
+                <span className="um-info-label">Full Name</span>
+                <span className="um-info-value">{viewUser.name || "N/A"}</span>
+              </div>
+              <div className="um-info-row">
+                <span className="um-info-label">Email Address</span>
+                <span className="um-info-value">{viewUser.email || "N/A"}</span>
+              </div>
+              <div className="um-info-row">
+                <span className="um-info-label">Status</span>
+                <span className={`um-status-badge ${viewUser.status === 'Active' ? 'active' : 'offline'}`}>
+                  {viewUser.status || "Offline"}
+                </span>
+              </div>
+              <div className="um-info-row">
+                <span className="um-info-label">Usage Time</span>
+                <span className="um-info-value">{viewUser.workingTime || "00:00:00"}</span>
+              </div>
+              <div className="um-info-row">
+                <span className="um-info-label">Role</span>
+                <span className="um-info-value">{viewUser.role || "User"}</span>
+              </div>
+              <div className="um-info-row">
+                <span className="um-info-label">Last Login</span>
+                <span className="um-info-value">
+                  {viewUser.lastLogin ? formatDate(viewUser.lastLogin) : "N/A"}
+                </span>
+              </div>
+              <div className="um-info-row">
+                <span className="um-info-label">Account Created</span>
+                <span className="um-info-value">
+                  {viewUser.date ? formatDate(viewUser.date) : "N/A"}
+                </span>
               </div>
             </div>
-
-            <div className="user-actions-section">
+            <div className="um-modal-actions">
               <button
-                className="action-btn edit-btn"
+                className="um-action-button um-edit"
                 onClick={() =>
                   handleEditUser(users.findIndex((u) => u._id === viewUser._id))
                 }
               >
-                Edit User
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Edit Profile
+              </button>
+              <button
+                className="um-action-button um-close"
+                onClick={() => setViewUser(null)}
+              >
+                Close
               </button>
             </div>
           </div>
-        ) : (
-          <div className={`user-details-placeholder ${isPanelExpanded ? 'expanded' : 'collapsed'}`}>
-            <button
-              className="toggle-panel-btn"
-              onClick={togglePanel}
-              aria-label="Toggle user details panel"
-              aria-expanded={isPanelExpanded}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="toggle-icon"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d={isPanelExpanded ? "M19 9l-7 7-7-7" : "M5 15l7-7 7 7"}
-                />
-              </svg>
-            </button>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="placeholder-icon"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5h6a2 2 0 012 2v10a2 2 0 01-2 2H9a2 2 0 01-2-2V7a2 2 0 012-2zm3 7v2m0 0v2m0-2h-2m2 0h2"
-              />
-            </svg>
-            <h3 className="placeholder-title">No User Selected</h3>
-            <p className="placeholder-text">
-              Click the "View" button on a user to display their details here.
-            </p>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {editingUser !== null && (
-        <div className="modal-overlay">
-          <div className="edit-modal">
-            <div className="modal-header">
+        <div className="um-modal-backdrop">
+          <div className="um-modal-content">
+            <div className="um-modal-header">
               <h2>Edit User Profile</h2>
               <button
-                type="button"
-                className="modal-close-btn"
+                className="um-close-button"
                 onClick={resetEditingState}
                 aria-label="Close edit modal"
               >
-                ×
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
               </button>
             </div>
-            <form onSubmit={handleUpdateUser}>
-              <div className="form-field">
-                <label htmlFor="name">Full Name</label>
-                <input
-                  id="name"
-                  type="text"
-                  value={newUser.name}
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, name: e.target.value })
-                  }
-                  placeholder="Enter full name"
-                  required
-                />
+            <form onSubmit={handleUpdateUser} className="um-form-section">
+              <div className="um-form-row">
+                <label htmlFor="name" className="um-form-label">Full Name</label>
+                <div className="um-input-wrapper">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <input
+                    id="name"
+                    type="text"
+                    value={newUser.name}
+                    onChange={(e) =>
+                      setNewUser({ ...newUser, name: e.target.value })
+                    }
+                    placeholder="Enter full name"
+                    className="um-form-input"
+                    required
+                  />
+                </div>
               </div>
-              <div className="form-field">
-                <label htmlFor="email">Email Address</label>
-                <input
-                  id="email"
-                  type="email"
-                  value={newUser.email}
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, email: e.target.value })
-                  }
-                  placeholder="Enter email address"
-                  required
-                />
+              <div className="um-form-row">
+                <label htmlFor="email" className="um-form-label">Email Address</label>
+                <div className="um-input-wrapper">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                  <input
+                    id="email"
+                    type="email"
+                    value={newUser.email}
+                    onChange={(e) =>
+                      setNewUser({ ...newUser, email: e.target.value })
+                    }
+                    placeholder="Enter email address"
+                    className="um-form-input"
+                    required
+                  />
+                </div>
               </div>
-              <div className="form-field">
-                <label htmlFor="password">Password</label>
-                <input
-                  id="password"
-                  type="password"
-                  value={newUser.password}
-                  readOnly
-                  placeholder="Password (unchanged)"
-                />
-              </div>
-              <div className="form-actions">
-                <button type="submit" className="submit-btn">
-                  Save Changes
-                </button>
-                <button
-                  type="button"
-                  className="cancel-btn"
-                  onClick={resetEditingState}
-                >
-                  Cancel
-                </button>
+              <div className="um-form-row">
+                <label htmlFor="password" className="um-form-label">Password</label>
+                <div className="um-input-wrapper">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0110 0v4"></path>
+                  </svg>
+                  <input
+                    id="password"
+                    type="password"
+                    value={newUser.password}
+                    readOnly
+                    placeholder="Password (unchanged)"
+                    className="um-form-input"
+                  />
+                </div>
               </div>
             </form>
+            <div className="um-modal-actions">
+              <button
+                type="submit"
+                className="um-action-button um-update"
+                onClick={handleUpdateUser}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"></path>
+                  <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                  <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                Save Changes
+              </button>
+              <button
+                type="button"
+                className="um-action-button um-cancel"
+                onClick={resetEditingState}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}

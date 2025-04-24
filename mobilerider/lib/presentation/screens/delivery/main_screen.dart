@@ -827,7 +827,7 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
         throw Exception('User ID not found in secure storage');
       }
 
-      const String baseUrl = 'http://10.0.2.2:4000';
+      const String baseUrl = 'http://192.168.254.157:4000';
       final response = await http.get(
         Uri.parse('$baseUrl/api/public/rider/$riderId/vehicle-type'),
         headers: {
@@ -1103,7 +1103,7 @@ class ShiftProvider with ChangeNotifier {
       if (riderId == null) {
         throw Exception('User ID not found in secure storage');
       }
-      const String baseUrl = 'http://10.0.2.2:4000';
+      const String baseUrl = 'http://192.168.254.157:4000';
       
       final response = await http.put(
         Uri.parse('$baseUrl/api/rider/$riderId/online-status'),
@@ -1132,7 +1132,7 @@ class ShiftProvider with ChangeNotifier {
         throw Exception('User ID not found in secure storage');
       }
       
-      const String baseUrl = 'http://10.0.2.2:4000';
+      const String baseUrl = 'http://192.168.254.157:4000';
       
       final response = await http.put(
         Uri.parse('$baseUrl/api/rider/$riderId/extension-availability'),
@@ -1191,7 +1191,7 @@ class _DeliveriesScreenState extends State<DeliveriesScreen> {
   try {
     // Fetch orders with status "CART_PROCESSING"
     final response = await http.get(
-      Uri.parse('http://10.0.2.2:4000/api/get-orders-by-status/Cart%20Processing'),
+      Uri.parse('http://192.168.254.157:4000/api/get-orders-by-status/Cart%20Processing'),
       headers: {'Content-Type': 'application/json'},
     );
 
@@ -1213,7 +1213,7 @@ class _DeliveriesScreenState extends State<DeliveriesScreen> {
           try {
             // Fetch product and seller details
             final detailsResponse = await http.get(
-              Uri.parse('http://10.0.2.2:4000/api/get-details-order-by-id/${order.transactionId}'),
+              Uri.parse('http://192.168.254.157:4000/api/get-details-order-by-id/${order.transactionId}'),
               headers: {'Content-Type': 'application/json'},
             );
             
@@ -1225,7 +1225,7 @@ class _DeliveriesScreenState extends State<DeliveriesScreen> {
                 // If sellerId is available in the details, fetch seller information
                 if (productDetails['sellerId'] != null) {
                   final sellerResponse = await http.get(
-                    Uri.parse('http://10.0.2.2:4000/api/seller/${productDetails['sellerId']}'),
+                    Uri.parse('http://192.168.254.157:4000/api/seller/${productDetails['sellerId']}'),
                     headers: {'Content-Type': 'application/json'},
                   );
                   
@@ -1342,7 +1342,7 @@ class _DeliveriesScreenState extends State<DeliveriesScreen> {
   Future<void> _acceptOrder(String orderId) async {
     try {
       final response = await http.patch(
-        Uri.parse('http://10.0.2.2:4000/api/orders/assign-rider'),
+        Uri.parse('http://192.168.254.157:4000/api/orders/assign-rider'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'orderId': orderId,

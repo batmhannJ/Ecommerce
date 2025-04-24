@@ -91,8 +91,8 @@ const TransactionManagement = () => {
               <span>Transfer ID</span>
               <span>Recipient</span>
               <span>Address</span>
-              <span>Status</span>
               <span>Amount</span>
+              <span>Payment Method</span>
               <span>Actions</span>
             </div>
             {filteredTransactions.map((transaction, index) => (
@@ -104,11 +104,11 @@ const TransactionManagement = () => {
                   <span className="transaction-id">{transaction.transactionId}</span>
                   <span className="transaction-name">{transaction.name || "N/A"}</span>
                   <span className="transaction-bank">{transaction.address || "N/A"}</span>
-                  <span className="transaction-status">
-                    <span className="status-badge completed">Completed</span>
-                  </span>
                   <span className="transaction-amount">
                     ₱{transaction.amount || "N/A"}
+                  </span>
+                  <span className="transaction-status">
+                    <span className="status-badge completed">{transaction.paymentMethod || "N/A"}</span>
                   </span>
                   <div className="action-buttons">
                     <button

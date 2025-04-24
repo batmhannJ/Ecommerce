@@ -1053,40 +1053,62 @@ class ShiftProvider with ChangeNotifier {
   String _vehicleType = '';
   String _bagType = '';
   bool _isAvailableForExtension = false;
+  bool _isOnline = false; // Add isOnline field
 
   bool get isShiftActive => _isShiftActive;
   Map<String, dynamic>? get activeShift => _activeShift;
   String get vehicleType => _vehicleType;
   String get bagType => _bagType;
   bool get isAvailableForExtension => _isAvailableForExtension;
+  bool get isOnline => _isOnline; 
 
   void startShift(Map<String, dynamic> shift, String vehicle, String bag) {
-    print("ShiftProvider: Starting shift with data: $shift");
     _isShiftActive = true;
     _activeShift = Map<String, dynamic>.from(shift);
     _vehicleType = vehicle;
     _bagType = bag;
     _isAvailableForExtension = false;
-
-    print("ShiftProvider: isShiftActive set to $_isShiftActive");
-    print("ShiftProvider: activeShift set to $_activeShift");
+    _isOnline = true; // Set isOnline to true when shift starts
     notifyListeners();
 
     _updateOnlineStatus(true);
 
     Future.delayed(const Duration(milliseconds: 100), () {
-      print("ShiftProvider: Forcing additional notification");
       notifyListeners();
     });
   }
 
   void endShift() {
-    print("ShiftProvider: Ending shift");
     _isShiftActive = false;
     _activeShift = null;
     _isAvailableForExtension = false;
+    _isOnline = false; // Set isOnline to false when shift ends
     notifyListeners();
     _updateOnlineStatus(false);
+  }
+
+  Future<void> fetchOnlineStatus() async {
+    try {
+      final riderId = await secureStorage.readUserId();
+      if (riderId == null) {
+        throw Exception('User ID not found in secure storage');
+      }
+      const String baseUrl = 'http://localhost:4000';
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/rider/$riderId/online-status'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        _isOnline = data['isOnline'] ?? false;
+        notifyListeners();
+      } else {
+        print('Failed to fetch online status: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching online status: $e');
+    }
   }
   
   void setAvailabilityForExtension(bool isAvailable) {
@@ -1116,8 +1138,8 @@ class ShiftProvider with ChangeNotifier {
       );
       
       if (response.statusCode != 200) {
-        print('Failed to update online status: ${response.statusCode}');
-        print('Response body: ${response.body}');
+        _isOnline = isOnline; // Update local state
+        notifyListeners();
       }
     } catch (e) {
       print('Error updating online status: $e');
@@ -1163,6 +1185,7 @@ class _DeliveriesScreenState extends State<DeliveriesScreen> {
   List<OrdersResponse> pendingOrders = [];
   bool isLoading = true;
   String? riderId;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
@@ -1177,85 +1200,103 @@ class _DeliveriesScreenState extends State<DeliveriesScreen> {
       
       if (riderId != null) {
         await fetchPendingOrders();
+        final shiftProvider = Provider.of<ShiftProvider>(context, listen: false);
+        await shiftProvider.fetchOnlineStatus();
+        if (shiftProvider.isShiftActive && shiftProvider.isOnline) {
+          await fetchPendingOrders();
+        } else {
+          setState(() {
+            isLoading = false;
+          });
+        }
+        _startOrderRefresh();
       }
     } catch (e) {
       print('Error loading rider info: $e');
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
+  void _startOrderRefresh() {
+    _refreshTimer?.cancel();
+    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      final shiftProvider = Provider.of<ShiftProvider>(context, listen: false);
+      if (shiftProvider.isShiftActive && shiftProvider.isOnline) {
+        fetchPendingOrders();
+      } else {
+        timer.cancel();
+      }
+    });
+  }
+
   Future<void> fetchPendingOrders() async {
-  setState(() {
-    isLoading = true;
-  });
+    setState(() {
+      isLoading = true;
+    });
 
-  try {
-    // Fetch orders with status "CART_PROCESSING"
-    final response = await http.get(
-      Uri.parse('http://localhost:4000/api/get-orders-by-status/Cart%20Processing'),
-      headers: {'Content-Type': 'application/json'},
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('http://192.168.254.157:4000/api/get-orders-by-status/Cart%20Processing'),
+        headers: {'Content-Type': 'application/json'},
+      );
 
-    if (response.statusCode == 200) {
-      
-      final responseData = json.decode(response.body);
-      print('API Response: $responseData'); // Debug log
-      final ordersResponse = OrdersByStatusResponse.fromJson(json.decode(response.body));
-      
-      if (ordersResponse.resp) {
-        // Filter orders that haven't been assigned to any rider yet
-        final unassignedOrders = ordersResponse.ordersResponse
-            .where((order) => order.riderId.isEmpty)
-            .toList();
-        
-        // For each order, fetch product and seller information
-        final List<OrdersResponse> enrichedOrders = [];
-        for (final order in unassignedOrders) {
-          try {
-            // Fetch product and seller details
-            final detailsResponse = await http.get(
-              Uri.parse('http://localhost:4000/api/get-details-order-by-id/${order.transactionId}'),
-              headers: {'Content-Type': 'application/json'},
-            );
-            
-            if (detailsResponse.statusCode == 200) {
-              final detailsData = json.decode(detailsResponse.body);
-              if (detailsData is List && detailsData.isNotEmpty) {
-                final productDetails = detailsData[0];
-                
-                // If sellerId is available in the details, fetch seller information
-                if (productDetails['sellerId'] != null) {
-                  final sellerResponse = await http.get(
-                    Uri.parse('http://localhost:4000/api/seller/${productDetails['sellerId']}'),
-                    headers: {'Content-Type': 'application/json'},
-                  );
-                  
-                  if (sellerResponse.statusCode == 200) {
-                    final sellerData = json.decode(sellerResponse.body);
-                    
-                    // Create a new order with seller information
-                    final enrichedOrder = OrdersResponse(
-                      id: order.id,
-                      date: order.date,
-                      name: order.name,
-                      contact: order.contact,
-                      item: order.item,
-                      quantity: order.quantity,
-                      amount: order.amount,
-                      address: order.address,
-                      transactionId: order.transactionId,
-                      status: order.status,
-                      userId: order.userId,
-                      riderId: order.riderId,
-                      markupValue: order.markupValue,
-                      deliveryFee: order.deliveryFee,
-                      deliveryComm: order.deliveryComm,
-                      sellerName: sellerData['name'] ?? '',
-                      shopName: sellerData['shopName'] ?? '',
-                      businessLocation: sellerData['businessLocation'] ?? '',
-                      sellerPhone: sellerData['phone'] ?? '',
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print('API Response: $responseData');
+        final ordersResponse = OrdersByStatusResponse.fromJson(responseData);
+
+        if (ordersResponse.resp) {
+          final unassignedOrders = ordersResponse.ordersResponse
+              .where((order) => order.riderId.isEmpty)
+              .toList();
+
+          final List<OrdersResponse> enrichedOrders = [];
+          for (final order in unassignedOrders) {
+            try {
+              final detailsResponse = await http.get(
+                Uri.parse('http://192.168.254.157:4000/api/get-details-order-by-id/${order.transactionId}'),
+                headers: {'Content-Type': 'application/json'},
+              );
+
+              if (detailsResponse.statusCode == 200) {
+                final detailsData = json.decode(detailsResponse.body);
+                if (detailsData is List && detailsData.isNotEmpty) {
+                  final productDetails = detailsData[0];
+                  if (productDetails['sellerId'] != null) {
+                    final sellerResponse = await http.get(
+                      Uri.parse('http://192.168.254.157:4000/api/seller/${productDetails['sellerId']}'),
+                      headers: {'Content-Type': 'application/json'},
                     );
-                    
-                    enrichedOrders.add(enrichedOrder);
+
+                    if (sellerResponse.statusCode == 200) {
+                      final sellerData = json.decode(sellerResponse.body);
+                      final enrichedOrder = OrdersResponse(
+                        id: order.id,
+                        date: order.date,
+                        name: order.name,
+                        contact: order.contact,
+                        item: order.item,
+                        quantity: order.quantity,
+                        amount: order.amount,
+                        address: order.address,
+                        transactionId: order.transactionId,
+                        status: order.status,
+                        userId: order.userId,
+                        riderId: order.riderId,
+                        markupValue: order.markupValue,
+                        deliveryFee: order.deliveryFee,
+                        deliveryComm: order.deliveryComm,
+                        sellerName: sellerData['name'] ?? '',
+                        shopName: sellerData['shopName'] ?? '',
+                        businessLocation: sellerData['businessLocation'] ?? '',
+                        sellerPhone: sellerData['phone'] ?? '',
+                      );
+                      enrichedOrders.add(enrichedOrder);
+                    } else {
+                      enrichedOrders.add(order);
+                    }
                   } else {
                     enrichedOrders.add(order);
                   }
@@ -1265,84 +1306,97 @@ class _DeliveriesScreenState extends State<DeliveriesScreen> {
               } else {
                 enrichedOrders.add(order);
               }
-            } else {
+            } catch (e) {
+              print('Error fetching details for order ${order.id}: $e');
               enrichedOrders.add(order);
             }
-          } catch (e) {
-            print('Error fetching details for order ${order.id}: $e');
-            enrichedOrders.add(order);
           }
+
+          setState(() {
+            pendingOrders = enrichedOrders;
+            isLoading = false;
+          });
+        } else {
+          setState(() {
+            isLoading = false;
+          });
+          print('API Error: ${ordersResponse.msg}');
         }
-        
-        setState(() {
-          pendingOrders = enrichedOrders;
-          isLoading = false;
-        });
       } else {
         setState(() {
           isLoading = false;
         });
-        print('API Error: ${ordersResponse.msg}');
+        print('Failed to load pending orders: ${response.statusCode}');
       }
-    } else {
+    } catch (e) {
       setState(() {
         isLoading = false;
       });
-      print('Failed to load pending orders: ${response.statusCode}');
+      print('Error fetching pending orders: $e');
     }
-  } catch (e) {
-    setState(() {
-      isLoading = false;
-    });
-    print('Error fetching pending orders: $e');
   }
-}
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      /*appBar: AppBar(
-        title: const Text('Deliveries'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: fetchPendingOrders,
-          )
-        ],
-      ),*/
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : pendingOrders.isEmpty
-              ? const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.delivery_dining, size: 80, color: Colors.grey),
-                      SizedBox(height: 16),
-                      Text(
-                        'No pending orders available',
-                        style: TextStyle(fontSize: 18, color: Colors.grey),
+    return Consumer<ShiftProvider>(
+      builder: (context, shiftProvider, _) {
+        // Start refresh timer when shift becomes active
+        if (shiftProvider.isShiftActive && shiftProvider.isOnline) {
+          _startOrderRefresh();
+        } else {
+          _refreshTimer?.cancel();
+        }
+
+        return Scaffold(
+          body: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : !shiftProvider.isShiftActive || !shiftProvider.isOnline
+                  ? const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.hourglass_disabled, size: 80, color: Colors.grey),
+                          SizedBox(height: 16),
+                          Text(
+                            'Start your shift to see new orders',
+                            style: TextStyle(fontSize: 18, color: Colors.grey),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                )
-              : ListView.builder(
-                  itemCount: pendingOrders.length,
-                  itemBuilder: (context, index) {
-                    return NewOrderCard(
-                      order: pendingOrders[index],
-                      onAccept: () => _acceptOrder(pendingOrders[index].id),
-                      onDecline: () => _declineOrder(pendingOrders[index].id),
-                    );
-                  },
-                ),
+                    )
+                  : pendingOrders.isEmpty
+                      ? const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.delivery_dining, size: 80, color: Colors.grey),
+                              SizedBox(height: 16),
+                              Text(
+                                'No pending orders available',
+                                style: TextStyle(fontSize: 18, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: pendingOrders.length,
+                          itemBuilder: (context, index) {
+                            return NewOrderCard(
+                              order: pendingOrders[index],
+                              onAccept: () => _acceptOrder(pendingOrders[index].id),
+                              onDecline: () => _declineOrder(pendingOrders[index].id),
+                            );
+                          },
+                        ),
+        );
+      },
     );
   }
 
   Future<void> _acceptOrder(String orderId) async {
     try {
       final response = await http.patch(
-        Uri.parse('http://localhost:4000/api/orders/assign-rider'),
+        Uri.parse('http://192.168.254.157:4000/api/orders/assign-rider'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'orderId': orderId,
@@ -1351,11 +1405,10 @@ class _DeliveriesScreenState extends State<DeliveriesScreen> {
       );
 
       if (response.statusCode == 200) {
-        // Order accepted successfully
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Order accepted!')),
         );
-        await fetchPendingOrders(); // Refresh the orders list
+        await fetchPendingOrders();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to accept order. Please try again.')),
@@ -1370,11 +1423,9 @@ class _DeliveriesScreenState extends State<DeliveriesScreen> {
   }
 
   Future<void> _declineOrder(String orderId) async {
-    // Remove the order from local list only, since declining just means the rider won't take it
     setState(() {
       pendingOrders.removeWhere((order) => order.id == orderId);
     });
-    
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Order declined')),
     );

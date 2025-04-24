@@ -151,9 +151,6 @@ const MyOrders = () => {
         markupValue: totalMarkupValue, 
         deliveryComm: deliveryComm, 
         paymentMethod: "Online"
-        // Idinagdag ang deliveryComm (20% ng deliveryFee)
-        // Optional: If you want to store markup_value per item, uncomment the line below
-        // items: cartDetails.map(item => ({ ...item, markup_value: item.markup_value || 0 })),
       };
   
       console.log("Sending transaction data:", transactionData);

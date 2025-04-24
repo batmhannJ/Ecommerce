@@ -74,6 +74,7 @@ const allowedOrigins = [
   'http://192.168.x.x:8080', // Your actual local network IP
   'http://localhost:5554', // Your actual local network IP
   'http://10.0.2.2:4000',
+  'http://192.168.254.157:4000',
 ];
 
 app.use(
@@ -3612,6 +3613,12 @@ app.get('/api/seller/:sellerId', async (req, res) => {
     console.error('Error fetching seller:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
+});
+
+app.get('/api/rider/:riderId/online-status', (req, res) => {
+  const { riderId } = req.params;
+  const rider = Rider[riderId] || { isOnline: false };
+  res.json({ isOnline: rider.isOnline });
 });
 
 // Admin Routes

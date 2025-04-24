@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../../Context/ShopContext";
 import "./PlaceOrder.css";
 import { toast } from "react-toastify";
-import { useNavigate, useLocation } from "react-router-dom"; // useLocation for URL
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import {
   regions,
@@ -37,7 +37,9 @@ export const PlaceOrder = () => {
   const location = useLocation();
   const { itemDetails } = location.state || {};
   const [transactionId, setTransactionId] = useState(null);
-  const [markupValue, setMarkupValue] = useState(0); // Added state for markup value
+  const [markupValue, setMarkupValue] = useState(0);
+  const [showPaymentOptions, setShowPaymentOptions] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState(""); // To track selected payment method
   const [data, setData] = useState({
     firstName: "",
     lastName: "",
@@ -49,7 +51,7 @@ export const PlaceOrder = () => {
     country: "",
     phone: "",
     size: "",
-    provinceCode: "", // Add a state to hold the selected province code
+    provinceCode: "",
     provinces: [],
   });
 
@@ -82,9 +84,8 @@ export const PlaceOrder = () => {
             street,
             zip,
             country,
-          } = loggedInUser.address || {}; // Safely access address fields
+          } = loggedInUser.address || {};
   
-          // Fetch barangay, city, and province names
           const barangayName = municipality ? await barangays(municipality) : [];
           const cityData = province ? await cities(province) : [];
           const provincesData = region ? await provincesByCode(region) : [];
@@ -110,7 +111,6 @@ export const PlaceOrder = () => {
             phone: loggedInUser.phone || "",
           };
   
-          // Log and store userData
           console.log("Fetched User Data:", userData);
           setData(userData);
           localStorage.setItem("userData", JSON.stringify(userData));
@@ -141,15 +141,14 @@ export const PlaceOrder = () => {
     };
   
     if (token) {
-      fetchUserData(); // Call to fetch user data
-      fetchProvinceData(); // Call to fetch province data
+      fetchUserData();
+      fetchProvinceData();
     } else {
       toast.error("Please log in to proceed.");
       navigate("/login");
     }
   }, [token, navigate]);
   
-
   const fetchCoordinates = async (address) => {
     const apiKey = process.env.REACT_APP_POSITION_STACK_API_KEY;
     console.log("Position Stack API Key:", apiKey);
@@ -185,12 +184,12 @@ export const PlaceOrder = () => {
       const isSameRegion =
         data.state === "Nueva Ecija" || data.region === "Region III";
 
-      let baseFee = isSameRegion ? 20 : 40; // Lower base fee within NCR
-      let feePerMile = isSameRegion ? 2 : 3; // Lower fee per mile within NCR
+      let baseFee = isSameRegion ? 20 : 40;
+      let feePerMile = isSameRegion ? 2 : 3;
 
       let totalFee = baseFee + feePerMile * Math.ceil(distanceMiles);
 
-      const maxDeliveryFee = isSameRegion ? 100 : 200; // Lower cap for same region
+      const maxDeliveryFee = isSameRegion ? 100 : 200;
       totalFee = totalFee > maxDeliveryFee ? maxDeliveryFee : totalFee;
 
       setDeliveryFee(totalFee);
@@ -227,49 +226,202 @@ export const PlaceOrder = () => {
     setData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleProceedToCheckout = async (event) => {
-    event.preventDefault();
-  
+  const togglePaymentOptions = (e) => {
+    e.preventDefault();
+    
+    // Validate address information before showing payment options
     if (!data.street || !data.city || !data.state || !data.zipcode) {
       toast.error("Please provide your complete address to proceed with checkout.");
       return;
     }
-  
+    
     if (!token) {
       toast.error("You are not logged in. Please log in to proceed.");
       navigate("/login");
       return;
     }
-  
-    const referenceNumber = generateReferenceNumber();
-    const cartDetails = itemDetails.map((item) => {
-      const product = all_product.find((p) => p.id === item.id); // Hanapin ang product sa all_product
-      return {
-        id: item.id,
-        name: item.name,
-        price: item.price || item.adjustedPrice,
-        quantity: item.quantity,
-        size: item.size,
-        markup_value: product?.markup_value || 0, // Kunin ang markup_value, default to 0 kung wala
-      };
-    });
-  
-    const paymongoUrl = "https://api.paymongo.com/v1";
-    const secretKey = process.env.REACT_APP_PAYMONGO_SECRET_KEY;
-    console.log("PayMongo Secret Key:", process.env.REACT_APP_PAYMONGO_SECRET_KEY);
+    
+    setShowPaymentOptions(!showPaymentOptions);
+  };
 
-    /*if (!secretKey) {
-      toast.error("Payment configuration error. Please contact support.");
-      return;
-    }*/
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: `Basic ${btoa(`${secretKey}:`)}`,
-    };
-  
-    const totalAmount = (getTotalCartAmount() + deliveryFee) * 100; // Amount in cents
-  
+  const handlePaymentSelection = (method) => {
+    setPaymentMethod(method);
+    
+    if (method === "cod") {
+      processCashOnDelivery();
+    } else if (method === "acash") {
+      redirectToACashPayment();
+    } else if (method === "paymongo") {
+      redirectToPaymongoCheckout();
+    }
+    
+    setShowPaymentOptions(false);
+  };
+
+  const processCashOnDelivery = async () => {
     try {
+      const userId = getUserIdFromToken() || localStorage.getItem("userId");
+      const referenceNumber = generateReferenceNumber();
+      
+      // Format phone number with country code if needed
+      const formattedPhone = data.phone.startsWith("+")
+        ? data.phone
+        : `+63${data.phone.startsWith("0") ? data.phone.substring(1) : data.phone}`;
+  
+      // Format complete address including barangay
+      const formattedAddress = `${data.street}, ${data.barangay || data.city}, ${data.city || data.state}, ${data.state}, ${data.zipcode}, ${data.country}`;
+  
+      // Calculate total amount
+      const totalAmount = getTotalCartAmount() + deliveryFee;
+  
+      // Prepare order items and calculate total markup value
+      const orderItems = itemDetails.map(item => {
+        const product = all_product.find(p => p.id === item.id);
+        return {
+          productId: item.id,
+          name: item.name,
+          price: item.price || item.adjustedPrice,
+          quantity: item.quantity,
+          size: item.size || "N/A",
+          markup_value: product?.markup_value || 0
+        };
+      });
+  
+      // Calculate total markup value from orderItems
+      const totalMarkupValue = orderItems.reduce(
+        (sum, item) => sum + (item.markup_value || 0) * item.quantity,
+        0
+      );
+  
+      const deliveryComm = deliveryFee * 0.2;
+      const riderId = localStorage.getItem("riderId") || "unassigned";
+  
+      const transactionData = {
+        transactionId: referenceNumber,
+        date: new Date(),
+        name: `${data.firstName} ${data.lastName}`,
+        contact: formattedPhone,
+        email: data.email,
+        item: orderItems.map((item) => item.name).join(", "),
+        quantity: orderItems.reduce((sum, item) => sum + item.quantity, 0),
+        amount: totalAmount,
+        deliveryFee: deliveryFee,
+        address: formattedAddress,
+        status: "Pending",
+        userId: userId,
+        riderId: riderId,
+        markupValue: totalMarkupValue,
+        deliveryComm: deliveryComm,
+        paymentMethod: "Cash on Delivery"
+      };
+  
+      console.log("Sending transaction data:", transactionData);
+  
+      // Save transaction details to the backend
+      const response = await axios.post(
+        "http://localhost:4000/api/transactions",
+        transactionData
+      );
+  
+      console.log("Transaction saved successfully:", response.data);
+  
+      // Update stock information
+      await axios.post("http://localhost:4000/api/updateStock", {
+        updates: orderItems.map((item) => ({
+          id: item.productId.toString(),
+          size: item.size,
+          quantity: item.quantity,
+        })),
+      });
+  
+      console.log("Clearing cart...");
+      clearCart();
+      console.log("Cart cleared");
+  
+      toast.success("Order successfully placed!");
+      navigate("/myorders");
+    } catch (error) {
+      console.error("Error processing Cash on Delivery order:", error);
+      
+      if (error.response) {
+        console.error("Error response data:", error.response.data);
+        console.error("Error response status:", error.response.status);
+  
+        if (error.response.data && error.response.data.errors) {
+          const errorFields = Object.keys(error.response.data.errors).join(", ");
+          toast.error(`Missing required fields: ${errorFields}. Please contact support.`);
+        } else {
+          toast.error(`Failed to process order: ${error.response.data.message || "Server error"}`);
+        }
+      } else if (error.request) {
+        console.error("Error request:", error.request);
+        toast.error("Failed to connect to server. Please check your connection.");
+      } else {
+        toast.error(`Error: ${error.message}`);
+      }
+    }
+  };
+
+  const redirectToACashPayment = async () => {
+    try {
+      const referenceNumber = generateReferenceNumber();
+      const cartDetails = itemDetails.map((item) => {
+        const product = all_product.find((p) => p.id === item.id);
+        return {
+          id: item.id,
+          name: item.name,
+          price: item.price || item.adjustedPrice,
+          quantity: item.quantity,
+          size: item.size,
+          markup_value: product?.markup_value || 0,
+        };
+      });
+      
+      // Store data for after payment completion
+      localStorage.setItem("referenceNumber", referenceNumber);
+      localStorage.setItem("cartDetails", JSON.stringify(cartDetails));
+      localStorage.setItem("deliveryFee", deliveryFee);
+      localStorage.setItem("userData", JSON.stringify(data));
+      localStorage.setItem("paymentMethod", "acash");
+      
+      // Redirect to ACash payment gateway
+      // Replace with actual ACash payment URL
+      window.location.href = "http://localhost:3000/acash-payment?amount=" + 
+        (getTotalCartAmount() + deliveryFee) + "&reference=" + referenceNumber;
+      
+      toast.success("Redirecting to ACash payment gateway...");
+    } catch (error) {
+      console.error("Error redirecting to ACash:", error);
+      toast.error("Failed to process ACash payment. Please try again.");
+    }
+  };
+
+  const redirectToPaymongoCheckout = async () => {
+    try {
+      const referenceNumber = generateReferenceNumber();
+      const cartDetails = itemDetails.map((item) => {
+        const product = all_product.find((p) => p.id === item.id);
+        return {
+          id: item.id,
+          name: item.name,
+          price: item.price || item.adjustedPrice,
+          quantity: item.quantity,
+          size: item.size,
+          markup_value: product?.markup_value || 0,
+        };
+      });
+    
+      const paymongoUrl = "https://api.paymongo.com/v1";
+      const secretKey = process.env.REACT_APP_PAYMONGO_SECRET_KEY;
+      console.log("PayMongo Secret Key:", process.env.REACT_APP_PAYMONGO_SECRET_KEY);
+
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Basic ${btoa(`${secretKey}:`)}`,
+      };
+    
+      const totalAmount = (getTotalCartAmount() + deliveryFee) * 100; // Amount in cents
+    
       const deliveryFeeItem = {
         name: "Delivery Fee",
         description: "Delivery to your address",
@@ -277,7 +429,7 @@ export const PlaceOrder = () => {
         quantity: 1,
         currency: "PHP",
       };
-  
+    
       const checkoutSessionPayload = {
         data: {
           attributes: {
@@ -306,24 +458,21 @@ export const PlaceOrder = () => {
           },
         },
       };
-  
+    
       const sessionResponse = await axios.post(
         `${paymongoUrl}/checkout_sessions`,
         checkoutSessionPayload,
         { headers }
       );
-
-      
-  
+    
       const checkoutSession = sessionResponse.data.data;
-  
+    
       if (checkoutSession.attributes.checkout_url) {
-        console.log("Storing userData in localStorage:", data);
-
         localStorage.setItem("referenceNumber", referenceNumber);
         localStorage.setItem("cartDetails", JSON.stringify(cartDetails));
         localStorage.setItem("deliveryFee", deliveryFee);
         localStorage.setItem("userData", JSON.stringify(data));
+        localStorage.setItem("paymentMethod", "paymongo");
         window.location.href = checkoutSession.attributes.checkout_url;
         toast.success("Redirecting to payment gateway...");
       } else {
@@ -334,7 +483,11 @@ export const PlaceOrder = () => {
       toast.error("Failed to process payment. Please try again.");
     }
   };
-  
+
+  const handleProceedToCheckout = (event) => {
+    event.preventDefault();
+    togglePaymentOptions(event);
+  };
 
   useEffect(() => {
     if (getTotalCartAmount() === 0) {
@@ -460,7 +613,41 @@ export const PlaceOrder = () => {
               </h3>
             </div>
           </div>
-          <button type="submit">PROCEED TO PAYMENT</button>
+          
+          <div className="payment-methods-container">
+            <button 
+              type="submit" 
+              className="checkout-button"
+            >
+              Select Payment Method
+            </button>
+            
+            {showPaymentOptions && (
+              <div className="payment-options-dropdown">
+                <button 
+                  type="button" 
+                  onClick={() => handlePaymentSelection("cod")}
+                  className="payment-option"
+                >
+                  Cash on Delivery
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => handlePaymentSelection("acash")}
+                  className="payment-option"
+                >
+                  ACash
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => handlePaymentSelection("paymongo")}
+                  className="payment-option"
+                >
+                  PayMongo
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </form>

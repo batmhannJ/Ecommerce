@@ -16,6 +16,10 @@ const transactionSchema = new mongoose.Schema({
   markupValue: { type: Number },
   deliveryFee: { type: Number }, 
   deliveryComm: {type: Number },
+  paymentMethod: { 
+    type: String, 
+    required: true,
+  }
 });
 
 module.exports = mongoose.model("Transaction", transactionSchema);

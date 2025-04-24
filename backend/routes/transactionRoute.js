@@ -247,6 +247,7 @@ router.post("/api/transactions", async (req, res) => {
       transactionId,
       status,
       userId,
+      paymentMethod,
     } = req.body;
 
     // Create a new transaction record
@@ -261,6 +262,7 @@ router.post("/api/transactions", async (req, res) => {
       transactionId,
       status,
       userId,
+      paymentMethod,
     });
 
     const savedOrder = await transaction.save();

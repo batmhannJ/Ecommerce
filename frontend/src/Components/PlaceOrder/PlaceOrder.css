@@ -101,7 +101,7 @@
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  margin-top: 24px;
+  margin-top: 10px;
   transition: background-color 0.2s, transform 0.2s;
 }
 
@@ -112,6 +112,58 @@
 
 .cartitems-total button:active {
   transform: translateY(0);
+}
+
+/* Add these styles to your PlaceOrder.css file */
+
+.payment-methods-container {
+  position: relative;
+  width: 100%;
+}
+
+.checkout-button {
+  width: 100%;
+  height: 50px;
+  background: #ff4141;
+  color: white;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 20px;
+  border-radius: 5px;
+}
+
+.payment-options-dropdown {
+  position: absolute;
+  width: 100%;
+  background: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  margin-top: 1px;
+  overflow: hidden;
+}
+
+.payment-option {
+  width: 100%;
+  padding: 5px;
+  text-align: left;
+  background: white;
+  border: none;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.payment-option:last-child {
+  border-bottom: none;
+}
+
+.payment-option:hover {
+  background: #f9f9f9;
 }
 
 /* Responsive Styles */

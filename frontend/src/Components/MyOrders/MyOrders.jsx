@@ -149,7 +149,9 @@ const MyOrders = () => {
         userId: userId,
         riderId: riderId,
         markupValue: totalMarkupValue, 
-        deliveryComm: deliveryComm, // Idinagdag ang deliveryComm (20% ng deliveryFee)
+        deliveryComm: deliveryComm, 
+        paymentMethod: "Online"
+        // Idinagdag ang deliveryComm (20% ng deliveryFee)
         // Optional: If you want to store markup_value per item, uncomment the line below
         // items: cartDetails.map(item => ({ ...item, markup_value: item.markup_value || 0 })),
       };

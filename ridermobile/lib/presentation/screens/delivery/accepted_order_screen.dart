@@ -1,3 +1,5 @@
+import 'dart:math';
+import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
@@ -7,6 +9,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:restaurant/domain/models/response/orders_by_status_response.dart';
 import 'package:restaurant/presentation/screens/delivery/main_screen.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class AcceptedOrderPage extends StatefulWidget {
   final OrdersResponse order;
@@ -25,6 +30,7 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
   LatLng? dropoffLocation;
   LatLng? currentRiderLocation;
   bool isLoading = true;
+  bool locationLoading = true; // Track location fetching state
   GoogleMapController? mapController;
   Set<Marker> markers = {};
   Set<Polyline> polylines = {};
@@ -33,8 +39,10 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
   bool _pickedUpOrder = false;
   bool _deliveredOrder = false;
   int _currentIndex = 1; // Default to Deliveries tab (index 1)
-  bool _isFullScreenMap = false; // Track if map is in full screen mode
   bool _showingDirections = false; // Track if directions are being shown
+  List<LatLng> _currentRoutePoints = [];
+  String _estimatedTime = "1 min"; // Default estimated time
+  String _distanceRemaining = "290 m"; // Default distance
 
   @override
   void initState() {
@@ -43,36 +51,83 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
     _locationUpdateTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       _updateRiderLocation();
     });
-    
-    // Simulate current rider location near pickup
-    _simulateRiderLocation();
   }
 
-  void _simulateRiderLocation() {
-    // This would ideally come from actual GPS data
-    // For now, simulate a location slightly away from pickup
-    Future.delayed(const Duration(seconds: 1), () {
+  Future<void> _simulateRiderLocation() async {
+    setState(() {
+      locationLoading = true; // Start loading
+    });
+
+    if (kIsWeb) {
+      // Use browser's Geolocation API for web
+      try {
+        final permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied) {
+          final newPermission = await Geolocator.requestPermission();
+          if (newPermission == LocationPermission.denied || newPermission == LocationPermission.deniedForever) {
+            throw Exception('Location permissions denied');
+          }
+        }
+
+        final position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        );
+        setState(() {
+          currentRiderLocation = LatLng(
+            position.latitude,
+            position.longitude,
+          );
+          _updateMarkersAndRoute();
+        });
+      } catch (e) {
+        print('Error fetching location on web: $e');
+        // Fallback to a default location if location fetching fails
+        setState(() {
+          if (pickupLocation != null) {
+            currentRiderLocation = LatLng(
+              pickupLocation!.latitude - 0.003,
+              pickupLocation!.longitude - 0.002,
+            );
+            _updateMarkersAndRoute();
+          }
+        });
+      }
+    } else {
+      // For mobile (Android/iOS), use the original simulation logic
+      await Future.delayed(const Duration(seconds: 1));
       if (pickupLocation != null) {
         setState(() {
           currentRiderLocation = LatLng(
             pickupLocation!.latitude - 0.003,
             pickupLocation!.longitude - 0.002,
           );
-          
-          // Add rider marker
-          if (currentRiderLocation != null) {
-            markers.add(
-              Marker(
-                markerId: const MarkerId('rider'),
-                position: currentRiderLocation!,
-                infoWindow: const InfoWindow(title: 'You'),
-                icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-              ),
-            );
-          }
+          _updateMarkersAndRoute();
         });
       }
+    }
+
+    setState(() {
+      locationLoading = false; // Done loading
     });
+  }
+
+  void _updateMarkersAndRoute() {
+    if (currentRiderLocation != null) {
+      markers.add(
+        Marker(
+          markerId: const MarkerId('rider'),
+          position: currentRiderLocation!,
+          infoWindow: const InfoWindow(title: 'You (Current Location)'),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+        ),
+      );
+
+      if (pickupLocation != null && !_pickedUpOrder) {
+        _getRoutePoints(currentRiderLocation!, pickupLocation!);
+      } else if (dropoffLocation != null && _pickedUpOrder) {
+        _getRoutePoints(currentRiderLocation!, dropoffLocation!);
+      }
+    }
   }
 
   @override
@@ -84,7 +139,25 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
 
   void _updateRiderLocation() {
     print('Updating rider location...');
-    // In a real app, this would update with actual GPS coordinates
+    // Simulate rider moving along the route
+    if (_currentRoutePoints.isNotEmpty && _currentRoutePoints.length > 2) {
+      int currentPointIndex = _currentRoutePoints.indexOf(currentRiderLocation!);
+      if (currentPointIndex != -1 && currentPointIndex < _currentRoutePoints.length - 1) {
+        setState(() {
+          currentRiderLocation = _currentRoutePoints[currentPointIndex + 1];
+          // Update rider marker
+          markers.removeWhere((marker) => marker.markerId.value == 'rider');
+          markers.add(
+            Marker(
+              markerId: const MarkerId('rider'),
+              position: currentRiderLocation!,
+              infoWindow: const InfoWindow(title: 'You (Current Location)'),
+              icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+            ),
+          );
+        });
+      }
+    }
   }
 
   Future<LatLng?> getCoordinatesFromAddress(String address) async {
@@ -92,7 +165,7 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
       final apiKey = 'AIzaSyCfeMqzu93-w0aWnBTs1TTU62_Od49c9iI';
       final encodedAddress = Uri.encodeComponent(address);
       final url = 'https://maps.googleapis.com/maps/api/geocode/json?address=$encodedAddress&key=$apiKey';
-      
+
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -109,28 +182,84 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
     }
   }
 
+  Future<void> _getRoutePoints(LatLng origin, LatLng destination) async {
+    try {
+      final points = await getDirections(origin, destination);
+      setState(() {
+        _currentRoutePoints = points;
+        polylines.clear();
+        polylines.add(
+          Polyline(
+            polylineId: const PolylineId('route'),
+            points: points,
+            color: Colors.blue,
+            width: 5,
+          ),
+        );
+      });
+    } catch (e) {
+      print('Error getting route points: $e');
+    }
+  }
+
   Future<List<LatLng>> getDirections(LatLng origin, LatLng destination) async {
     try {
-      final apiKey = 'AIzaSyCfeMqzu93-w0aWnBTs1TTU62_Od49c9iI';
-      final url = 'https://maps.googleapis.com/maps/api/directions/json?'
+      final backendUrl = 'http://localhost:4000/api/directions?'
           'origin=${origin.latitude},${origin.longitude}'
           '&destination=${destination.latitude},${destination.longitude}'
-          '&key=$apiKey';
-      
-      final response = await http.get(Uri.parse(url));
+          '&mode=driving'
+          '&alternatives=true'
+          '&key=AIzaSyCfeMqzu93-w0aWnBTs1TTU62_Od49c9iI';
+
+      print('Requesting directions from: $backendUrl');
+
+      final response = await http.get(
+        Uri.parse(backendUrl),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      print('Response status code: ${response.statusCode}');
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+
+        print('API Response: ${response.body.substring(0, min(200, response.body.length))}...');
+
         if (data['routes'] != null && data['routes'].isNotEmpty) {
-          final points = _decodePolyline(data['routes'][0]['overview_polyline']['points']);
+          final route = data['routes'][0];
+
+          if (route['legs'] != null && route['legs'].isNotEmpty) {
+            final leg = route['legs'][0];
+            if (leg['duration'] != null && leg['distance'] != null) {
+              setState(() {
+                _estimatedTime = leg['duration']['text'];
+                _distanceRemaining = leg['distance']['text'];
+              });
+            }
+          }
+
+          final points = _decodePolyline(route['overview_polyline']['points']);
           return points;
+        } else {
+          print('No routes found in API response');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No route found between locations')),
+          );
+          return [origin, destination];
         }
+      } else {
+        print('API Request failed with status code: ${response.statusCode}');
+        print('Error response: ${response.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to get directions: HTTP ${response.statusCode}')),
+        );
+        return [origin, destination];
       }
-      print('Directions API failed. Status code: ${response.statusCode}');
-      // Return direct line as fallback
-      return [origin, destination];
     } catch (e) {
       print('Error fetching directions: $e');
-      // Return direct line as fallback
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Network error: ${e.toString()}')),
+      );
       return [origin, destination];
     }
   }
@@ -166,113 +295,448 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
   }
 
   Future<void> _showBestRoute(bool isPickupMap) async {
-  if (currentRiderLocation == null) return;
-  
-  // Determine destination based on map type
-  final destination = isPickupMap ? pickupLocation! : dropoffLocation!;
-  
-  setState(() {
-    _showingDirections = true;
-  });
-  
-  try {
-    // Get directions from rider's current location to destination
-    final routePoints = await getDirections(currentRiderLocation!, destination);
-    
-    // Create a set of markers based on map type
-    Set<Marker> routeMarkers = {};
-    routeMarkers.add(
-      Marker(
-        markerId: const MarkerId('rider'),
-        position: currentRiderLocation!,
-        infoWindow: const InfoWindow(title: 'You'),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-      ),
-    );
-    
-    if (isPickupMap) {
-      routeMarkers.add(
-        Marker(
-          markerId: const MarkerId('pickup'),
-          position: pickupLocation!,
-          infoWindow: InfoWindow(
-            title: 'Pickup',
-            snippet: widget.order.shopName.isNotEmpty ? widget.order.shopName : 'Shop',
-          ),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-        ),
-      );
-    } else {
-      routeMarkers.add(markers.firstWhere((marker) => marker.markerId.value == 'pickup'));
-      routeMarkers.add(markers.firstWhere((marker) => marker.markerId.value == 'dropoff'));
-    }
-    
-    final polylineId = isPickupMap ? 'route_to_pickup' : 'route_to_dropoff';
-    final polyline = Polyline(
-      polylineId: PolylineId(polylineId),
-      points: routePoints,
-      color: Colors.blue,
-      width: 5,
-    );
-    
-    // Get the current page context
-    final context = Navigator.of(this.context).context;
-    
-    // Close the current fullscreen dialog
-    Navigator.pop(context);
-    
-    // Open a new fullscreen dialog with the route
-    showDialog(
-      context: this.context,
-      builder: (context) => Dialog.fullscreen(
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text(isPickupMap ? 'Navigation to Seller' : 'Complete Route'),
-            backgroundColor: Colors.yellowbg,
-            foregroundColor: Colors.white,
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => Navigator.pop(context),
-              ),
+    if (locationLoading) {
+      // Show a loading dialog while waiting for the location
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(color: Colors.amber),
+              SizedBox(width: 20),
+              Text("Fetching your location..."),
             ],
           ),
-          body: GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: currentRiderLocation!,
-              zoom: 14.0,
-            ),
-            markers: routeMarkers,
-            polylines: {polyline},
-            myLocationEnabled: true,
-            myLocationButtonEnabled: true,
-            zoomControlsEnabled: true,
-            mapToolbarEnabled: true,
-            onMapCreated: (GoogleMapController controller) {
-              Future.delayed(Duration(milliseconds: 300), () {
-                final bounds = _calculateBounds(routePoints);
-                controller.animateCamera(
-                  CameraUpdate.newLatLngBounds(bounds, 50),
-                );
-              });
-            },
+        ),
+      );
+      // After the dialog, location should be fetched; if not, it will fallback below
+    }
+
+    if (currentRiderLocation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to detect your current location')),
+      );
+      return;
+    }
+
+    final destination = isPickupMap ? pickupLocation! : dropoffLocation!;
+    final destinationName = isPickupMap ? (widget.order.shopName.isNotEmpty ? widget.order.shopName : 'Shop') : (widget.order.name.isNotEmpty ? widget.order.name : 'Customer');
+
+    setState(() {
+      _showingDirections = true;
+    });
+
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(color: Colors.amber),
+              SizedBox(width: 20),
+              Text("Loading directions..."),
+            ],
           ),
         ),
-      ),
-    );
-    
-  } catch (e) {
-    print('Error showing best route: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Failed to load directions. Please try again.')),
-    );
-  } finally {
-    setState(() {
-      _showingDirections = false;
-    });
-  }
-}
+      );
 
+      final routePoints = await getDirections(currentRiderLocation!, destination);
+
+      Navigator.pop(context);
+
+      Set<Marker> routeMarkers = {};
+
+      routeMarkers.add(
+        Marker(
+          markerId: const MarkerId('rider'),
+          position: currentRiderLocation!,
+          infoWindow: const InfoWindow(title: 'You (Current Location)'),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+        ),
+      );
+
+      if (isPickupMap) {
+        routeMarkers.add(
+          Marker(
+            markerId: const MarkerId('pickup'),
+            position: pickupLocation!,
+            infoWindow: InfoWindow(
+              title: 'Seller Location',
+              snippet: widget.order.shopName.isNotEmpty ? widget.order.shopName : 'Shop',
+            ),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+          ),
+        );
+      } else {
+        routeMarkers.add(
+          Marker(
+            markerId: const MarkerId('dropoff'),
+            position: dropoffLocation!,
+            infoWindow: InfoWindow(
+              title: 'Customer Location',
+              snippet: widget.order.name.isNotEmpty ? widget.order.name : 'Customer',
+            ),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+          ),
+        );
+      }
+
+      final polylineId = isPickupMap ? 'route_to_pickup' : 'route_to_dropoff';
+      final polyline = Polyline(
+        polylineId: PolylineId(polylineId),
+        points: routePoints,
+        color: Colors.blue,
+        width: 5,
+      );
+
+      showDialog(
+        context: context,
+        builder: (context) => Dialog.fullscreen(
+          child: Scaffold(
+            body: Stack(
+              children: [
+                GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: currentRiderLocation!,
+                    zoom: 17.0,
+                    tilt: 45.0,
+                    bearing: 30.0,
+                  ),
+                  markers: routeMarkers,
+                  polylines: {polyline},
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: true,
+                  zoomControlsEnabled: false,
+                  mapToolbarEnabled: false,
+                  compassEnabled: true,
+                  onMapCreated: (GoogleMapController controller) {
+                    Future.delayed(Duration(milliseconds: 300), () {
+                      controller.animateCamera(
+                        CameraUpdate.newCameraPosition(
+                          CameraPosition(
+                            target: currentRiderLocation!,
+                            zoom: 17.0,
+                            tilt: 45.0,
+                            bearing: _calculateBearing(
+                              currentRiderLocation!,
+                              routePoints.length > 1 ? routePoints[1] : destination,
+                            ),
+                          ),
+                        ),
+                      );
+                    });
+                  },
+                ),
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    color: Colors.green,
+                    padding: const EdgeInsets.fromLTRB(16, 40, 16, 16),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_upward, color: Colors.white),
+                          onPressed: () {},
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Text(
+                                    "F. Torres St",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Icon(Icons.arrow_right, color: Colors.white),
+                                ],
+                              ),
+                              Text(
+                                "toward Mabini st",
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.search, color: Colors.white),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 110,
+                  left: 16,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.turn_right, color: Colors.white),
+                        const SizedBox(width: 8),
+                        const Text(
+                          "Then",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 110,
+                  right: 16,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.volume_up),
+                      onPressed: () {},
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Column(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 8,
+                            ),
+                          ],
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.access_time, size: 16),
+                            SizedBox(width: 4),
+                            Text(
+                              "Similar ETA",
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        color: Colors.white,
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: Colors.blue, width: 1),
+                              ),
+                              child: TextButton.icon(
+                                icon: const Icon(Icons.gps_fixed, color: Colors.blue, size: 16),
+                                label: const Text(
+                                  "Re-center",
+                                  style: TextStyle(color: Colors.blue, fontSize: 12),
+                                ),
+                                onPressed: () {},
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 4,
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    _estimatedTime,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const Text(
+                                    " • ",
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                  Text(
+                                    _distanceRemaining,
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                  const Text(
+                                    " • ",
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                  Text(
+                                    "10:51 AM",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  bottom: 16,
+                  left: 0,
+                  right: 0,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 4,
+                            ),
+                          ],
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 4,
+                            ),
+                          ],
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.navigation, color: Colors.white),
+                          onPressed: () => _openInMapsApp(destination, destinationName), // Open route in Google Maps
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 4,
+                            ),
+                          ],
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.layers),
+                          onPressed: () {},
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    } catch (e) {
+      print('Error showing best route: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to load directions. Please try again.')),
+      );
+    } finally {
+      setState(() {
+        _showingDirections = false;
+      });
+    }
+  }
+
+  double _calculateBearing(LatLng start, LatLng end) {
+    double startLat = start.latitude * (pi / 180);
+    double startLng = start.longitude * (pi / 180);
+    double endLat = end.latitude * (pi / 180);
+    double endLng = end.longitude * (pi / 180);
+
+    double dLng = endLng - startLng;
+
+    double y = sin(dLng) * cos(endLat);
+    double x = cos(startLat) * sin(endLat) - sin(startLat) * cos(endLat) * cos(dLng);
+
+    double bearing = atan2(y, x);
+    bearing = bearing * (180 / pi);
+    bearing = (bearing + 360) % 360;
+
+    return bearing;
+  }
+
+  void _openInMapsApp(LatLng destination, String destinationName) {
+    try {
+      final url = Uri.parse('https://www.google.com/maps/dir/?api=1'
+          '&destination=${destination.latitude},${destination.longitude}'
+          '&travelmode=driving'
+          '&dir_action=navigate');
+
+      launchUrl(url, mode: LaunchMode.externalApplication).then((launched) {
+        if (!launched) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Could not open Google Maps app')),
+          );
+        }
+      });
+    } catch (e) {
+      print('Error opening maps app: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open maps app')),
+      );
+    }
+  }
 
   LatLngBounds _calculateBounds(List<LatLng> points) {
     double minLat = points[0].latitude;
@@ -293,28 +757,49 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
     );
   }
 
-  void _toggleFullScreenMap(bool isPickupMap) {
-  // Set which locations to display based on which map was tapped
-  Set<Marker> displayMarkers = {};
-  LatLng centerPosition;
-  String mapTitle;
-
-  if (isPickupMap) {
-    // For seller/pickup map, only show seller location and rider location
-    displayMarkers.add(
-      Marker(
-        markerId: const MarkerId('pickup'),
-        position: pickupLocation!,
-        infoWindow: InfoWindow(
-          title: 'Pickup',
-          snippet: widget.order.shopName.isNotEmpty ? widget.order.shopName : 'Shop',
+  void _toggleFullScreenMap(bool isPickupMap) async {
+    // If location is still loading, wait for it
+    if (locationLoading) {
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(color: Colors.amber),
+              SizedBox(width: 20),
+              Text("Fetching your location..."),
+            ],
+          ),
         ),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-      ),
-    );
-    
-    // Add rider marker if available
-    if (currentRiderLocation != null) {
+      );
+    }
+
+    // After the dialog, check if location was successfully fetched
+    if (currentRiderLocation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to detect your current location')),
+      );
+      return;
+    }
+
+    Set<Marker> displayMarkers = {};
+    LatLng centerPosition;
+    String mapTitle;
+
+    if (isPickupMap) {
+      displayMarkers.add(
+        Marker(
+          markerId: const MarkerId('pickup'),
+          position: pickupLocation!,
+          infoWindow: InfoWindow(
+            title: 'Pickup',
+            snippet: widget.order.shopName.isNotEmpty ? widget.order.shopName : 'Shop',
+          ),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+        ),
+      );
+
       displayMarkers.add(
         Marker(
           markerId: const MarkerId('rider'),
@@ -323,87 +808,82 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
           icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
         ),
       );
-    }
-    
-    centerPosition = pickupLocation!;
-    mapTitle = "Route to Seller";
-    _showBestRoute(isPickupMap);
-  } else {
-    // For customer/dropoff map, show all locations
-    displayMarkers = markers;
-    centerPosition = dropoffLocation!;
-    mapTitle = "Complete Route";
-  }
 
-  showDialog(
-    context: context,
-    builder: (context) => Dialog.fullscreen(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(mapTitle),
-          backgroundColor: Colors.yellowbg,
-          foregroundColor: Colors.white,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ],
-        ),
-        body: Stack(
-          children: [
-            GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: centerPosition,
-                zoom: 14.0,
+      centerPosition = pickupLocation!;
+      mapTitle = "Route to Seller";
+    } else {
+      displayMarkers = markers;
+      centerPosition = dropoffLocation!;
+      mapTitle = "Complete Route";
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog.fullscreen(
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(mapTitle),
+            backgroundColor: Colors.yellowbg,
+            foregroundColor: Colors.white,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.pop(context),
               ),
-              markers: displayMarkers,
-              polylines: isPickupMap ? {} : polylines, // Only show polylines for complete route
-              myLocationEnabled: true,
-              myLocationButtonEnabled: true,
-              zoomControlsEnabled: true,
-              mapToolbarEnabled: true,
-              onMapCreated: (GoogleMapController controller) {
-                // This controller is separate from the main one
-                Future.delayed(Duration(milliseconds: 300), () {
-                  // Adjust map bounds to show all markers
-                  if (isPickupMap && currentRiderLocation != null) {
-                    final bounds = _calculateBounds([pickupLocation!, currentRiderLocation!]);
-                    controller.animateCamera(
-                      CameraUpdate.newLatLngBounds(bounds, 50),
-                    );
-                  }
-                });
-              },
-            ),
-            Positioned(
-              bottom: 10,
-              right: 10,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
+            ],
+          ),
+          body: Stack(
+            children: [
+              GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: centerPosition,
+                  zoom: 14.0,
                 ),
-                child: IconButton(
-                  icon: const Icon(Icons.navigation, color: Colors.yellowbg),
-                  onPressed: () => _toggleFullScreenMap(true), // true indicates pickup map
-                  tooltip: 'Show seller location and route',
+                markers: displayMarkers,
+                polylines: isPickupMap ? {} : polylines,
+                myLocationEnabled: true,
+                myLocationButtonEnabled: true,
+                zoomControlsEnabled: true,
+                mapToolbarEnabled: true,
+                onMapCreated: (GoogleMapController controller) {
+                  Future.delayed(Duration(milliseconds: 300), () {
+                    if (isPickupMap && currentRiderLocation != null) {
+                      final bounds = _calculateBounds([pickupLocation!, currentRiderLocation!]);
+                      controller.animateCamera(
+                        CameraUpdate.newLatLngBounds(bounds, 50),
+                      );
+                    }
+                  });
+                },
+              ),
+              Positioned(
+                bottom: 10,
+                right: 10,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.navigation, color: Colors.yellowbg),
+                    onPressed: () => _showBestRoute(isPickupMap), // Call _showBestRoute instead of _toggleFullScreenMap
+                    tooltip: 'Show navigation route',
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Future<void> _initializeMapData() async {
     setState(() {
@@ -417,13 +897,14 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
       } else {
         pickupLocation = const LatLng(14.5995, 120.9842);
       }
-      
+
       if (widget.order.address.isNotEmpty) {
         final LatLng? coordinates = await getCoordinatesFromAddress(widget.order.address);
-        dropoffLocation = coordinates ?? LatLng(
-          pickupLocation!.latitude + 0.01,
-          pickupLocation!.longitude + 0.01,
-        );
+        dropoffLocation = coordinates ??
+            LatLng(
+              pickupLocation!.latitude + 0.01,
+              pickupLocation!.longitude + 0.01,
+            );
       } else {
         dropoffLocation = LatLng(
           pickupLocation!.latitude + 0.01,
@@ -464,7 +945,7 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
       print('Error in _initializeMapData: $e');
       pickupLocation = const LatLng(14.5995, 120.9842);
       dropoffLocation = const LatLng(14.6095, 120.9942);
-      
+
       markers = {
         Marker(
           markerId: const MarkerId('pickup'),
@@ -479,7 +960,7 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
           icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
         ),
       };
-      
+
       polylines = {
         Polyline(
           polylineId: const PolylineId('route'),
@@ -492,7 +973,7 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
       setState(() {
         isLoading = false;
       });
-      _simulateRiderLocation();
+      await _simulateRiderLocation(); // Wait for location to be fetched
     }
   }
 
@@ -568,7 +1049,6 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
     setState(() {
       _currentIndex = index;
     });
-    // Navigate to MainDeliveryLayout with the selected index
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -581,11 +1061,11 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
   Widget build(BuildContext context) {
     final now = DateTime.now();
     final arrivalTime = DateFormat('hh:mm a').format(now.add(const Duration(minutes: 10)));
-    
-    final String shopDisplay = widget.order.shopName.isNotEmpty 
-        ? widget.order.shopName 
+
+    final String shopDisplay = widget.order.shopName.isNotEmpty
+        ? widget.order.shopName
         : "Shop information not available";
-    
+
     final String locationDisplay = widget.order.businessLocation.isNotEmpty
         ? widget.order.businessLocation
         : "Location not available";
@@ -603,7 +1083,7 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
           ),
         ],
       ),
-      body: isLoading 
+      body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Column(
@@ -690,7 +1170,6 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
                                   ),
                                 ),
                               ),
-                              // Navigation icon button
                               Positioned(
                                 bottom: 10,
                                 right: 10,
@@ -708,7 +1187,9 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
                                   ),
                                   child: IconButton(
                                     icon: const Icon(Icons.navigation, color: Colors.yellowbg),
-                                      onPressed: () => _toggleFullScreenMap(true), // false indicates dropoff map
+                                    onPressed: locationLoading
+                                        ? null // Disable button while location is loading
+                                        : () => _toggleFullScreenMap(true),
                                     tooltip: 'Show full map with directions',
                                   ),
                                 ),
@@ -862,7 +1343,7 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
                                       myLocationEnabled: true,
                                       myLocationButtonEnabled: false,
                                       markers: {
-                                        markers.firstWhere((marker) => marker.markerId.value == 'dropoff')
+                                        markers.firstWhere((marker) => marker.markerId.value == 'dropoff'),
                                       },
                                       onMapCreated: (GoogleMapController controller) {
                                         mapController = controller;
@@ -870,7 +1351,6 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
                                     ),
                                   ),
                                 ),
-                                // Add navigation button here too for customer delivery
                                 Positioned(
                                   bottom: 10,
                                   right: 10,
@@ -888,7 +1368,9 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
                                     ),
                                     child: IconButton(
                                       icon: const Icon(Icons.navigation, color: Colors.yellowbg),
-                                      onPressed: () => _toggleFullScreenMap(false), // false indicates dropoff map
+                                      onPressed: locationLoading
+                                          ? null // Disable button while location is loading
+                                          : () => _toggleFullScreenMap(false),
                                       tooltip: 'Show complete delivery route',
                                     ),
                                   ),

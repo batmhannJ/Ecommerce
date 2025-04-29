@@ -1,5 +1,6 @@
 const port = 4000;
 const express = require("express");
+const axios = require('axios');
 const app = express();
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
@@ -3782,6 +3783,74 @@ app.get('/api/active-order/:riderId', async (req, res) => {
     });
   }
 });
+
+app.get('/api/directions', async (req, res) => {
+  try {
+    const { origin, destination, mode, alternatives, key } = req.query;
+    
+    // Log the request parameters for debugging
+    console.log('Directions request:', { origin, destination, mode, alternatives });
+    
+    // Construct the Google Maps API URL
+    const googleMapsUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&mode=${mode}&alternatives=${alternatives}&key=${key}`;
+    
+    console.log('Requesting URL:', googleMapsUrl);
+    
+    // Make request to Google Maps API with timeout
+    const response = await axios.get(googleMapsUrl, { 
+      timeout: 10000,  // 10 second timeout
+      headers: {
+        'User-Agent': 'Your-App-Name/1.0' // Optional but good practice
+      }
+    });
+    
+    // Check if response has routes
+    if (response.data && response.data.status === 'OK') {
+      console.log('Successfully received directions data');
+      res.json(response.data);
+    } else {
+      console.error('Google Maps API returned non-OK status:', response.data.status);
+      console.error('Google Maps API error message:', response.data.error_message);
+      res.status(400).json({
+        error: 'Google Maps API error',
+        status: response.data.status,
+        message: response.data.error_message || 'No routes found'
+      });
+    }
+  } catch (error) {
+    console.error('Error fetching directions:', error.message);
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error('Response data:', error.response.data);
+      console.error('Response status:', error.response.status);
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error('No response received:', error.request);
+    }
+    
+    res.status(500).json({ 
+      error: 'Failed to fetch directions',
+      message: error.message 
+    });
+  }
+});
+
+app.get('/nominatim/reverse', async (req, res) => {
+  try {
+    const { format, lat, lon, zoom } = req.query;
+    const url = `https://nominatim.openstreetmap.org/reverse?format=${format}&lat=${lat}&lon=${lon}&zoom=${zoom}`;
+    const response = await axios.get(url, {
+      headers: {
+        'User-Agent': 'YourAppName/1.0 (your.email@example.com)', // Nominatim requires a User-Agent
+      },
+    });
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch data' });
+  }
+});
+
 
 // Admin Routes
 app.use("/api/admin", adminRoutes);

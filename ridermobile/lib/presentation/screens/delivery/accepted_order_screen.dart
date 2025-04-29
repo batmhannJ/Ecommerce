@@ -36,6 +36,7 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
   Set<Polyline> polylines = {};
   Timer? _locationUpdateTimer;
   bool _arrivedAtVendor = false;
+  bool _isUpdating = false;
   bool _pickedUpOrder = false;
   bool _deliveredOrder = false;
   int _currentIndex = 1; // Default to Deliveries tab (index 1)
@@ -977,34 +978,141 @@ class _AcceptedOrderPageState extends State<AcceptedOrderPage> {
     }
   }
 
-  void _handleArrivedAtVendor() {
+   Future<void> _handleArrivedAtVendor() async {
     setState(() {
-      _arrivedAtVendor = true;
+      _isUpdating = true;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Marked as arrived at vendor')),
-    );
+    
+    try {
+      // Make API call to update order status
+      final response = await http.patch(
+        Uri.parse('http://localhost:4000/api/update-order-deliverystatus'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'transactionId': widget.order.transactionId,
+          'status': 'Rider is at the store',
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _arrivedAtVendor = true;
+          _isUpdating = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Marked as arrived at vendor')),
+        );
+      } else {
+        setState(() {
+          _isUpdating = false;
+          _arrivedAtVendor = false; // Reset in case it was set earlier
+        });
+        print('Failed to update status: ${response.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to update status. Please try again.')),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isUpdating = false;
+        _arrivedAtVendor = false; // Reset in case it was set earlier
+      });
+      print('Error updating order status: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('An error occurred. Please try again.')),
+      );
+    }
   }
 
-  void _handlePickedUpOrder() {
+  Future<void> _handlePickedUpOrder() async {
     setState(() {
-      _pickedUpOrder = true;
+      _isUpdating = true;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Marked as picked up')),
-    );
+    
+    try {
+      // Make API call to update order status to "Out for Delivery"
+      final response = await http.patch(
+        Uri.parse('http://localhost:4000/api/update-order-deliverystatus'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'transactionId': widget.order.transactionId,
+          'status': 'Out for Delivery',
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _pickedUpOrder = true;
+          _isUpdating = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Marked as picked up')),
+        );
+      } else {
+        setState(() {
+          _isUpdating = false;
+        });
+        print('Failed to update status: ${response.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to update status. Please try again.')),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isUpdating = false;
+      });
+      print('Error updating order status: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('An error occurred. Please try again.')),
+      );
+    }
   }
 
-  void _handleDeliveredOrder() {
+  Future<void> _handleDeliveredOrder() async {
     setState(() {
-      _deliveredOrder = true;
+      _isUpdating = true;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Marked as delivered!')),
-    );
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.of(context).pop();
-    });
+    
+    try {
+      // Make API call to update order status to "Out for Delivery"
+      final response = await http.patch(
+        Uri.parse('http://localhost:4000/api/update-order-deliverystatus'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'transactionId': widget.order.transactionId,
+          'status': 'Delivered',
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _deliveredOrder = true;
+          _isUpdating = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Marked as delivered!')),
+        );
+         Future.delayed(const Duration(seconds: 2), () {
+          Navigator.of(context).pop();
+        });
+      } else {
+        setState(() {
+          _isUpdating = false;
+        });
+        print('Failed to update status: ${response.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to update status. Please try again.')),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isUpdating = false;
+      });
+      print('Error updating order status: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('An error occurred. Please try again.')),
+      );
+    }
   }
 
   void _toggleChat() {

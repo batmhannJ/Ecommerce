@@ -19,6 +19,10 @@ const transactionSchema = new mongoose.Schema({
   paymentMethod: { 
     type: String, 
     required: true,
+  },
+  note: { 
+    type: String,
+    default: "" 
   }
 });
 

@@ -3851,6 +3851,49 @@ app.get('/nominatim/reverse', async (req, res) => {
   }
 });
 
+app.patch('/api/update-order-deliverystatus', async (req, res) => {
+  try {
+    const { transactionId, status } = req.body;
+
+    // Validate input
+    if (!transactionId || !status) {
+      return res.status(400).json({
+        resp: false,
+        msg: 'Transaction ID and status are required'
+      });
+    }
+
+    // Find and update the order
+    const updatedOrder = await Transaction.findOneAndUpdate(
+      { transactionId: transactionId },
+      { $set: { status: status } },
+      { new: true }
+    );
+
+    if (!updatedOrder) {
+      return res.status(404).json({
+        resp: false,
+        msg: 'Order not found'
+      });
+    }
+
+    // Return success response
+    return res.status(200).json({
+      resp: true,
+      msg: 'Order status updated successfully',
+      order: updatedOrder
+    });
+
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    return res.status(500).json({
+      resp: false,
+      msg: 'Server error',
+      error: error.message
+    });
+  }
+});
+
 
 // Admin Routes
 app.use("/api/admin", adminRoutes);

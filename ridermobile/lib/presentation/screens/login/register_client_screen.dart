@@ -54,115 +54,187 @@ class _RegisterClientScreenState extends State<RegisterClientScreen> {
     _passwordController.clear();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final userBloc = BlocProvider.of<UserBloc>(context);
-    final size = MediaQuery.of(context).size;
+ @override
+Widget build(BuildContext context) {
+  final userBloc = BlocProvider.of<UserBloc>(context);
+  final size = MediaQuery.of(context).size;
 
-    return BlocListener<UserBloc, UserState>(
-      listener: (context, state) {
-        if (state is LoadingUserState) {
-          modalLoading(context);
-        } else if (state is SuccessUserState) {
-          Navigator.pop(context);
-          modalSuccess(context, 'Client Registered successfully',
-              () => Navigator.pushReplacement(context, routeFrave(page: LoginScreen())));
-        } else if (state is FailureUserState) {
-          Navigator.pop(context);
-          errorMessageSnack(context, state.error);
-        }
-      },
-      child: Scaffold(
-        backgroundColor: Colors.grey[100],
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          centerTitle: true,
-          flexibleSpace: Container(
+  return BlocListener<UserBloc, UserState>(
+    listener: (context, state) {
+      if (state is LoadingUserState) {
+        modalLoading(context);
+      } else if (state is SuccessUserState) {
+        Navigator.pop(context);
+        modalSuccess(context, 'Client Registered successfully',
+            () => Navigator.pushReplacement(context, routeFrave(page: LoginScreen())));
+      } else if (state is FailureUserState) {
+        Navigator.pop(context);
+        errorMessageSnack(context, state.error);
+      }
+    },
+    child: Scaffold(
+      backgroundColor: Colors.grey[200],
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: InkWell(
+          onTap: () {
+            clearForm();
+            Navigator.pop(context);
+          },
+          borderRadius: BorderRadius.circular(12.0),
+          child: Container(
+            margin: const EdgeInsets.all(8.0),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [ColorsFrave.primaryColor.withOpacity(0.1), Colors.white],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-          ),
-          leading: InkWell(
-            onTap: () {
-              clearForm();
-              Navigator.pop(context);
-            },
-            borderRadius: BorderRadius.circular(16.0),
-            child: Container(
-              height: 32,
-              width: 32,
-              decoration: BoxDecoration(
-                color: Colors.grey[50],
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.arrow_back_ios_new_outlined, color: Colors.black, size: 16),
-            ),
-          ),
-          actions: [
-            const SizedBox(width: 10),
-          ],
-        ),
-        body: Stack(
-          children: [
-            // Background Image
-            Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('Assets/Logo/loginbg.png'),
-                  fit: BoxFit.cover,
+              color: Colors.white.withOpacity(0.2),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
+              ],
+            ),
+            child: const Icon(
+              Icons.arrow_back_ios_new_outlined,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+        ),
+      ),
+      body: Stack(
+        children: [
+          // Background Image
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('Assets/bg.png'),
+                fit: BoxFit.cover,
               ),
             ),
-            // Main Content
-            SafeArea(
-              child: Form(
-                key: _keyForm,
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          ),
+          // Main Content
+          SafeArea(
+            child: Form(
+              key: _keyForm,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: Center(
                   child: Container(
+                    constraints: const BoxConstraints(maxWidth: 500),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.white, // Solid white background
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 20,
+                          spreadRadius: 5,
+                        ),
+                      ],
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.2),
+                        width: 1.5,
+                      ),
                     ),
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(24),
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Create Account',
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              Icons.delivery_dining,
+                              color: const Color(0xFFFF5722), // Orange from BizGo theme
+                              size: 32,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
                         Text(
-                          'Create Account',
+                          'Join BizGo Riders today!',
                           style: TextStyle(
                             fontFamily: 'Poppins',
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black87,
+                            fontSize: 16,
+                            color: Colors.black54,
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        Align(
+                        const SizedBox(height: 16),
+                        // Camera Widget with Themed Design
+                        Stack(
                           alignment: Alignment.center,
-                          child: _ModernPictureRegister(),
+                          children: [
+                            Container(
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: const Color(0xFFFFC107), // Yellow border
+                                  width: 4,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: ClipOval(
+                                child: _ModernPictureRegister(),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 8,
+                              right: 8,
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Color(0xFFFF5722), // Orange background
+                                ),
+                                child: const Icon(
+                                  Icons.camera_alt,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 32),
                         _ModernTextField(
                           controller: _nameController,
                           label: 'Name',
                           hint: 'Enter your name',
                           validator: RequiredValidator(errorText: 'Name is required'),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 16),
                         _ModernTextField(
                           controller: _lastnameController,
                           label: 'Lastname',
                           hint: 'Enter your lastname',
                           validator: RequiredValidator(errorText: 'Lastname is required'),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 16),
                         _ModernTextField(
                           controller: _phoneController,
                           label: 'Phone',
@@ -170,15 +242,15 @@ class _RegisterClientScreenState extends State<RegisterClientScreen> {
                           keyboardType: TextInputType.number,
                           validator: validatedPhoneForm,
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 16),
                         _ModernTextField(
                           controller: _emailController,
                           label: 'Email',
-                          hint: 'email@frave.com',
+                          hint: 'email@bizgo.com',
                           keyboardType: TextInputType.emailAddress,
                           validator: validatedEmail,
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 16),
                         _ModernTextField(
                           controller: _passwordController,
                           label: 'Password',
@@ -186,41 +258,39 @@ class _RegisterClientScreenState extends State<RegisterClientScreen> {
                           isPassword: true,
                           validator: passwordValidator,
                         ),
-                        const SizedBox(height: 20),
-                        Align(
-                          alignment: Alignment.center,
-                          child: SizedBox(
-                            width: size.width * 0.75, // Save button 75% of screen width
-                            child: _ModernButton(
-                              text: 'Save',
-                              isPrimary: true,
-                              onPressed: () {
-                                if (_keyForm.currentState!.validate()) {
-                                  userBloc.add(OnRegisterClientEvent(
-                                    _nameController.text,
-                                    _lastnameController.text,
-                                    _phoneController.text,
-                                    _emailController.text,
-                                    _passwordController.text,
-                                    userBloc.state.pictureProfilePath,
-                                  ));
-                                }
-                              },
-                            ),
+                        const SizedBox(height: 32),
+                        SizedBox(
+                          width: double.infinity,
+                          child: _ModernButton(
+                            text: 'Save',
+                            isPrimary: true,
+                            onPressed: () {
+                              if (_keyForm.currentState!.validate()) {
+                                userBloc.add(OnRegisterClientEvent(
+                                  _nameController.text,
+                                  _lastnameController.text,
+                                  _phoneController.text,
+                                  _emailController.text,
+                                  _passwordController.text,
+                                  userBloc.state.pictureProfilePath,
+                                ));
+                              }
+                            },
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 24),
                       ],
                     ),
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 // Modern Button for Content

@@ -38,7 +38,7 @@ dependencies:
   provider: ^6.0.5  # Use the latest version
   flutter_polyline_points: ^1.0.0
   google_maps_flutter_web: ^0.5.12
-  location: ^8.0.0
+  location: 7.0.1
   image: ^4.2.0
   
 dev_dependencies:
@@ -58,6 +58,7 @@ flutter:
     - Assets/Logo/logobg.png
     - Assets/Logo/bg.png
     - Assets/Logo/loginbg.png
+    - Assets/bg.png
 
 
 

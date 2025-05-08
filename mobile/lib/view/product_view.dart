@@ -17,12 +17,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constant/enum/product_size.dart';
 import '../products.dart';
 import '../model/product.dart';
-// import '../widget/image_carousel.dart';
 import '../widget/product_list.dart';
 import 'layout/default_view_layout.dart';
 import 'package:indigitech_shop/view_model/auth_view_model.dart';
-import '../core/constant/enum/product_size.dart';
-//import 'dart:js' as js;
 
 class ProductView extends StatefulWidget {
   final Product product;
@@ -44,6 +41,8 @@ class _ProductViewState extends State<ProductView> {
   int _stockCount = 0;
   double adjustedPrice = 0.0;
   int _selectedQuantity = 1;
+  int _currentImageIndex = 0; // To track the currently displayed image
+
   @override
   void initState() {
     _relatedProducts = widget.products
@@ -74,12 +73,10 @@ class _ProductViewState extends State<ProductView> {
         case ProductSize.L:
           _stockCount = widget.product.l_stock;
           adjustedPrice = widget.product.new_price + 200; // Add 100 for M
-
           break;
         case ProductSize.XL:
           _stockCount = widget.product.xl_stock;
           adjustedPrice = widget.product.new_price + 300; // Add 100 for M
-
           break;
       }
     });
@@ -169,39 +166,96 @@ class _ProductViewState extends State<ProductView> {
                     ),
                   ),
                   const Gap(5),
-                  // Product Image
+                  // Product Image with Different Perspectives
                   if (widget.product.image.isNotEmpty)
-                    Container(
-                      margin: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          'http://localhost:4000/upload/images/${widget.product.image[0]}',
-                          width: double.infinity,
-                          height: 200,
-                          fit: BoxFit.contain, // Changed to BoxFit.contain
-                          errorBuilder: (context, error, stackTrace) {
-                            return Center(
-                              child: Image.asset(
-                                'assets/images/placeholder_food.png',
-                                width: 100,
-                                height: 100,
-                                fit: BoxFit.cover,
+                    Column(
+                      children: [
+                        // Main Image Container
+                        Container(
+                          margin: const EdgeInsets.symmetric(vertical: 10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.2),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
                               ),
-                            );
-                          },
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.network(
+                              'http://localhost:4000/upload/images/${widget.product.image[_currentImageIndex]}',
+                              width: double.infinity,
+                              height: 200,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Center(
+                                  child: Image.asset(
+                                    'assets/images/placeholder_food.png',
+                                    width: 100,
+                                    height: 100,
+                                    fit: BoxFit.cover,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
                         ),
-                      ),
+                        // Thumbnails for Different Perspectives
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            widget.product.image.length > 4 ? 4 : widget.product.image.length, // Limit to 4 thumbnails
+                            (index) => GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _currentImageIndex = index;
+                                });
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 5),
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: _currentImageIndex == index
+                                        ? AppColors.black
+                                        : Colors.grey.withOpacity(0.5),
+                                    width: _currentImageIndex == index ? 2 : 1,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.1),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.network(
+                                    'http://localhost:4000/upload/images/${widget.product.image[index]}',
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Center(
+                                        child: Image.asset(
+                                          'assets/images/placeholder_food.png',
+                                          width: 60,
+                                          height: 60,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
 
                   // Price Section

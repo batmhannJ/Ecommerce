@@ -286,6 +286,35 @@ const ACashPayment = () => {
       // Check for success - directly checking the response.data.status property
       if (response.data && 
           (response.data.status === "success" || response.data.success === true)) {
+
+            if (response.data && 
+              (response.data.status === "success" || response.data.success === true)) {
+            
+            // Store SenderAcctNo from response in localStorage for later use in payment
+            if (response.data.acctno) {
+              localStorage.setItem("senderAcctNo", response.data.acctno);
+              console.log("SenderAcctNo stored:", response.data.acctno);
+            } else {
+              console.warn("SenderAcctNo not found in OTP verification response");
+              // If your API returns the account in a different format/property, adjust this accordingly
+              
+              // Check for alternative properties where the account number might be found
+              if (response.data.acctno) {
+                localStorage.setItem("senderAcctNo", response.data.acctno);
+              } else if (response.data.account) {
+                localStorage.setItem("senderAcctNo", response.data.account);
+              } else if (response.data.data && response.data.data.accountNumber) {
+                localStorage.setItem("senderAcctNo", response.data.data.accountNumber);
+              } else {
+                // If all else fails, temporarily use a placeholder or the reference number
+                // This is just for testing - remove in production!
+                localStorage.setItem("senderAcctNo", email + "_account");
+                console.warn("Using placeholder account number for testing");
+              }
+            }
+          }
+            
+
         toast.success("OTP verified successfully!");
         
         // Set to payment confirmation step
@@ -310,11 +339,14 @@ const ACashPayment = () => {
       setLoading(false);
     }
   };
+
+
   const processPayment = async () => {
     setLoading(true);
     setPaymentProcessing(true);
     
     try {
+      // Format cart items
       const items = cartDetails.map(item => ({
         name: item.name,
         quantity: item.quantity,
@@ -322,6 +354,7 @@ const ACashPayment = () => {
         size: item.size || "N/A"
       }));
       
+      // Add delivery fee as an item
       items.push({
         name: "Delivery Fee",
         quantity: 1,
@@ -329,112 +362,216 @@ const ACashPayment = () => {
         size: "N/A"
       });
       
+      // Calculate total amount
       const totalAmount = cartDetails.reduce(
         (sum, item) => sum + item.price * item.quantity, 
         0
       ) + parseFloat(deliveryFee);
       
-      const backendApi = axios.create({
-        baseURL: process.env.REACT_APP_API_URL || "https://api.bizgo.com",
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${sessionStorage.getItem("acash_token")}`
-        }
-      });
+      // Get SenderAcctNo from localStorage that was stored after OTP verification
+      const senderAcctNo = localStorage.getItem("senderAcctNo");
       
-      const paymentData = {
-        referenceNumber: referenceNumber,
-        amount: totalAmount,
-        customerName: `${userData.firstName} ${userData.lastName}`,
-        customerEmail: userData.email,
-        customerPhone: userData.phone,
-        items: items,
-        deliveryAddress: `${userData.street}, ${userData.city}, ${userData.state}, ${userData.zipcode}`
+      if (!senderAcctNo) {
+        toast.error("Account information missing. Please try again.");
+        setLoading(false);
+        setPaymentProcessing(false);
+        return;
+      }
+      
+      // Use secureApi with the correct endpoint and required fields
+      const paymentPayload = {
+        "MerchantID": "5234124", // Hardcoded merchant ID
+        "SenderEmail": email, // Email from the state
+        "Amount": totalAmount.toFixed(2), // Format as string with 2 decimal places
+        "SenderAcctNo": senderAcctNo // Retrieved from localStorage
       };
       
-      console.log("Processing payment with data:", paymentData);
+      console.log("Processing payment with data:", paymentPayload);
       
-      const response = await backendApi.post(
-        "/api/payments/process",
-        paymentData
-      );
+      // Use the secureApi instance that already has the token in the interceptor
+      const paymentResponse = await secureApi.post("/acash/payment", paymentPayload);
       
-      if (response.data && response.data.success) {
+      console.log("Payment response:", paymentResponse.data);
+      
+      // Check for proper success condition - accept both formats of success response
+      if (paymentResponse.data && 
+          ((paymentResponse.data.success === true) || 
+           (paymentResponse.data.status === "success") ||
+           (paymentResponse.data.message === "Your payment has been received."))) {
+        
+        // Extract transaction ID from the response (handle different response formats)
+        const transactionId = paymentResponse.data.transactionID || 
+                             paymentResponse.data.transactionId || 
+                             paymentResponse.data.data?.transactionID ||
+                             `ACASH-${Date.now()}`;
+        
+        // Get user data
+        const storedUserData = localStorage.getItem("userData");
+        const userData = storedUserData ? JSON.parse(storedUserData) : null;
+        
+        if (!userData) {
+          console.error("User data is missing");
+          toast.error("User data is missing. Cannot process order.");
+          setLoading(false);
+          setPaymentProcessing(false);
+          return;
+        }
+        
+        // Format phone number with country code if needed
+        const formattedPhone = userData.phone.startsWith("+")
+          ? userData.phone
+          : `+63${userData.phone.startsWith("0") ? userData.phone.substring(1) : userData.phone}`;
+        
+        // Format complete address including barangay
+        const formattedAddress = `${userData.street}, ${userData.barangay || ""}, ${userData.city}, ${userData.state}, ${userData.zipcode}, ${userData.country || ""}`;
+        
+        // Calculate total markup value from cartDetails
+        const totalMarkupValue = cartDetails.reduce(
+          (sum, item) => sum + (item.markup_value || 0) * item.quantity,
+          0
+        );
+        
+        // Calculate delivery commission
+        const deliveryComm = parseFloat(deliveryFee) * 0.2;
+        
+        // Get userId and riderId
+        const userId = localStorage.getItem("userId");
+        const riderId = localStorage.getItem("riderId") || "unassigned";
+        
         setTransactionDetails({
-          transactionId: response.data.transactionId || referenceNumber,
+          transactionId: transactionId,
           date: new Date().toLocaleString(),
           status: "Completed",
           amount: totalAmount,
           items: items
         });
         
-        const userId = localStorage.getItem("userId");
+        // Create transaction data object similar to handlePostPaymentActions
         const transactionData = {
-          transactionId: response.data.transactionId || referenceNumber,
+          transactionId: transactionId,
           date: new Date(),
           name: `${userData.firstName} ${userData.lastName}`,
-          contact: userData.phone,
+          contact: formattedPhone,
           email: userData.email,
-          item: items.map(item => item.name).join(", "),
-          quantity: items.reduce((sum, item) => sum + item.quantity, 0),
+          item: cartDetails.map(item => item.name).join(", "),
+          quantity: cartDetails.reduce((sum, item) => sum + item.quantity, 0),
           amount: totalAmount,
           deliveryFee: parseFloat(deliveryFee),
-          address: `${userData.street}, ${userData.city}, ${userData.state}, ${userData.zipcode}`,
-          status: "Payment Completed",
+          address: formattedAddress,
+          status: "Pending",
           userId: userId,
-          riderId: localStorage.getItem("riderId") || "unassigned",
-          markupValue: cartDetails.reduce(
-            (sum, item) => sum + (item.markup_value || 0) * item.quantity,
-            0
-          ),
-          deliveryComm: parseFloat(deliveryFee) * 0.2,
+          riderId: riderId,
+          markupValue: totalMarkupValue,
+          deliveryComm: deliveryComm,
           paymentMethod: "ACash"
         };
         
         console.log("Saving transaction data:", transactionData);
         
-        await backendApi.post(
-          "/api/transactions",
-          transactionData
-        );
+        try {
+          // Save transaction to backend - using the appropriate API URL
+          const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:4000";
+          
+          // Create a backendApi instance with the proper base URL
+          const backendApi = axios.create({
+            baseURL: apiUrl,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${sessionStorage.getItem("acash_token")}`
+            }
+          });
+          
+          // Save transaction
+          await axios.post(
+            "http://localhost:4000/api/transactions",
+            transactionData
+          );
+          
+          // Update stock
+          await axios.post("http://localhost:4000/api/updateStock", {
+            updates: cartDetails.map((item) => ({
+              id: item.id.toString(),
+              size: item.size,
+              quantity: item.quantity,
+            })),
+          });
+          
+          console.log("Transaction saved and stock updated successfully");
+          
+          // Clear cart and storage
+          localStorage.removeItem("cartDetails");
+          if (typeof clearCart === 'function') {
+            clearCart();
+          }
+          
+          // Clean up tokens
+          sessionStorage.removeItem("acash_token");
+          localStorage.removeItem("acash_token");
+          
+          // Important: Set the current step to success BEFORE setting loading to false
+          setCurrentStep("success");
+          toast.success("Payment successful!");
         
-        await backendApi.post("/api/updateStock", {
-          updates: cartDetails.map((item) => ({
-            id: item.id.toString(),
-            size: item.size,
-            quantity: item.quantity,
-          })),
-        });
-        
-        localStorage.removeItem("cartDetails");
-        if (typeof clearCart === 'function') {
-          clearCart();
+        } catch (backendError) {
+          console.error("Error saving transaction to backend:", backendError);
+          
+          if (backendError.response) {
+            console.error("Error response data:", backendError.response.data);
+            console.error("Error response status:", backendError.response.status);
+            
+            if (backendError.response.data && backendError.response.data.errors) {
+              const errorFields = Object.keys(backendError.response.data.errors).join(", ");
+              toast.error(`Missing required fields: ${errorFields}. Please contact support.`);
+            } else {
+              toast.error(`Failed to save transaction: ${backendError.response.data?.message || "Server error"}`);
+            }
+          } else if (backendError.request) {
+            console.error("Error request:", backendError.request);
+            toast.error("Failed to connect to server. Please check your connection.");
+          } else {
+            toast.error(`Error: ${backendError.message}`);
+          }
+          
+          // Continue to success screen even if backend save fails
+          // since the payment was successful
+          setCurrentStep("success");
         }
-        
-        // Clean up tokens
-        sessionStorage.removeItem("acash_token");
-        localStorage.removeItem("acash_token");
-        
-        setCurrentStep("success");
-        toast.success("Payment successful!");
       } else {
-        toast.error("Payment processing failed. Please try again.");
+        // Handle failed payment - provide specific error message if available
+        const errorMessage = paymentResponse.data.message || "Payment processing failed. Please try again.";
+        toast.error(errorMessage);
         setPaymentProcessing(false);
       }
     } catch (error) {
       console.error("Payment processing error:", error.response?.data || error.message);
       
-      if (error.response) {
-        toast.error(`Error: ${error.response.data.message || "Payment failed"}`);
+      // Check if the response actually contains a success message despite the error
+      if (error.response?.data && 
+          (error.response.data.message === "Your payment has been received." ||
+           error.response.data.status === "success")) {
+        
+        // Handle as success despite the error
+        console.log("Detected success response within error object");
+        
+        const transactionId = `ACASH-${Date.now()}`;
+        
+        toast.success("Payment successful!");
+        setCurrentStep("success");
       } else {
-        toast.error("Network error. Please check your connection.");
+        // Actual error handling
+        if (error.response) {
+          toast.error(`Error: ${error.response.data?.message || "Payment failed"}`);
+        } else {
+          toast.error("Network error. Please check your connection.");
+        }
+        setPaymentProcessing(false);
       }
-      setPaymentProcessing(false);
     } finally {
       setLoading(false);
     }
   };
 
+  
   const handleResendOTP = async () => {
     if (resendDisabled) return;
     

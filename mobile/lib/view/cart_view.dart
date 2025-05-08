@@ -105,58 +105,79 @@ class _CartViewState extends State<CartView> {
   }
 
   Future<void> _fetchUserCart() async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString('userId');
+  try {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
 
-      if (userId == null) {
-        print("No userId found in SharedPreferences.");
-        return;
-      }
+    if (userId == null) {
+      print("No userId found in SharedPreferences.");
+      return;
+    }
 
-      final apiUrl = 'http://localhost:4000/api/carts/$userId';
-      final response = await http.get(Uri.parse(apiUrl));
+    final apiUrl = 'http://localhost:4000/api/carts/$userId';
+    final response = await http.get(Uri.parse(apiUrl));
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
 
-        print("Fetched cart data: $data");
+      print("Fetched cart data: $data");
 
-        if (data['cartItems'] != null && data['cartItems'] is List) {
-          List<CartItem> fetchedItems = (data['cartItems'] as List)
-              .map((item) => CartItem.fromJson(item))
-              .toList();
+      if (data['cartItems'] != null && data['cartItems'] is List) {
+        List<CartItem> fetchedItems = [];
 
-          if (mounted) {
-            setState(() {
-              cartItems = fetchedItems
-                  .where((item) => item.quantity > 0)
-                  .map((item) => {
-                        'productId': item.productId,
-                        'selectedSize': item.selectedSize,
-                        'adjustedPrice': item.adjustedPrice,
-                        'quantity': item.quantity,
-                        'cartItemId': item.cartItemId,
-                        'product': item.product,
-                      })
-                  .toList();
-            });
+        for (var item in data['cartItems']) {
+          // Fetch product details if not included
+          final productId = item['productId'].toString();
+          final productResponse = await http.get(
+            Uri.parse('http://localhost:4000/api/products/$productId'),
+          );
 
-            // Pass the CartItem list to CartViewModel
-            context
-                .read<CartViewModel>()
-                .updateCartItemsFromDatabase(fetchedItems);
+          if (productResponse.statusCode == 200) {
+            final productData = json.decode(productResponse.body);
+            final product = Product.fromJson(productData); // Assuming Product model has fromJson
+            fetchedItems.add(CartItem(
+              productId: productId, // Use the converted String
+              selectedSize: item['selectedSize'],
+              adjustedPrice: item['adjustedPrice'].toDouble(),
+              quantity: item['quantity'],
+              cartItemId: item['cartItemId'],
+              product: product, // Set the fetched product
+            ));
+          } else {
+            print("Failed to fetch product $productId: ${productResponse.statusCode}");
           }
-        } else {
-          print("No valid cart items found in the response.");
+        }
+
+        if (mounted) {
+          setState(() {
+            cartItems = fetchedItems
+                .where((item) => item.quantity > 0)
+                .map((item) => {
+                      'productId': item.productId,
+                      'selectedSize': item.selectedSize,
+                      'adjustedPrice': item.adjustedPrice,
+                      'quantity': item.quantity,
+                      'cartItemId': item.cartItemId,
+                      'product': item.product,
+                    })
+                .toList();
+          });
+
+          // Pass the CartItem list to CartViewModel
+          context
+              .read<CartViewModel>()
+              .updateCartItemsFromDatabase(fetchedItems);
         }
       } else {
-        print("Failed to fetch cart: ${response.statusCode}");
+        print("No valid cart items found in the response.");
       }
-    } catch (e) {
-      print("Error fetching cart items: $e");
+    } else {
+      print("Failed to fetch cart: ${response.statusCode}");
     }
+  } catch (e) {
+    print("Error fetching cart items: $e");
   }
+}
 
   void _navigateToCheckout(Address? userAddress) {
     final cartItems = context.read<CartViewModel>().cartItemsList.map((entry) {
@@ -195,287 +216,290 @@ class _CartViewState extends State<CartView> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    double subtotal = calculateSubtotal();
+Widget build(BuildContext context) {
+  return Consumer<CartViewModel>(
+    builder: (context, cartViewModel, child) {
+      // Sync cartItems with CartViewModel
+      cartItems = cartViewModel.cartItemsList
+          .map((entry) => {
+                'productId': entry.key.id,
+                'selectedSize': entry.value['selectedSize'],
+                'adjustedPrice': entry.value['adjustedPrice'] ?? entry.key.new_price,
+                'quantity': entry.value['quantity'],
+                'cartItemId': entry.value['cartItemId'],
+                'product': entry.key,
+              })
+          .toList();
+      double subtotal = calculateSubtotal();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Cart'),
-        backgroundColor: AppColors.primary,
-      ),
-      body: Container(
-        color: AppColors.lightGrey,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: Center(
-                  child: Container(
-                    width: MediaQuery.of(context).size.width * 0.9,
-                    height: 50.0,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 5.0,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.all(10.0),
-                    child: Center(
-                      child: Text(
-                        'CART',
-                        style: AppTextStyles.headline5.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                          fontSize: 24.0,
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Cart'),
+          backgroundColor: AppColors.primary,
+        ),
+        body: Container(
+          color: AppColors.lightGrey,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: Center(
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      height: 50.0,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 5.0,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(10.0),
+                      child: Center(
+                        child: Text(
+                          'CART',
+                          style: AppTextStyles.headline5.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                            fontSize: 24.0,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              cartItems.isEmpty
-                  ? const Center(
-                      child: Text('No items in the cart'),
-                    )
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: cartItems.length,
-                      itemBuilder: (context, index) {
-                        final entry = cartItems[index];
-                        final product = entry['product'];
+                cartItems.isEmpty
+                    ? const Center(child: Text('No items in the cart'))
+                    : ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: cartItems.length,
+                        itemBuilder: (context, index) {
+                          final entry = cartItems[index];
+                          final product = entry['product'];
 
-                        if (product == null || product is! Product) {
-                          return ListTile(
-                            title: const Text('Product not found'),
-                            subtitle: Text('Quantity: ${entry['quantity']}'),
-                          );
-                        }
-                        final String baseUrl =
-                            'http://localhost:4000/images/'; // Update with your actual base URL
-                        final String imageUrl = product.image.isNotEmpty
-                            ? '$baseUrl${product.image[0]}'
-                            : '';
+                          if (product == null || product is! Product) {
+                            print("Invalid product at index $index: $entry");
+                            return const ListTile(
+                              title: Text('Product not found'),
+                              subtitle: Text('Unable to load product details'),
+                            );
+                          }
 
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 5,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.all(8),
-                            leading: Image.network(
-                              imageUrl,
-                              errorBuilder: (context, error, stackTrace) {
-                                print("Error loading image: $error");
-                                return Image.asset(
-                                    'assets/images/bg_img.jpg'); // Fallback image
-                              },
+                          final String baseUrl = 'http://localhost:4000/images/';
+                          final String imageUrl = product.image.isNotEmpty
+                              ? '$baseUrl${product.image[0]}'
+                              : '';
+
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 5,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
                             ),
-                            title: Text(
-                              product.name,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.body2.copyWith(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.all(8),
+                              leading: Image.network(
+                                imageUrl,
+                                errorBuilder: (context, error, stackTrace) {
+                                  print("Error loading image: $error");
+                                  return Image.asset('assets/images/bg_img.jpg');
+                                },
                               ),
-                            ),
-                            subtitle: Padding(
-                              padding: const EdgeInsets.only(top: 10),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Size: ${entry['selectedSize'] ?? 'N/A'}",
-                                    style: AppTextStyles.body2.copyWith(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
+                              title: Text(
+                                product.name,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.body2.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              subtitle: Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Size: ${entry['selectedSize'] ?? 'N/A'}",
+                                      style: AppTextStyles.body2.copyWith(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 2, horizontal: 4),
-                                        decoration: BoxDecoration(
-                                          color: Colors.transparent,
-                                          borderRadius:
-                                              BorderRadius.circular(4),
-                                        ),
-                                        child: Text(
-                                          "₱${entry['adjustedPrice']}",
-                                          style: AppTextStyles.body2.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black,
+                                    const SizedBox(height: 5),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 2, horizontal: 4),
+                                          decoration: BoxDecoration(
+                                            color: Colors.transparent,
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: Text(
+                                            "₱${entry['adjustedPrice']}",
+                                            style: AppTextStyles.body2.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      QuantitySelector(
-                                        product: product,
-                                        quantity: entry[
-                                            'quantity'], // Pass the quantity here
-                                        selectedSize: entry['selectedSize'] ??
-                                            '', // Provide a default value if null
-                                        cartItemId: entry[
-                                            'cartItemId'], // Pass cartItemId explicitly
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                        QuantitySelector(
+                                          product: product,
+                                          quantity: entry['quantity'],
+                                          selectedSize: entry['selectedSize'] ?? '',
+                                          cartItemId: entry['cartItemId'],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Cart Totals",
-                      style: AppTextStyles.headline5.copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
+                          );
+                        },
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Subtotal",
-                          style: AppTextStyles.body2.copyWith(fontSize: 14),
-                        ),
-                        Text(
-                          "₱${subtotal.toStringAsFixed(2)}",
-                          style: AppTextStyles.body2.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: Divider(
-                        color: AppColors.greyAD.withAlpha(100),
-                        height: 0,
-                        thickness: 1.5,
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
                       ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Total",
-                          style: AppTextStyles.subtitle1.copyWith(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Cart Totals",
+                        style: AppTextStyles.headline5.copyWith(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
                         ),
-                        Text(
-                          "₱${subtotal.toStringAsFixed(2)}", // For now, Total is the same as Subtotal
-                          style: AppTextStyles.subtitle1.copyWith(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Subtotal",
+                            style: AppTextStyles.body2.copyWith(fontSize: 14),
                           ),
+                          Text(
+                            "₱${subtotal.toStringAsFixed(2)}",
+                            style: AppTextStyles.body2.copyWith(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Divider(
+                          color: AppColors.greyAD.withAlpha(100),
+                          height: 0,
+                          thickness: 1.5,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    CustomButton(
-                      disabled: cartItems.isEmpty,
-                      text: "PROCEED TO CHECKOUT",
-                      textStyle: AppTextStyles.button,
-                      height: 50,
-                      fillColor:
-                          Color(0xFF778C62), // Maroon color for the button
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 14),
-                      command: () async {
-                        final authViewModel = context.read<AuthViewModel>();
-                        final addressViewModel = context.read<AuthViewModel>();
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Total",
+                            style: AppTextStyles.subtitle1.copyWith(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Text(
+                            "₱${subtotal.toStringAsFixed(2)}",
+                            style: AppTextStyles.subtitle1.copyWith(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      CustomButton(
+                        disabled: cartItems.isEmpty,
+                        text: "PROCEED TO CHECKOUT",
+                        textStyle: AppTextStyles.button,
+                        height: 50,
+                        fillColor: const Color(0xFF778C62),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+                        command: () async {
+                          final authViewModel = context.read<AuthViewModel>();
+                          final addressViewModel = context.read<AuthViewModel>();
 
-                        if (!authViewModel.isLoggedIn) {
-                          // Prompt user to log in
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  "You need to log in to proceed to checkout"),
-                            ),
-                          );
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => LoginView(
-                                onLogin: () async {
-                                  SharedPreferences prefs =
-                                      await SharedPreferences.getInstance();
-                                  await prefs.setBool(
-                                      'isLoggedIn', true); // Save login state
-                                  _navigateToCheckout(addressViewModel
-                                      .address); // Proceed to CheckoutView after login
-                                },
-                                onCreateAccount: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            SignupView(onLogin: () {
-                                              _navigateToCheckout(addressViewModel
-                                                  .address); // Proceed to CheckoutView after account creation
-                                            })),
-                                  );
-                                },
+                          if (!authViewModel.isLoggedIn) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("You need to log in to proceed to checkout"),
                               ),
-                            ),
-                          );
-                        } else {
-                          _navigateToCheckout(addressViewModel.address);
-                        }
-                      },
-                    ),
-                  ],
+                            );
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LoginView(
+                                  onLogin: () async {
+                                    SharedPreferences prefs =
+                                        await SharedPreferences.getInstance();
+                                    await prefs.setBool('isLoggedIn', true);
+                                    _navigateToCheckout(addressViewModel.address);
+                                  },
+                                  onCreateAccount: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => SignupView(
+                                          onLogin: () {
+                                            _navigateToCheckout(addressViewModel.address);
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            );
+                          } else {
+                            _navigateToCheckout(addressViewModel.address);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
+      );
+    }
     );
   }
 }

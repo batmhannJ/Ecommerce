@@ -79,7 +79,7 @@ class Product {
   // Convert a Product object into a JSON map.
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      '_id': id,
       'name': name,
       'old_price': old_price,
       'new_price': new_price,

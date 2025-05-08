@@ -1233,7 +1233,7 @@ app.post('/cart', async (req, res) => {
   }
 });
 
-app.get('/api/cart/:userId', async (req, res) => {
+app.get('/api/carts/:userId', async (req, res) => {
   const { userId } = req.params;
   console.log("Fetching cart for user:", userId);  // Log the userId being used
   try {

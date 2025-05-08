@@ -1,3 +1,16 @@
+:root {
+  --dash-primary: #2b6cb0;
+  --dash-secondary: #2f9e44;
+  --dash-accent: #ff6b6b;
+  --dash-neutral: #4a5568;
+  --dash-bg: #f7fafc;
+  --dash-card-bg: #ffffff;
+  --dash-border: #e2e8f0;
+  --dash-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  --dash-font: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --dash-gradient: linear-gradient(135deg, var(--dash-primary), #4dabf7);
+  --dash-transition: all 0.3s ease;
+}
 
 /* Reset */
 * {
@@ -7,528 +20,556 @@
 }
 
 body {
-  font-family: 'Roboto', sans-serif;
-  background-color: #fafafa;
-  color: #1a202c;
-  overflow-x: hidden; /* Prevent horizontal scroll on narrow screens */
+  font-family: var(--dash-font);
+  background-color: var(--dash-bg);
+  color: var(--dash-neutral);
+  overflow-x: hidden;
 }
 
-/* Dashboard Container */
-.dashboard-container {
-  max-width: 1280px;
+/* Container */
+.dash-container {
+  max-width: 2000px;
   margin: 0 auto;
-  padding: 16px;
+  padding: 12px;
   min-height: 100vh;
-  width: 100%; /* Ensure full width on all screens */
+  width: 100%;
 }
 
 /* Header */
-.dashboard-header {
+.dash-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 24px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  margin-bottom: 24px;
-  flex-wrap: wrap; /* Allow wrapping on narrow screens */
-}
-
-.dashboard-header h1 {
-  font-size: 1.5rem;
-  font-weight: 500;
-  color: #2d3748;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap; /* Allow buttons to wrap on small screens */
-}
-
-.btn {
-  padding: 8px 16px;
-  border: none;
+  padding: 10px 16px;
+  background: var(--dash-card-bg);
   border-radius: 6px;
-  font-size: 0.875rem;
+  box-shadow: var(--dash-shadow);
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.dash-header h1 {
+  font-size: 1.375rem;
+  font-weight: 700;
+  background: var(--dash-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dash-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.dash-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
+  transition: var(--dash-transition);
 }
 
-.btn-pdf {
-  background-color: #e53e3e;
+.dash-btn-pdf {
+  background: var(--dash-accent);
   color: #ffffff;
 }
 
-.btn-xlsx {
-  background-color: #38a169;
+.dash-btn-xlsx {
+  background: var(--dash-secondary);
   color: #ffffff;
 }
 
-.btn:hover {
+.dash-btn:hover {
   transform: translateY(-1px);
-  opacity: 0.95;
+  opacity: 0.9;
+}
+
+.dash-btn:active {
+  transform: translateY(0);
 }
 
 /* Metrics Section */
-.metrics-section {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
+.dash-metrics {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  overflow-x: auto;
 }
 
-.metric {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 16px;
+.dash-metric {
+  background: var(--dash-card-bg);
+  border-radius: 6px;
+  padding: 12px;
   text-align: center;
-  transition: box-shadow 0.2s;
+  box-shadow: var(--dash-shadow);
+  transition: var(--dash-transition);
+  border: 1px solid var(--dash-border);
+  flex: 1;
+  min-width: 160px;
 }
 
-.metric:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.dash-metric:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.metric-label {
+.dash-metric-label {
   display: block;
-  font-size: 0.875rem;
-  color: #718096;
-  margin-bottom: 8px;
+  font-size: 0.75rem;
+  color: var(--dash-neutral);
+  margin-bottom: 6px;
+  font-weight: 500;
 }
 
-.metric-value {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #2b6cb0;
+.dash-metric-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--dash-primary);
 }
 
 /* Charts Section */
-.charts-section {
+.dash-charts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(800px, 1fr));
+  gap: 12px;
 }
 
-.chart {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 16px;
-  transition: box-shadow 0.2s;
-  width: 530px;
+.dash-chart {
+  background: var(--dash-card-bg);
+  border-radius: 6px;
+  padding: 12px;
+  box-shadow: var(--dash-shadow);
+  transition: var(--dash-transition);
+  border: 1px solid var(--dash-border);
+  width: 100%;
 }
 
-.chart-wide {
+.dash-chart-wide {
   grid-column: span 2;
 }
 
-.chart:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.dash-chart:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.chart h2 {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #2d3748;
-  margin-bottom: 12px;
+.dash-chart h2 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--dash-neutral);
+  margin-bottom: 8px;
   text-align: center;
 }
 
-.chart-content {
-  height: 200px; /* Compact chart height */
+.dash-chart-content {
+  height: 220px;
   position: relative;
 }
 
-/* Ensure charts are responsive */
-.chart-content canvas {
-  max-height: 200px !important;
+.dash-chart-content canvas {
+  max-height: 220px !important;
   width: 100% !important;
 }
 
 /* Responsive Design */
 
-/* Ultra-Large Screens (1440px and above, e.g., 4K monitors, ultra-wide) */
-@media (min-width: 1440px) {
-  .dashboard-container {
-    max-width: 1600px; /* Slightly wider for ultra-large screens */
-    padding: 24px;
-  }
-
-  .dashboard-header {
-    padding: 20px 32px;
-  }
-
-  .dashboard-header h1 {
-    font-size: 1.75rem;
-  }
-
-  .btn {
-    padding: 10px 20px;
-    font-size: 1rem;
-  }
-
-  .metrics-section {
-    gap: 24px;
-  }
-
-  .metric {
+/* Ultra-Large Screens (1920px and above) */
+@media (min-width: 1920px) {
+  .dash-container {
     padding: 20px;
   }
 
-  .metric-label {
-    font-size: 1rem;
+  .dash-header {
+    padding: 14px 24px;
   }
 
-  .metric-value {
-    font-size: 1.5rem;
+  .dash-header h1 {
+    font-size: 1.625rem;
   }
 
-  .charts-section {
-    gap: 24px;
+  .dash-btn {
+    padding: 8px 16px;
+    font-size: 0.9375rem;
   }
 
-  .chart {
-    padding: 20px;
+  .dash-metrics {
+    gap: 16px;
   }
 
-  .chart h2 {
+  .dash-metric {
+    padding: 16px;
+    min-width: 200px;
+  }
+
+  .dash-metric-label {
+    font-size: 0.875rem;
+  }
+
+  .dash-metric-value {
+    font-size: 1.375rem;
+  }
+
+  .dash-charts {
+    gap: 16px;
+  }
+
+  .dash-chart {
+    padding: 16px;
+  }
+
+  .dash-chart h2 {
     font-size: 1.125rem;
   }
 
-  .chart-content {
-    height: 240px; /* Slightly larger charts for large screens */
+  .dash-chart-content {
+    height: 260px;
   }
 
-  .chart-content canvas {
+  .dash-chart-content canvas {
+    max-height: 260px !important;
+  }
+}
+
+/* Large Screens (1280px to 1920px) */
+@media (max-width: 1920px) and (min-width: 1280px) {
+  .dash-container {
+    padding: 16px;
+  }
+
+  .dash-header {
+    padding: 12px 20px;
+  }
+
+  .dash-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .dash-btn {
+    padding: 7px 14px;
+    font-size: 0.875rem;
+  }
+
+  .dash-metrics {
+    gap: 14px;
+  }
+
+  .dash-metric {
+    padding: 14px;
+    min-width: 180px;
+  }
+
+  .dash-metric-label {
+    font-size: 0.8125rem;
+  }
+
+  .dash-metric-value {
+    font-size: 1.25rem;
+  }
+
+  .dash-charts {
+    gap: 14px;
+  }
+
+  .dash-chart {
+    padding: 14px;
+  }
+
+  .dash-chart h2 {
+    font-size: 1rem;
+  }
+
+  .dash-chart-content {
+    height: 240px;
+  }
+
+  .dash-chart-content canvas {
     max-height: 240px !important;
   }
 }
 
-/* Large Screens (1024px to 1440px, e.g., laptops, desktops) */
-@media (max-width: 1440px) and (min-width: 1024px) {
-  .dashboard-container {
-    max-width: 1280px;
-    padding: 20px;
+/* Medium Screens (768px to 1280px) */
+@media (max-width: 1280px) {
+  .dash-charts {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 12px;
+    padding-bottom: 10px;
   }
 
-  .dashboard-header h1 {
-    font-size: 1.5rem;
+  .dash-chart {
+    flex: 0 0 auto;
+    min-width: 600px;
+    width: 600px;
+    padding: 12px;
   }
 
-  .btn {
-    padding: 8px 16px;
-    font-size: 0.875rem;
-  }
-
-  .metrics-section {
-    gap: 20px;
-  }
-
-  .metric {
-    padding: 16px;
-  }
-
-  .metric-value {
-    font-size: 1.25rem;
-  }
-
-  .charts-section {
-    gap: 20px;
-  }
-
-  .chart-content {
-    height: 200px;
-  }
-}
-
-/* Medium Screens (768px to 1024px, e.g., tablets, small laptops) */
-@media (max-width: 1024px) {
-  .charts-section {
-    grid-template-columns: 1fr; /* Stack charts vertically */
-  }
-
-  .chart-wide {
+  .dash-chart-wide {
+    min-width: 800px;
+    width: 800px;
     grid-column: span 1;
   }
 
-  .dashboard-container {
-    padding: 16px;
+  .dash-container {
+    padding: 12px;
   }
 
-  .dashboard-header {
-    padding: 14px 20px;
+  .dash-header {
+    padding: 10px 16px;
   }
 
-  .dashboard-header h1 {
-    font-size: 1.375rem;
+  .dash-header h1 {
+    font-size: 1.25rem;
   }
 
-  .btn {
-    padding: 7px 14px;
+  .dash-btn {
+    padding: 6px 12px;
     font-size: 0.8125rem;
   }
 
-  .metrics-section {
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 14px;
+  .dash-metrics {
+    gap: 12px;
   }
 
-  .metric {
-    padding: 14px;
+  .dash-metric {
+    padding: 12px;
+    min-width: 140px;
   }
 
-  .metric-label {
-    font-size: 0.8125rem;
+  .dash-metric-label {
+    font-size: 0.6875rem;
   }
 
-  .metric-value {
-    font-size: 1.125rem;
+  .dash-metric-value {
+    font-size: 1rem;
   }
 
-  .chart {
-    padding: 14px;
+  .dash-chart h2 {
+    font-size: 0.875rem;
+  }
+
+  .dash-chart-content {
+    height: 200px;
+  }
+
+  .dash-chart-content canvas {
+    max-height: 200px !important;
+  }
+}
+
+/* Small Screens (480px to 768px) */
+@media (max-width: 768px) {
+  .dash-charts {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 10px;
+    padding-bottom: 8px;
+  }
+
+  .dash-chart {
+    flex: 0 0 auto;
+    min-width: 500px;
     width: 500px;
+    padding: 10px;
   }
 
-  .chart h2 {
-    font-size: 0.9375rem;
+  .dash-chart-wide {
+    min-width: 700px;
+    width: 700px;
   }
 
-  .chart-content {
-    height: 180px; /* Slightly smaller charts */
+  .dash-header {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+    padding: 8px 12px;
   }
 
-  .chart-content canvas {
+  .dash-actions {
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .dash-metrics {
+    gap: 10px;
+  }
+
+  .dash-metric {
+    padding: 10px;
+    min-width: 120px;
+  }
+
+  .dash-metric-label {
+    font-size: 0.625rem;
+  }
+
+  .dash-metric-value {
+    font-size: 0.875rem;
+  }
+
+  .dash-chart h2 {
+    font-size: 0.8125rem;
+  }
+
+  .dash-chart-content {
+    height: 180px;
+  }
+
+  .dash-chart-content canvas {
     max-height: 180px !important;
   }
 }
 
-/* Small Screens (480px to 768px, e.g., large phones, small tablets) */
-@media (max-width: 768px) {
-  .dashboard-header {
-    flex-direction: column;
-    gap: 12px;
-    text-align: center;
-    padding: 12px 16px;
+/* Ultra-Small Screens (360px to 480px) */
+@media (max-width: 480px) {
+  .dash-charts {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 6px;
   }
 
-  .action-buttons {
-    justify-content: center;
+  .dash-chart {
+    flex: 0 0 auto;
+    min-width: 400px;
+    width: 400px;
+    padding: 8px;
   }
 
-  .metrics-section {
-    grid-template-columns: 1fr; /* Single column for metrics */
-    gap: 12px;
+  .dash-chart-wide {
+    min-width: 600px;
+    width: 600px;
   }
 
-  .metric {
-    padding: 12px;
+  .dash-container {
+    padding: 10px;
   }
 
-  .metric-label {
+  .dash-header {
+    padding: 6px 10px;
+  }
+
+  .dash-header h1 {
+    font-size: 1.125rem;
+  }
+
+  .dash-actions {
+    gap: 5px;
+  }
+
+  .dash-btn {
+    padding: 5px 10px;
     font-size: 0.75rem;
   }
 
-  .metric-value {
-    font-size: 1rem;
+  .dash-metrics {
+    gap: 8px;
   }
 
-  .charts-section {
-    gap: 12px;
+  .dash-metric {
+    padding: 8px;
+    min-width: 100px;
   }
 
-  .chart {
-    padding: 12px;
-    width: 350px;
+  .dash-metric-label {
+    font-size: 0.5625rem;
   }
 
-  .chart h2 {
-    font-size: 0.875rem;
+  .dash-metric-value {
+    font-size: 0.8125rem;
   }
 
-  .chart-content {
-    height: 160px; /* Even smaller charts */
+  .dash-chart h2 {
+    font-size: 0.75rem;
   }
 
-  .chart-content canvas {
+  .dash-chart-content {
+    height: 160px;
+  }
+
+  .dash-chart-content canvas {
     max-height: 160px !important;
   }
 }
 
-/* Ultra-Small Screens (below 480px, e.g., small phones, narrow devices) */
-@media (max-width: 480px) {
-  .dashboard-container {
-    padding: 12px;
-  }
-
-  .dashboard-header {
-    padding: 10px 12px;
-  }
-
-  .dashboard-header h1 {
-    font-size: 1.25rem;
-  }
-
-  .action-buttons {
+/* Very Narrow Screens (below 360px) */
+@media (max-width: 360px) {
+  .dash-charts {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
     gap: 6px;
+    padding-bottom: 6px;
   }
 
-  .btn {
-    padding: 6px 12px;
-    font-size: 0.75rem;
+  .dash-chart {
+    flex: 0 0 auto;
+    min-width: 300px;
+    width: 300px;
+    padding: 6px;
   }
 
-  .metrics-section {
-    gap: 10px;
+  .dash-chart-wide {
+    min-width: 500px;
+    width: 500px;
   }
 
-  .metric {
-    padding: 10px;
+  .dash-container {
+    padding: 8px;
   }
 
-  .metric-label {
+  .dash-header {
+    padding: 5px 8px;
+  }
+
+  .dash-header h1 {
+    font-size: 1rem;
+  }
+
+  .dash-actions {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .dash-btn {
+    width: 100%;
+    padding: 5px;
     font-size: 0.6875rem;
   }
 
-  .metric-value {
-    font-size: 0.9375rem;
+  .dash-metrics {
+    gap: 6px;
   }
 
-  .charts-section {
-    gap: 10px;
+  .dash-metric {
+    padding: 6px;
+    min-width: 90px;
   }
 
-  .chart {
-    padding: 10px;
+  .dash-metric-label {
+    font-size: 0.5rem;
   }
 
-  .chart h2 {
-    font-size: 0.8125rem;
+  .dash-metric-value {
+    font-size: 0.75rem;
   }
 
-  .chart-content {
-    height: 140px; /* Smallest chart size for narrow screens */
+  .dash-chart h2 {
+    font-size: 0.6875rem;
   }
 
-  .chart-content canvas {
+  .dash-chart-content {
+    height: 140px;
+  }
+
+  .dash-chart-content canvas {
     max-height: 140px !important;
-  }
-}
-
-/* Edge Case: Very Narrow Screens (below 360px, e.g., old phones, foldables) */
-@media (max-width: 360px) {
-  .dashboard-container {
-    padding: 8px;
-  }
-
-  .dashboard-header {
-    padding: 8px 10px;
-  }
-
-  .dashboard-header h1 {
-    font-size: 1.125rem;
-  }
-
-  .action-buttons {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .btn {
-    width: 100%; /* Full-width buttons */
-    padding: 8px;
-    font-size: 0.75rem;
-  }
-
-  .metrics-section {
-    gap: 8px;
-  }
-
-  .metric {
-    padding: 8px;
-  }
-
-  .metric-label {
-    font-size: 0.625rem;
-  }
-
-  .metric-value {
-    font-size: 0.875rem;
-  }
-
-  .chart {
-    padding: 8px;
-  }
-
-  .chart h2 {
-    font-size: 0.75rem;
-  }
-
-  .chart-content {
-    height: 120px; /* Minimal chart height */
-  }
-
-  .chart-content canvas {
-    max-height: 120px !important;
-  }
-}
-
-/* Edge Case: Ultra-Wide Screens (above 1920px, e.g., 4K, ultra-wide monitors) */
-@media (min-width: 1920px) {
-  .dashboard-container {
-    max-width: 1800px; /* Support for ultra-wide screens */
-    padding: 32px;
-  }
-
-  .dashboard-header {
-    padding: 24px 40px;
-  }
-
-  .dashboard-header h1 {
-    font-size: 2rem;
-  }
-
-  .btn {
-    padding: 12px 24px;
-    font-size: 1.125rem;
-  }
-
-  .metrics-section {
-    gap: 32px;
-  }
-
-  .metric {
-    padding: 24px;
-  }
-
-  .metric-label {
-    font-size: 1.125rem;
-  }
-
-  .metric-value {
-    font-size: 1.75rem;
-  }
-
-  .charts-section {
-    gap: 32px;
-  }
-
-  .chart {
-    padding: 24px;
-  }
-
-  .chart h2 {
-    font-size: 1.25rem;
-  }
-
-  .chart-content {
-    height: 280px; /* Larger charts for ultra-wide screens */
-  }
-
-  .chart-content canvas {
-    max-height: 280px !important;
   }
 }

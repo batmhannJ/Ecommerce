@@ -1,9 +1,8 @@
-/* Transaction Management Styling (Enhanced to Match AML Dashboard) */
 :root {
-  --primary: #00c4b4; /* Teal for buttons and accents */
+  --primary: #00c4b4;
   --primary-light: #5eead4;
   --primary-dark: #00a69a;
-  --secondary: #f97316; /* Orange for highlights */
+  --secondary: #f97316;
   --error: #ef4444;
   --success: #22c55e;
   --pending: #f59e0b;
@@ -22,7 +21,7 @@
   box-sizing: border-box;
   width: 100%;
   max-width: 1050px;
-  height: 95vh; /* Fixed height */
+  height: 95vh;
   padding: 24px;
   border-radius: 12px;
   background: var(--white);
@@ -30,10 +29,10 @@
   display: flex;
   flex-direction: column;
   font-family: var(--font-family);
-  margin-left: 30px; /* Shift container to the right */
+  margin-left: 30px;
   margin-right: auto;
   margin-top: 20px;
-  overflow-y: auto; /* Scrollbar for the main container */
+  overflow-y: auto;
 }
 
 /* Header section */
@@ -42,7 +41,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-  flex-shrink: 0; /* Prevent header from shrinking */
+  flex-shrink: 0;
 }
 
 .header-section h1 {
@@ -55,7 +54,7 @@
 /* Search controls */
 .transaction-search {
   width: 250px;
-  position: relative; /* For positioning the clear button */
+  position: relative;
 }
 
 .transaction-search input {
@@ -113,7 +112,11 @@
 /* Transaction list */
 .transaction-list {
   flex: 1;
-  /* Removed overflow-y: auto to prevent nested scrollbar */
+}
+
+/* Table container */
+.transaction-table-container {
+  overflow-x: auto;
 }
 
 /* Table header */
@@ -167,6 +170,8 @@
   font-size: 14px;
   font-weight: 500;
   color: var(--text-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .transaction-id {
@@ -206,7 +211,9 @@
 /* Action buttons */
 .action-buttons {
   display: flex;
-  gap: 5px;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
 }
 
 .toggle-details,
@@ -220,7 +227,8 @@
   transition: all 0.3s ease;
   background: transparent;
   border: 1px solid;
-  min-width: 70px;
+  width: 100%;
+  max-width: 80px;
   text-align: center;
 }
 
@@ -235,27 +243,19 @@
 }
 
 .action-button.delete {
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-family: var(--font-family);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: transparent;
-  border: 1px solid;
-  min-width: 70px;
-  text-align: center;
-}
-
-.action-button.delete {
+  padding: 4px 12px;
   border-color: var(--error);
   color: var(--error);
+  outline: 1px solid #b91c1c;
+  outline-offset: 1px;
+  font-weight: 400;
+  font-size: 13px;
 }
 
 .action-button.delete:hover {
   background: var(--error);
   color: var(--white);
+  outline: none;
 }
 
 /* Transaction details (expanded panel) */
@@ -293,7 +293,7 @@
 .transaction-detail-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   padding: 8px 0;
   border-bottom: 1px solid #f1f5f9;
 }
@@ -303,12 +303,29 @@
   font-weight: 500;
   color: var(--text-medium);
   text-transform: uppercase;
+  flex: 1;
 }
 
 .detail-value {
   font-size: 13px;
   font-weight: 600;
   color: var(--text-dark);
+  flex: 2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.address-value {
+  white-space: normal;
+  word-wrap: break-word;
+  line-height: 1.4;
+  max-height: 80px;
+  overflow: hidden;
+}
+
+.address-value.show-more {
+  max-height: none;
 }
 
 .price-value {
@@ -360,21 +377,17 @@
   .transaction-bank {
     display: none;
   }
-}
 
-@media (max-width: 768px) {
-  .transaction-table-header,
-  .transaction-summary {
-    grid-template-columns: 120px 120px 80px 80px 100px;
-    gap: clamp(6px, 0.8vw, 10px);
+  .transaction-table-header div:nth-child(4) {
+    display: none;
   }
 
-  .transaction-name {
+  .transaction-detail-item.detail-item-bank {
     display: none;
   }
 }
 
-@media (max-width: 576px) {
+@media (max-width: 768px) {
   .transaction-management-container {
     padding: 12px;
     margin-left: 10px;
@@ -382,11 +395,22 @@
 
   .transaction-table-header,
   .transaction-summary {
-    grid-template-columns: 120px 80px 80px 100px;
-    gap: clamp(4px, 0.6vw, 8px);
+    grid-template-columns: 120px 100px 80px 100px;
+    gap: clamp(6px, 0.8vw, 10px);
   }
 
-  .transaction-id {
+  .transaction-id,
+  .transaction-name {
+    display: none;
+  }
+
+  .transaction-table-header div:nth-child(2),
+  .transaction-table-header div:nth-child(3) {
+    display: none;
+  }
+
+  .transaction-detail-item.detail-item-id,
+  .transaction-detail-item.detail-item-name {
     display: none;
   }
 
@@ -395,55 +419,109 @@
     padding: 5px 10px;
     font-size: 11px;
     min-width: 60px;
+    max-width: 70px;
+  }
+
+  .action-button.delete {
+    padding: 3px 10px;
+    font-weight: 400;
   }
 
   .action-buttons {
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .transaction-search .clear-search {
-    right: 8px;
-    width: 18px;
-    height: 18px;
-  }
-
-  .transaction-search .clear-icon {
-    font-size: 12px;
+    gap: 4px;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 576px) {
   .transaction-management-container {
-    padding: 10px;
-    margin-left: 0; /* Tanggalin ang left margin para masulit ang espasyo */
-    overflow-x: auto; /* Ito ang magpapagana sa horizontal scrolling */
+    padding: 8px;
+    margin-left: 0;
+    overflow-x: auto;
   }
 
-  .transaction-search input {
-    padding: 8px 36px 8px 36px;
-    font-size: 13px;
-  }
-
-  .transaction-table {
-    width: auto; /* Hahayaan ang table na lumapad batay sa content nito */
-    min-width: 600px; /* Halimbawa ng minimum width para hindi masyadong siksik */
+  .transaction-table-container {
+    min-width: 300px;
   }
 
   .transaction-table-header,
   .transaction-summary {
-    display: grid;
-    grid-template-columns: 120px 100px 100px; /* Ibalik ang mga columns at bigyan ng sapat na lapad */
-    gap: clamp(3px, 0.5vw, 6px);
+    grid-template-columns: 100px 80px 90px;
+    gap: clamp(3px, 0.6vw, 6px);
+    padding: 6px;
+  }
+
+  .transaction-status {
+    display: none;
+  }
+
+  .transaction-table-header div:nth-child(5) {
+    display: none;
+  }
+
+  .transaction-detail-item.detail-item-status {
+    display: none;
   }
 
   .transaction-date,
-  .transaction-amount,
+  .transaction-amount {
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .detail-label,
-  .detail-value,
-  .transaction-status {
+  .detail-value {
+    font-size: 13px;
+  }
+
+  .transaction-details {
+    padding: 16px;
+  }
+
+  .details-section h3 {
+    font-size: 13px;
+  }
+
+  .transaction-detail-item {
+    padding: 6px 0;
+  }
+
+  .address-value {
+    max-height: 60px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 3px;
+    align-items: flex-start;
+  }
+
+  .toggle-details,
+  .action-button {
+    padding: 3px 6px;
+    font-size: 10px;
+    min-width: 45px;
+    max-width: 60px;
+  }
+
+  .action-button.delete {
+    padding: 2px 6px;
+    outline: 1px solid #b91c1c;
+    outline-offset: 1px;
+    font-weight: 400;
+    font-size: 11px;
+  }
+
+  .action-button.delete:hover {
+    outline: none;
+  }
+
+  .transaction-search input {
+    padding: 6px 32px 6px 32px;
     font-size: 12px;
-    white-space: nowrap; /* Pigilan ang text na bumaba sa bagong linya */
+    background-size: 18px;
+    background-position: 8px center;
   }
 
   .transaction-search .clear-search {
@@ -453,11 +531,85 @@
   }
 
   .transaction-search .clear-icon {
-    font-size: 11px;
+    font-size: 12px;
   }
 }
 
-/* Siguraduhin na ang container ng table ay may overflow-x */
-.transaction-table-container {
-  overflow-x: auto;
+@media (max-width: 360px) {
+  .transaction-management-container {
+    padding: 6px;
+  }
+
+  .transaction-table-container {
+    min-width: 260px;
+  }
+
+  .transaction-table-header,
+  .transaction-summary {
+    grid-template-columns: 80px 60px 70px;
+    gap: clamp(2px, 0.5vw, 4px);
+    padding: 4px;
+  }
+
+  .transaction-date,
+  .transaction-amount {
+    font-size: 12px;
+  }
+
+  .detail-label,
+  .detail-value {
+    font-size: 12px;
+  }
+
+  .transaction-details {
+    padding: 12px;
+  }
+
+  .details-section h3 {
+    font-size: 12px;
+  }
+
+  .transaction-detail-item {
+    padding: 4px 0;
+  }
+
+  .address-value {
+    max-height: 48px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 2px;
+    align-items: flex-start;
+  }
+
+  .toggle-details,
+  .action-button {
+    padding: 2px 4px;
+    font-size: 9px;
+    min-width: 35px;
+    max-width: 50px;
+  }
+
+  .action-button.delete {
+    padding: 1px 4px;
+    font-size: 10px;
+  }
+
+  .transaction-search input {
+    padding: 5px 28px 5px 28px;
+    font-size: 11px;
+    background-size: 16px;
+    background-position: 6px center;
+  }
+
+  .transaction-search .clear-search {
+    right: 5px;
+    width: 14px;
+    height: 14px;
+  }
+
+  .transaction-search .clear-icon {
+    font-size: 11px;
+  }
 }

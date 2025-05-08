@@ -64,7 +64,7 @@ class _CraftsTabViewState extends State<CraftsTabView>
               padding: const EdgeInsets.all(10.0),
               child: Center(
                 child: Text(
-                  'CRAFTS',
+                  'GADGETS',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
@@ -80,7 +80,7 @@ class _CraftsTabViewState extends State<CraftsTabView>
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: ProductList(
                     products: products
-                        .where((element) => element.category == "crafts")
+                        .where((element) => element.category == "gadgets")
                         .toList(),
                   ),
                 ),

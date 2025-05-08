@@ -60,7 +60,7 @@ class ProductList extends StatelessWidget {
                     width: double.infinity,
                      child: product.image.isNotEmpty
                         ? Image.network(
-                      'https://ip-tienda-han-backend.onrender.com/upload/images/${product.image[0]}', // Check if image list is not empty
+                      'http://localhost:4000/upload/images/${product.image[0]}', // Check if image list is not empty
                       fit: BoxFit.contain,
                       alignment: Alignment.center,
                       errorBuilder: (context, error, stackTrace) {

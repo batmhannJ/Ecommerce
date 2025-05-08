@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:indigitech_shop/model/product.dart';
-import 'package:indigitech_shop/products.dart'; // Import the products file to access fetchProducts
+import 'package:indigitech_shop/products.dart';
+import 'package:indigitech_shop/view/product_view.dart'; // Import the products file to access fetchProducts
 
 class FoodTabView extends StatefulWidget {
   const FoodTabView({super.key});
@@ -139,7 +140,7 @@ class _ProductCardState extends State<ProductCard> with SingleTickerProviderStat
       onTapCancel: () => setState(() => _isTapped = false),
       onTap: () {
         // Add navigation to product details if needed
-        // Example: Navigator.push(context, MaterialPageRoute(builder: (context) => ProductView(product: widget.product)));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => ProductView(product: widget.product, products: [],)));
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),

@@ -174,14 +174,17 @@ export const CartItems = () => {
             const product = all_product.find(
               (prod) => prod.id === item.productId
             );
+            console.log("Product sellerId:", product?.sellerId); // Log sellerId
             return product
               ? {
                   id: product.id, // Add the product ID here
+                  sellerId: product.sellerId,
                   name: product.name,
                   size: item.selectedSize,
                   quantity: item.quantity,
                   adjustedPrice: item.adjustedPrice, // Assuming adjustedPrice is stored in cartItems
                   price: product.price, // Add the original price (if applicable)
+                  category: product.category, // Add the category information here
                 }
               : null;
           })

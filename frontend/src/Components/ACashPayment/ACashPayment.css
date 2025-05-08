@@ -1,0 +1,299 @@
+.acash-payment-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #f8f9fa;
+}
+
+.acash-payment-card {
+  width: 100%;
+  max-width: 600px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.acash-payment-header {
+  padding: 20px;
+  background-color: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.acash-payment-header h2 {
+  margin: 0 0 20px;
+  color: #2d3748;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.acash-payment-steps {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.step {
+  display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 30%;
+  }
+  
+  .step-number {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #ddd;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .step.active .step-number {
+    background-color: #28a745;
+  }
+  
+  .step.completed .step-number {
+    background-color: #28a745;
+  }
+  
+  .step span {
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .step.active span {
+    color: #333;
+    font-weight: bold;
+  }
+  
+  .step-connector {
+    flex-grow: 1;
+    height: 2px;
+    background-color: #ddd;
+    margin: 0 10px;
+  }
+  
+  .acash-payment-body {
+    padding: 30px;
+  }
+  
+  .payment-info {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .payment-info h3 {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 10px;
+  }
+  
+  .payment-amount {
+    font-size: 32px;
+    font-weight: bold;
+    color: #28a745;
+    margin-bottom: 10px;
+  }
+  
+  .payment-reference {
+    color: #666;
+    font-size: 14px;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    display: block;
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  
+  .form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border-color 0.2s;
+  }
+  
+  .form-group input:focus {
+    border-color: #28a745;
+    outline: none;
+  }
+  
+  .otp-description {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+  }
+  
+  .otp-timer {
+    font-size: 14px;
+    color: #666;
+    margin-top: 10px;
+    text-align: center;
+  }
+  
+  .resend-otp-container {
+    text-align: center;
+    margin-top: 15px;
+  }
+  
+  .resend-otp-button {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: underline;
+  }
+  
+  .resend-otp-button.disabled {
+    color: #aaa;
+    cursor: not-allowed;
+    text-decoration: none;
+  }
+  
+  .acash-payment-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+  }
+  
+  .cancel-button, .login-button, .verify-button, .finish-button {
+    padding: 12px 24px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .cancel-button {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    color: #666;
+  }
+  
+  .cancel-button:hover {
+    background-color: #e9ecef;
+  }
+  
+  .login-button, .verify-button, .finish-button {
+    background-color: #28a745;
+    border: none;
+    color: white;
+  }
+  
+  .login-button:hover, .verify-button:hover, .finish-button:hover {
+    background-color: #218838;
+  }
+  
+  .login-button:disabled, .verify-button:disabled, .cancel-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  /* Success page styles */
+  .acash-success {
+    text-align: center;
+  }
+  
+  .success-icon {
+    color: #28a745;
+    margin-bottom: 20px;
+  }
+  
+  .acash-success h3 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 30px;
+  }
+  
+  .transaction-details {
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 30px;
+  }
+  
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .detail-row:last-child {
+    border-bottom: none;
+  }
+  
+  .status-completed {
+    color: #28a745;
+    font-weight: bold;
+  }
+  
+  .acash-success h4 {
+    text-align: left;
+    margin-bottom: 15px;
+    color: #555;
+  }
+  
+  .transaction-items {
+    margin-bottom: 30px;
+  }
+  
+  .item-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .item-row:last-child {
+    border-bottom: none;
+  }
+  
+  .item-details {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .item-name {
+    font-weight: 500;
+  }
+  
+  .item-size {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+  }
+  
+  .item-quantity-price {
+    font-weight: 500;
+  }
+  
+  @media (max-width: 768px) {
+    .acash-payment-card {
+      max-width: 100%;
+    }
+    
+    .acash-payment-body {
+      padding: 20px;
+    }
+  }

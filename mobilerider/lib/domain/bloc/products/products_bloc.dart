@@ -145,7 +145,7 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
 
       // Send the data to your server
       final resp = await http.post(
-        Uri.parse('http://localhost:4000/api/add-new-product'), // Use the same endpoint as your web app
+        Uri.parse('http://172.16.20.150:4000/api/add-new-product'), // Use the same endpoint as your web app
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(productData)
       );
@@ -172,7 +172,7 @@ Future<String?> _uploadImage(XFile image) async {
     
     // Send the image as base64 string to your API
     final response = await http.post(
-      Uri.parse('http://localhost:4000/upload-base64'),
+      Uri.parse('http://172.16.20.150:4000/upload-base64'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'image': base64Image,

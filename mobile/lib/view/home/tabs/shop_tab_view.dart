@@ -76,9 +76,9 @@ class _ShopTabViewState extends State<ShopTabView>
 
   // Mock background images for slideshow
   final List<String> _backgroundImages = [
-    'assets/images/bg_img1.png',
-    'assets/images/bg_img2.png',
-    'assets/images/bg_img3.png',
+    'assets/images/bg_img.png',
+    'assets/images/bg_img3.jpg',
+    'assets/images/bg_img2.jpg',
   ];
 
   // Mock categories data

@@ -75,7 +75,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                             itemBuilder: (context, i, realIndex) 
                               => Container(
                                 width: size.width,
-                                child: Image.network('http://localhost:4000/upload/images/'+ imagesProducts[i].picture),
+                                child: Image.network('http://172.16.20.150:4000/upload/images/'+ imagesProducts[i].picture),
                               ), 
                           ),
                         ),

@@ -13,6 +13,7 @@ const otpGenerator = require("otp-generator");
 const helmet = require("helmet");
 const server = require("http").createServer(app);
 const fs = require('fs');
+const { body, validationResult } = require('express-validator');
 
 // import routes
 const superAdminRoutes = require("./routes/superAdminRoute");
@@ -3894,7 +3895,112 @@ app.patch('/api/update-order-deliverystatus', async (req, res) => {
   }
 });
 
+app.post('/api/calculate-distance', async (req, res) => {
+  const { origin, destination } = req.body;
 
+  if (!origin || !destination) {
+    return res.status(400).json({ error: 'Origin and destination are required' });
+  }
+
+  try {
+    const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(origin)}&destinations=${encodeURIComponent(destination)}&key=${GOOGLE_MAPS_API_KEY}`;
+    
+    const response = await axios.get(url);
+    const distanceData = response.data;
+
+    if (distanceData.status !== 'OK' || distanceData.rows[0].elements[0].status !== 'OK') {
+      return res.status(400).json({ error: 'Unable to calculate distance' });
+    }
+
+    const distance = distanceData.rows[0].elements[0].distance.value / 1000; // Convert meters to km
+    res.json({ distance });
+  } catch (error) {
+    console.error('Error calculating distance:', error);
+    res.status(500).json({ error: 'Server error while calculating distance' });
+  }
+});
+
+app.get("/api/seller/business-location", async (req, res) => {
+  try {
+    const { sellerId } = req.query;
+
+    if (!sellerId) {
+      return res.status(400).json({
+        success: false,
+        message: "sellerId is required",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(sellerId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid sellerId format",
+      });
+    }
+
+    const seller = await Seller.findById(sellerId);
+
+    if (!seller) {
+      return res.status(404).json({
+        success: false,
+        message: "Seller not found",
+      });
+    }
+
+    let latitude = 15.4832; // Default coordinates
+    let longitude = 120.9720;
+    let address = seller.businessLocation || "";
+
+    // Construct a precise address using businessLocationDetails if available
+    let geocodeAddress = seller.businessLocation;
+    if (seller.businessLocationDetails) {
+      const { region, province, city, barangay } = seller.businessLocationDetails;
+      geocodeAddress = [
+        seller.businessLocation,
+        barangay?.name,
+        city?.name,
+        province?.name,
+        region?.name,
+      ]
+        .filter(Boolean)
+        .join(", ");
+    }
+
+    // Geocode the address
+    if (geocodeAddress) {
+      try {
+        const response = await axios.get(
+          `https://api.positionstack.com/v1/forward?access_key=${process.env.REACT_APP_POSITION_STACK_API_KEY}&query=${encodeURIComponent(geocodeAddress)}`
+        );
+        const data = response.data.data[0];
+        if (data && data.latitude && data.longitude) {
+          latitude = data.latitude;
+          longitude = data.longitude;
+        } else {
+          console.warn("Geocoding returned no valid coordinates for address:", geocodeAddress);
+        }
+      } catch (error) {
+        console.error("Error geocoding address:", error.message);
+        // Fall back to default coordinates
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      latitude,
+      longitude,
+      address,
+      businessName: seller.shopName || "",
+    });
+  } catch (error) {
+    console.error("Error fetching seller business location:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching seller business location",
+      error: error.message,
+    });
+  }
+});
 // Admin Routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/", adminRoutes);

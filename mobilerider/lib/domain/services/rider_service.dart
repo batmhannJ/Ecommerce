@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 class RiderService {
   // Base URL of your API
-  static const String baseUrl = 'https://localhost:4000';
+  static const String baseUrl = 'https://172.16.20.150:4000';
 
   // Get the vehicle type for a specific rider by ID
   static Future<String?> getVehicleTypeById(String riderId) async {

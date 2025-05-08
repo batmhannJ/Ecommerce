@@ -30,6 +30,7 @@ import Shops from "./Components/Shop/Shop";
 import Category from "./Components/StoreProducts/Category";
 import Rider from "./Components/Rider/Rider";
 import ShopPage from "./Components/ShopPage/ShopPage";
+import ACashPayment from "./Components/ACashPayment/ACashPayment";
 
 import {
   regions,
@@ -126,6 +127,7 @@ function App() {
         <Route path="/partner" element={<Partner />} />
         <Route path="/store/:id" element={<StoreProducts />} />
         <Route path="/shoppage" element={<ShopPage />} />
+        <Route path="/acashpayment" element={<ACashPayment />} />
       </Routes>
       <Footer />
     </BrowserRouter>

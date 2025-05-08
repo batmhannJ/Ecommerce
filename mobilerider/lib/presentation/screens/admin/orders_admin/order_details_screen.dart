@@ -179,7 +179,7 @@ class _ListProductsDetails extends StatelessWidget {
                 width: 45,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: NetworkImage('http://localhost:4000/upload/images/${listProductDetails[i].picture}')                  )
+                    image: NetworkImage('http://172.16.20.150:4000/upload/images/${listProductDetails[i].picture}')                  )
                 ),
               ),
               const SizedBox(width: 15.0),

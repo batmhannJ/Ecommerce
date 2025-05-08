@@ -246,7 +246,7 @@ Future<void> _onAddNewStreetAddress(OnAddNewAddressEvent event, Emitter<UserStat
 
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:4000/api/add-new-address'),
+        Uri.parse('http://172.16.20.150:4000/api/add-new-address'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'userId': userId,

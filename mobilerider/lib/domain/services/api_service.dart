@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = 'http://localhost:4000/api'; // Palitan kung naka-deploy
+  static const String baseUrl = 'http://172.16.20.150:4000/api'; // Palitan kung naka-deploy
 
   // Halimbawa: Login API
   Future<Map<String, dynamic>> login(String email, String password) async {

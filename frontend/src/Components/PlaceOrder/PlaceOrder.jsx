@@ -29,6 +29,15 @@ const MAIN_OFFICE_COORDINATES = {
   longitude: 120.9730, // ASKI Building longitude
 };
 
+// Create a secure API instance for ACash
+const secureApi = axios.create({
+  baseURL: "https://acashapi.isynergiesinc.online",
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
 export const PlaceOrder = () => {
   const { getTotalCartAmount, all_product, cartItems, clearCart } =
     useContext(ShopContext);
@@ -179,7 +188,7 @@ export const PlaceOrder = () => {
         coordinates.longitude
       );
 
-      const distanceMiles = distanceKm * 0.621371;
+      const distanceMiles = distanceKm * 10;
 
       const isSameRegion =
         data.state === "Nueva Ecija" || data.region === "Region III";
@@ -244,13 +253,44 @@ export const PlaceOrder = () => {
     setShowPaymentOptions(!showPaymentOptions);
   };
 
-  const handlePaymentSelection = (method) => {
+  // Function to generate ACash token automatically
+  const generateACashToken = async () => {
+    try {
+      const response = await secureApi.post("/auth/getToken", {
+        authuser: "userbizgo",
+        authkey: "bizgo2025"
+      });
+
+      if (response.data && response.data.token) {
+        sessionStorage.setItem("acash_token", response.data.token);
+        localStorage.setItem("acash_token", response.data.token); // Also store in localStorage
+        console.log("ACash token generated automatically");
+        return response.data.token;
+      } else {
+        console.error("Failed to generate ACash token");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error generating ACash token:", error.message);
+      return null;
+    }
+  };
+
+  const handlePaymentSelection = async (method) => {
     setPaymentMethod(method);
     
-    if (method === "cod") {
+    // Generate ACash token if ACash payment is selected
+    if (method === "acash") {
+      toast.info("Preparing ACash payment...");
+      // Generate token before redirecting
+      const tokenGenerated = await generateACashToken();
+      if (tokenGenerated) {
+        redirectToACashPayment();
+      } else {
+        toast.error("Failed to prepare ACash payment. Please try again.");
+      }
+    } else if (method === "cod") {
       processCashOnDelivery();
-    } else if (method === "acash") {
-      redirectToACashPayment();
     } else if (method === "paymongo") {
       redirectToPaymongoCheckout();
     }
@@ -307,7 +347,7 @@ export const PlaceOrder = () => {
         amount: totalAmount,
         deliveryFee: deliveryFee,
         address: formattedAddress,
-        status: "Pending",
+        status: "Cart Processing",
         userId: userId,
         riderId: riderId,
         markupValue: totalMarkupValue,
@@ -384,9 +424,8 @@ export const PlaceOrder = () => {
       localStorage.setItem("userData", JSON.stringify(data));
       localStorage.setItem("paymentMethod", "acash");
       
-      // Redirect to ACash payment gateway
-      // Replace with actual ACash payment URL
-      window.location.href = "http://localhost:3000/acash-payment?amount=" + 
+      // Redirect to ACash payment page
+      window.location.href = "/acashpayment?amount=" + 
         (getTotalCartAmount() + deliveryFee) + "&reference=" + referenceNumber;
       
       toast.success("Redirecting to ACash payment gateway...");

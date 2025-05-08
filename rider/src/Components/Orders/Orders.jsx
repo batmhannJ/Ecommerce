@@ -2,46 +2,42 @@ import React, { useState, useEffect } from "react";
 import "./Orders.css";
 import { toast } from "react-toastify";
 import parcel_icon from "../../assets/parcel_icon.png";
-import { io } from "socket.io-client"; // Import Socket.IO client
+import { io } from "socket.io-client";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [sortOption, setSortOption] = useState("newest");
-  const socket = io("http://localhost:4000"); // Connect to Socket.IO server
+  const socket = io("http://localhost:4000");
 
-  // Fetch all orders (transactions)
   const fetchAllOrders = async () => {
     try {
-      const response = await fetch("http://localhost:4000/api/transactions"); // Fetch transaction data
+      const response = await fetch("http://localhost:4000/api/transactions");
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
       const filteredOrders = data
         .filter((order) => order.status !== "pending")
-        .sort((a, b) => new Date(b.date) - new Date(a.date)); // Default sort from latest to oldest
-      setOrders(filteredOrders); // Ensure data is an array
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+      setOrders(filteredOrders);
     } catch (error) {
       console.error("Error fetching orders:", error);
       toast.error("Error fetching orders");
     }
   };
 
-  // Handle status change
   const statusHandler = async (event, transactionId) => {
     const newStatus = event.target.value;
-
-    // Show confirmation dialog before updating status
     if (window.confirm(`Are you sure you want to change the status to "${newStatus}"?`)) {
       try {
         const response = await fetch(
           `http://localhost:4000/api/transactions/${transactionId}`,
           {
-            method: "PATCH", // Using PATCH to update
+            method: "PATCH",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ status: newStatus }), // Send new status
+            body: JSON.stringify({ status: newStatus }),
           }
         );
 
@@ -49,7 +45,6 @@ const Orders = () => {
           throw new Error("Failed to update status");
         }
 
-        // Update local state to reflect the status change
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
             order.transactionId === transactionId
@@ -66,13 +61,12 @@ const Orders = () => {
     }
   };
 
-  // Handle sort change
   const handleSortChange = (event) => {
     const option = event.target.value;
     setSortOption(option);
-    
+
     let sortedOrders = [...orders];
-    
+
     switch (option) {
       case "newest":
         sortedOrders = sortedOrders.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -110,11 +104,10 @@ const Orders = () => {
       default:
         break;
     }
-    
+
     setOrders(sortedOrders);
   };
 
-  // Get status badge class
   const getStatusBadgeClass = (status) => {
     switch (status) {
       case "Cart Processing":
@@ -129,9 +122,8 @@ const Orders = () => {
   };
 
   useEffect(() => {
-    fetchAllOrders(); // Initial fetch of orders
+    fetchAllOrders();
 
-    // Listen for updates from the server via Socket.IO
     socket.on("orderUpdated", (updatedOrder) => {
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
@@ -142,21 +134,19 @@ const Orders = () => {
       );
     });
 
-    // Cleanup on component unmount
     return () => {
-      socket.disconnect(); // Disconnect the socket
+      socket.disconnect();
     };
-  }, []); // Empty dependency array to run only once on mount
+  }, []);
 
   return (
     <div className="container">
       <div className="order add">
-        <h3>Order Management</h3>
-        
-        {/* Sort controls */}
+        <h3>iSynergies Inc. - Orders</h3>
+
         <div className="sort-controls">
           <span className="sort-label">Sort by:</span>
-          <select 
+          <select
             className="sort-select"
             value={sortOption}
             onChange={handleSortChange}
@@ -170,8 +160,7 @@ const Orders = () => {
             <option value="delivered">Delivered First</option>
           </select>
         </div>
-        
-        {/* Order list - two column layout */}
+
         <div className="order-list">
           {orders.length === 0 ? (
             <div className="empty-orders">
@@ -183,20 +172,20 @@ const Orders = () => {
                 <div className="order-item-header">
                   <img src={parcel_icon} alt="parcel icon" />
                   <div>
-                    <p className="order-item-food">
-                      {order.item || "Unknown Item"}
-                    </p>
-                    <p className="order-item-name">
-                      {order.name || "Unknown User"}
-                    </p>
+                    <p>REF-{order.transactionId}</p>
                   </div>
                 </div>
-                
+
+                <div>
+                  <p className="order-item-food">{order.item || "Unknown Item"}</p>
+                  <p className="order-item-name">{order.name || "Unknown User"}</p>
+                </div>
+
                 <div className="order-item-address">
                   <p>{order.address || "Address Not Available"}</p>
                   <p>{order.contact || "No Phone Number"}</p>
                 </div>
-                
+
                 <div className="order-details">
                   <div className="order-detail-item">
                     <span className="detail-label">Quantity</span>
@@ -219,7 +208,7 @@ const Orders = () => {
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="order-status">
                   <select
                     onChange={(event) => statusHandler(event, order.transactionId)}

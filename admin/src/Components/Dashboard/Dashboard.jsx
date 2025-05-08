@@ -3,7 +3,7 @@ import './Dashboard.css';
 import { Bar, Pie, Line } from 'react-chartjs-2';
 import Chart from 'chart.js/auto';
 import html2canvas from 'html2canvas';
-import Plot from "react-plotly.js"; // Import Plotly
+import Plot from "react-plotly.js";
 
 export const Dashboard = () => {
   const [ribbonData, setRibbonData] = useState([]);
@@ -18,7 +18,6 @@ export const Dashboard = () => {
   const [salesGrowthRateData, setSalesGrowthRateData] = useState([]);
   const [topPurchasesProductData, setTopPurchasesProductData] = useState([]);
 
-  // All useEffect hooks remain unchanged
   useEffect(() => {
     const fetchRibbonData = async () => {
       try {
@@ -158,14 +157,17 @@ export const Dashboard = () => {
     fetchTopPurchasesProduct();
   }, []);
 
-  // Chart data preparation (unchanged)
   const salesByProduct = {
     labels: salesByProductData.length ? salesByProductData.map(item => item.product) : ['No data'],
     datasets: [
       {
         label: 'Sales by Product',
         data: salesByProductData.length ? salesByProductData.map(item => item.totalSales) : [0],
-        backgroundColor: '#ff6384',
+        backgroundColor: 'rgba(66, 153, 225, 0.7)',
+        borderColor: '#2b6cb0',
+        borderWidth: 1,
+        hoverBackgroundColor: 'rgba(66, 153, 225, 1)',
+        hoverBorderColor: '#2b6cb0',
       },
     ],
   };
@@ -176,7 +178,11 @@ export const Dashboard = () => {
       {
         label: 'Sales by Category',
         data: salesByCategoryData.map(item => item.totalSales),
-        backgroundColor: ['#ff6384', '#36a2eb', '#ffce56'],
+        backgroundColor: ['#ff6b6b', '#4dabf7', '#51cf66', '#ff922b'],
+        borderColor: ['#c53030', '#2b6cb0', '#2f9e44', '#e67700'],
+        borderWidth: 1,
+        hoverBackgroundColor: ['#ff8787', '#74c0fc', '#69db7c', '#ffa94d'],
+        hoverBorderColor: ['#c53030', '#2b6cb0', '#2f9e44', '#e67700'],
       },
     ],
   };
@@ -187,22 +193,65 @@ export const Dashboard = () => {
       {
         label: 'Sales Growth Rate',
         data: salesGrowthRateData.map(item => item.totalSales),
-        fill: false,
-        backgroundColor: 'rgba(75,192,192,0.4)',
-        borderColor: 'rgba(75,192,192,1)',
+        fill: true,
+        backgroundColor: 'rgba(80, 205, 137, 0.2)',
+        borderColor: '#2f9e44',
+        tension: 0.4,
+        pointBackgroundColor: '#2f9e44',
+        pointBorderColor: '#ffffff',
+        pointHoverBackgroundColor: '#ffffff',
+        pointHoverBorderColor: '#2f9e44',
       },
     ],
   };
 
-  const topPurchasesProduct = {
-    labels: topPurchasesProductData.length ? topPurchasesProductData.map(item => item.product) : ['No data'],
-    datasets: [
-      {
-        label: 'Top Purchases Product',
-        data: topPurchasesProductData.length ? topPurchasesProductData.map(item => item.totalPurchases) : [0],
-        backgroundColor: '#36a2eb',
+  const chartOptions = {
+    maintainAspectRatio: false,
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          font: {
+            family: 'Roboto',
+            size: 12,
+          },
+          color: '#4a5568',
+        },
       },
-    ],
+      tooltip: {
+        backgroundColor: '#1a202c',
+        titleFont: { family: 'Roboto', size: 14 },
+        bodyFont: { family: 'Roboto', size: 12 },
+        padding: 10,
+        cornerRadius: 4,
+      },
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { color: '#4a5568', font: { family: 'Roboto', size: 12 } },
+      },
+      y: {
+        grid: { color: '#e2e8f0' },
+        ticks: { color: '#4a5568', font: { family: 'Roboto', size: 12 } },
+      },
+    },
+  };
+
+  const horizontalBarOptions = {
+    ...chartOptions,
+    indexAxis: 'y',
+    scales: {
+      x: {
+        grid: { color: '#e2e8f0' },
+        ticks: { color: '#4a5568', font: { family: 'Roboto', size: 12 } },
+      },
+      y: {
+        grid: { display: false },
+        ticks: { color: '#4a5568', font: { family: 'Roboto', size: 12 } },
+      },
+    },
   };
 
   const getSalesChange = (currentSales, previousSales) => {
@@ -211,7 +260,6 @@ export const Dashboard = () => {
     return difference >= 0 ? `Increase of ${difference}` : `Decrease of ${Math.abs(difference)}`;
   };
 
-  // PDF generation function with corrected typo
   const generatePDF = async () => {
     const jsPDF = (await import("jspdf")).default;
     const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4", putOnlyUsedFonts: true });
@@ -374,48 +422,48 @@ export const Dashboard = () => {
   };
 
   return (
-    <div className="dashboard-container">
-      <header className="dashboard-header">
+    <div className="dash-container">
+      <header className="dash-header">
         <h1>BizGo Insights</h1>
-        <div className="action-buttons">
-          <button className="btn btn-pdf" onClick={generatePDF}>PDF</button>
-          <button className="btn btn-xlsx" onClick={generateXLSX}>XLSX</button>
+        <div className="dash-actions">
+          <button className="dash-btn dash-btn-pdf" onClick={generatePDF}>Export PDF</button>
+          <button className="dash-btn dash-btn-xlsx" onClick={generateXLSX}>Export XLSX</button>
         </div>
       </header>
-      <main className="dashboard-main">
-        <section className="metrics-section">
-          <div className="metric">
-            <span className="metric-label">Total Revenue</span>
-            <span className="metric-value">₱{totalRevenue}</span>
+      <main className="dash-main">
+        <section className="dash-metrics">
+          <div className="dash-metric">
+            <span className="dash-metric-label">Total Revenue</span>
+            <span className="dash-metric-value">₱{totalRevenue}</span>
           </div>
-          <div className="metric">
-            <span className="metric-label">Avg. Order Value</span>
-            <span className="metric-value">
+          <div className="dash-metric">
+            <span className="dash-metric-label">Avg. Order Value</span>
+            <span className="dash-metric-value">
               {salesData.avgOrderValue ? `₱${salesData.avgOrderValue.toFixed(2)}` : '₱0.00'}
             </span>
           </div>
-          <div className="metric">
-            <span className="metric-label">Top Product</span>
-            <span className="metric-value">{salesData.mostProducedProduct || 'N/A'}</span>
+          <div className="dash-metric">
+            <span className="dash-metric-label">Top Product</span>
+            <span className="dash-metric-value">{salesData.mostProducedProduct || 'N/A'}</span>
           </div>
         </section>
-        <section className="charts-section">
-          <div className="chart">
+        <section className="dash-charts">
+          <div className="dash-chart">
             <h2>Sales Growth</h2>
-            <div className="chart-content">
-              <Line data={salesGrowthRate} options={{ maintainAspectRatio: false }} />
+            <div className="dash-chart-content">
+              <Line data={salesGrowthRate} options={chartOptions} />
             </div>
           </div>
-          <div className="chart">
-            <h2>By Category</h2>
-            <div className="chart-content">
-              <Pie data={salesByCategory} options={{ maintainAspectRatio: false }} />
+          <div className="dash-chart">
+            <h2>Sales by Category</h2>
+            <div className="dash-chart-content">
+              <Pie data={salesByCategory} options={chartOptions} />
             </div>
           </div>
-          <div className="chart chart-wide">
-            <h2>By Product</h2>
-            <div className="chart-content">
-              <Bar data={salesByProduct} options={{ maintainAspectRatio: false }} />
+          <div className="dash-chart dash-chart-wide">
+            <h2>Sales by Product</h2>
+            <div className="dash-chart-content">
+              <Bar data={salesByProduct} options={horizontalBarOptions} />
             </div>
           </div>
         </section>

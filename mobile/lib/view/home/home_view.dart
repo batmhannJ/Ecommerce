@@ -156,7 +156,7 @@ class _HomeViewState extends State<HomeView> {
                         ),
                       ),
                       isLabelVisible: uniqueItemCount > 0,
-                      backgroundColor: const Color(0xFFFFAB91),
+                      backgroundColor: const Color(0xFFE08600),
                       largeSize: 18,
                       padding: const EdgeInsets.symmetric(horizontal: 6),
                       offset: const Offset(10, -10),
@@ -187,7 +187,7 @@ class _HomeViewState extends State<HomeView> {
                         ),
                       ),
                       isLabelVisible: uniqueItemCount > 0,
-                      backgroundColor: const Color(0xFFFFAB91),
+                      backgroundColor: const Color(0xFFE08600),
                       largeSize: 18,
                       padding: const EdgeInsets.symmetric(horizontal: 6),
                       offset: const Offset(10, -10),
@@ -225,10 +225,10 @@ class _HomeViewState extends State<HomeView> {
           ],
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
-          selectedItemColor: const Color(0xFFffccbc),
+          selectedItemColor: const Color(0xFFE08600),
           unselectedItemColor: Colors.grey[600],
           selectedIconTheme: const IconThemeData(
-            color: Color(0xFFffccbc),
+            color: Color(0xFFE08600),
             size: 28,
           ),
           unselectedIconTheme: const IconThemeData(
@@ -284,7 +284,7 @@ class _HomeScreenTabsState extends State<HomeScreenTabs> {
           slivers: [
             SliverToBoxAdapter(
               child: Container(
-                color: const Color(0xFFffccbc),
+                color: const Color(0xFFE08600),
                 padding: const EdgeInsets.only(top: 20, bottom: 10, left: 16, right: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -329,10 +329,10 @@ class _HomeScreenTabsState extends State<HomeScreenTabs> {
                     _buildTab("Crafts", Icons.brush_rounded, 3),
                     _buildTab("Clothes", Icons.shopping_bag_rounded, 4),
                   ],
-                  labelColor: const Color(0xFFFFAB91),
+                  labelColor: const Color(0xFFE08600),
                   unselectedLabelColor: Colors.grey[600],
                   indicator: BoxDecoration(
-                    color: const Color(0xFFFFAB91).withOpacity(0.1),
+                    color: const Color(0xFFE08600).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   indicatorPadding: const EdgeInsets.symmetric(vertical: 4),
